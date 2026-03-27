@@ -3,8 +3,9 @@ import time
 
 from domain.Session import Session
 
+conn = sqlite3.connect('ecu_data.db')
+
 def create_session(description="Test Session"):
-    conn = sqlite3.connect('ecu_data.db')
     cursor = conn.cursor()
 
     start_time = time.time()

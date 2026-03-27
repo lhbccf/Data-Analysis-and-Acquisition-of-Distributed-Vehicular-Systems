@@ -7,33 +7,33 @@ def database_setup():
     # Sessions table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS sessions (
-        id int generated always as identity primary key,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         start_time bigint not null,
         end_time bigint,
-        description varchar(256),
+        description varchar(256)
     )
     ''')
 
     # Raw CAN frames table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS can_frames (
-        id int generated always as identity primary key,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         session_id int references sessions(id),
         timestamp bigint not null,
         can_id bigint not null,
         dlc bigint,
-        data varchar(256),
+        data varchar(256)
     )
     ''')
 
     # Decoded signals table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS signals (
-        id int generated always as identity primary key,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         frame_id int references can_frames(id),
         signal_name varchar(256),
         value bigint,
-        unit varchar(256),
+        unit varchar(256)
     )
     ''')
 
