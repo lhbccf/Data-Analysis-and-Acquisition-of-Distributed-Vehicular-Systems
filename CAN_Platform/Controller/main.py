@@ -30,8 +30,9 @@ def command_request():
                 session_id = int(input("Enter session ID: "))
                 RequestController.end_session(session_id=session_id),
             case "close_database": RequestController.close_database(),
-            case "cleanup": database_manager.database_cleanup,
-            case "teardown": database_manager.database_teardown
+            case "create_database": database_manager.database_setup(),
+            case "cleanup": database_manager.database_cleanup(),
+            case "teardown": database_manager.database_teardown()
             case "help": 
                 print("Available commands:" \
                 "\n start_session," \
