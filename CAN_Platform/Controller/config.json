@@ -1,0 +1,7 @@
+{
+    "type": "speeduino_arduino",
+    "com": "/dev/ttyUSB0",
+    "baud_rate": 115200,
+    "command": "a",
+    "mode": "test"
+}
