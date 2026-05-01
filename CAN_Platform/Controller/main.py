@@ -2,6 +2,8 @@ import sys
 import json
 from queue import Queue
 from PyQt5 import QtWidgets
+from transmitter.bluetooth_transmitter import BLEServer
+from controller.RequestController import RequestController
 
 from Producer.thread import start_producer
 from UI.App import App
@@ -9,8 +11,7 @@ from UI.App import App
 
 def load_config(path="config.json"):
     with open(path, "r") as f:
-        return json.load(f)
-
+        return json.load(f) 
 
 def main():
     config = load_config()
