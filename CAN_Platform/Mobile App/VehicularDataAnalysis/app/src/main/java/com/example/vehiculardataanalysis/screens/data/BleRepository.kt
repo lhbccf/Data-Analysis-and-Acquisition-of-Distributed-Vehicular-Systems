@@ -1,38 +1,28 @@
 package com.example.vehiculardataanalysis.screens.data
 
-import com.example.vehiculardataanalysis.domain.CanData
+import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import androidx.annotation.RequiresPermission
+import com.example.bleapp.data.BleManager
+import com.example.vehiculardataanalysis.domain.Device
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
-class BleRepository(private val bleManager: BleManager) {
+class BleRepository(
+    private val manager: BleManager
+) {
 
-    val canData: Flow<CanData> = bleManager.dataFlow.map { raw ->
-        parse(raw)
+    val scannedDevices: Flow<List<Device>> = manager.devicesFlow
+
+    // CanData Future Change
+    val canData: Flow<String> = manager.dataFlow
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
+    fun startScan(adapter: BluetoothAdapter) {
+        manager.startScan(adapter)
     }
 
-    private fun parse(raw: String): CanData {
-        // Example: "RPM:3000|TEMP:90|AFR:14.7"
-        val parts = raw.split("|")
-
-        var rpm: Int? = null
-        var temp: Float? = null
-        var afr: Float? = null
-
-        parts.forEach {
-            val kv = it.split(":")
-            if (kv.size == 2) {
-                when (kv[0]) {
-                    "RPM" -> rpm = kv[1].toIntOrNull()
-                    "TEMP" -> temp = kv[1].toFloatOrNull()
-                    "AFR" -> afr = kv[1].toFloatOrNull()
-                }
-            }
-        }
-
-        return CanData(rpm, temp, afr, raw)
-    }
-
-    fun start(adapter: android.bluetooth.BluetoothAdapter) {
-        bleManager.startScan(adapter)
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun connectToDevice(device: Device) {
+        manager.connect(device)
     }
 }

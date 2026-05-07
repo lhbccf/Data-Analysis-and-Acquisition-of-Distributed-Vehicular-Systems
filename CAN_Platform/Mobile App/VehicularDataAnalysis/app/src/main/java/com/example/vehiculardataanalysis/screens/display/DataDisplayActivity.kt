@@ -2,23 +2,31 @@ package com.example.vehiculardataanalysis.screens.display
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.vehiculardataanalysis.ui.BaseActivity
 import com.example.vehiculardataanalysis.ui.theme.VehicularDataAnalysisTheme
 
-class DataDisplayActivity : BaseActivity() {
-
+class DataDisplayActivity: BaseActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
         setContent {
             VehicularDataAnalysisTheme {
-
+                DataDisplayScreen()
             }
         }
     }
 
     override fun backPressed() {
         finish()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DataPreview() {
+    VehicularDataAnalysisTheme {
+        DataDisplayScreen()
     }
 }

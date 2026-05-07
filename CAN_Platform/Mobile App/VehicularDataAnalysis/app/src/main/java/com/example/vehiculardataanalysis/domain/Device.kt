@@ -5,3 +5,8 @@ data class DeviceUi(
     val mac: String,
     val tags: List<String>
 )
+
+data class Device(
+    val name: String,
+    val address: String
+)

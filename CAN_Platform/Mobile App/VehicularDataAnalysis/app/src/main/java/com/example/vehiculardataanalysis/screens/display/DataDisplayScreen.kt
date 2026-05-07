@@ -1,50 +1,75 @@
 package com.example.vehiculardataanalysis.screens.display
 
-import android.bluetooth.BluetoothManager
-import android.content.Context
+import android.bluetooth.BluetoothAdapter
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.vehiculardataanalysis.R
 import com.example.vehiculardataanalysis.components.DeviceSection
 import com.example.vehiculardataanalysis.components.SignalSection
 import com.example.vehiculardataanalysis.domain.DeviceUi
+import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: DataDisplayViewModel) {
+fun DataDisplayScreen (
 
-    val state by viewModel.uiState.collectAsState()
-
-    val context = LocalContext.current
-    val bluetoothManager =
-        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    val adapter = bluetoothManager.adapter
-
-    Column {
-
-        Button(onClick = { viewModel.start(adapter) }) {
-            Text("Connect")
-        }
-
-        DeviceSection(
-            devices = listOf(
-                DeviceUi(
-                    name = "MyPiBLE",
-                    mac = "C7:30:...",
-                    tags = listOf("CAN", "BLE")
+){
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text(stringResource(R.string.app_name), fontSize = 28.sp) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
                 )
-            ),
-            onClick = {}
-        )
+            )}) { innerPadding ->
+        Column(modifier = Modifier
+            .padding(innerPadding)
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally)
+        {
 
-        SignalSection(
-            title = "RPM",
-            value = state.rpm.toFloat(),
-            range = 0f..9000f,
-            unit = "RPM"
-        )
+            SignalSection(
+                title = "RPM",
+                value = 2000f,
+                range = 0f..9000f,
+                unit = "RPM"
+            )
+            SignalSection(
+                title = "Coolant",
+                value = 40f,
+                range = -40f..140f,
+                unit = "ºC"
+            )
+            SignalSection(
+                title = "TPS",
+                value = 90f,
+                range = 0f..100f,
+                unit = "V"
+            )
+        }
     }
 }

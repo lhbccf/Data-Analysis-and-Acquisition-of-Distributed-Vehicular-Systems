@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -29,11 +30,14 @@ fun SignalSection(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
         shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
 
-            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(title, color = MaterialTheme.colorScheme.onSurface)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -47,15 +51,15 @@ fun SignalSection(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("${range.start.toInt()}")
-                Text("${range.endInclusive.toInt()}")
+                Text("${range.start.toInt()}", color = MaterialTheme.colorScheme.onSurface)
+                Text("${range.endInclusive.toInt()}", color = MaterialTheme.colorScheme.onSurface)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = "${value.toInt()} $unit",
-                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }

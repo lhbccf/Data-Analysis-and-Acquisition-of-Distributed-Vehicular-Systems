@@ -33,12 +33,12 @@ fun DeviceCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(text = name, style = MaterialTheme.typography.titleMedium)
+            Text(text = name, color = MaterialTheme.colorScheme.onSurface)
 
             Text(
                 text = mac,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Row(modifier = Modifier.padding(top = 8.dp)) {

@@ -4,8 +4,7 @@
 
     <!-- Bluetooth feature permissions -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
-        android:usesPermissionFlags="neverForLocation"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -21,7 +20,7 @@
         android:theme="@style/Theme.VehicularDataAnalysis"
         android:name=".VehicularApplication">
         <activity
-            android:name=".screens.MainActivity"
+            android:name=".screens.menu.MenuActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.VehicularDataAnalysis">
@@ -30,6 +29,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".screens.about.AboutActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VehicularDataAnalysis" />
+        <activity
+            android:name=".screens.display.DataDisplayActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VehicularDataAnalysis" />
+        <activity
+            android:name=".ui.BaseActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VehicularDataAnalysis" />
+        <activity
+            android:name=".ui.BaseViewModelActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VehicularDataAnalysis" />
     </application>
 
 </manifest>
