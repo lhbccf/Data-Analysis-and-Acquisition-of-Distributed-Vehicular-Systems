@@ -13,16 +13,16 @@ def load_config(path="config.json"):
 
 
 def main():
-    config = load_config()
-    data_queue = Queue()
+	config = load_config()
+	data_queue = Queue()
+	print(config)
+	start_producer(config, data_queue)
 
-    start_producer(config, data_queue)
+	app = QtWidgets.QApplication(sys.argv)
+	window = App(data_queue)
+	window.show()
 
-    app = QtWidgets.QApplication(sys.argv)
-    window = App(data_queue)
-    window.show()
-
-    sys.exit(app.exec_())
+	sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

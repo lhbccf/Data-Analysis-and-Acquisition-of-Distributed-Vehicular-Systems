@@ -7,6 +7,7 @@ source venv/bin/activate
 pip install pyqtgraph
 pip install pyserial 
 pip install cantools
+
 echo "Setup completo!"
 
-python main.py
+python test_can.py
