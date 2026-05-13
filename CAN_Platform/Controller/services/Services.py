@@ -1,10 +1,11 @@
-from repository import SessionRepo, CANFrameRepo, SignalRepo
+from repository import SessionRepo, CANFrameRepo, SignalRepo, StateRepo
 
 def close_database():
     SessionRepo.conn.close()
     CANFrameRepo.conn.close()
     SignalRepo.conn.close()
-
+	StateRepo.conn.close()
+	
 def create_session(description: str):
     return SessionRepo.create_session(description=description)
 
@@ -19,3 +20,23 @@ def end_session(session_id: int):
 
 def clear_session_frames(session_id: int):
     SessionRepo.clear_session_frames(session_id=session_id)
+
+def create_vehicle_state(state: dict):
+
+	return VehicleStateRepo.create_vehicle_state(
+		state=state
+	)
+
+def get_latest_vehicle_state():
+
+    return VehicleStateRepo.get_latest_vehicle_state()
+
+
+def get_all_vehicle_states():
+
+    return VehicleStateRepo.get_all_vehicle_states()
+
+
+def delete_all_vehicle_states():
+
+    VehicleStateRepo.delete_all_vehicle_states()
