@@ -29,17 +29,17 @@ fun SignalSection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
 
             Text(title, color = MaterialTheme.colorScheme.onSurface)
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Slider(
                 value = value,
@@ -55,7 +55,7 @@ fun SignalSection(
                 Text("${range.endInclusive.toInt()}", color = MaterialTheme.colorScheme.onSurface)
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = "${value.toInt()} $unit",

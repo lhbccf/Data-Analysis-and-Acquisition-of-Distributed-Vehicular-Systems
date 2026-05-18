@@ -70,6 +70,42 @@ fun DataDisplayScreen (
                 range = 0f..100f,
                 unit = "V"
             )
+            SignalSection(
+                title = "MAP",
+                value = 75f,
+                range = 0f..300f,
+                unit = "Pressure"
+            )
+            SignalSection(
+                title = "Air-Fuel Ratio",
+                value = 14.5f,
+                range = 10f..20f,
+                unit = "Ratio"
+            )
+            SignalSection(
+                title = "Battery",
+                value = 12.5f,
+                range = 8f..18f,
+                unit = "Ah"
+            )
+            SignalSection(
+                title = "Dwell",
+                value = 20f,
+                range = 0f..180f,
+                unit = "º"
+            )
+            SignalSection(
+                title = "Coolant",
+                value = 40f,
+                range = -40f..140f,
+                unit = "ºC"
+            )
+            SignalSection(
+                title = "Timing",
+                value = 90f,
+                range = 0f..180f,
+                unit = "º"
+            )
         }
     }
 }
