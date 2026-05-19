@@ -6,20 +6,22 @@ import android.bluetooth.BluetoothAdapter
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.vehiculardataanalysis.domain.CanData
 import com.example.vehiculardataanalysis.domain.Device
 import com.example.vehiculardataanalysis.screens.data.BleRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 data class MainUiState(
-    val data: String = ""
-    /**
     val rpm: Int = 0,
     val temp: Float = 0f,
     val afr: Float = 0f,
-    val raw: String = "Waiting...",
-    val isConnected: Boolean = false
-    **/
+    val tps: Float = 0f,
+    val map: Float = 0f,
+    val battery: Float = 0f,
+    val dwell: Float = 0f,
+    val timing: Float = 0f,
+    val raw: String = "Waiting for data..."
 )
 
 class BleViewModel(
@@ -34,18 +36,15 @@ class BleViewModel(
         repository.startScan(adapter)
 
         viewModelScope.launch {
-            repository.canData.collect { data ->
+            repository.canData.collect { rawData ->
+                val parsed = parseCanData(rawData)
                 _uiState.update {
-                    /**
                     it.copy(
-                        rpm = data.rpm ?: 0,
-                        temp = data.temp ?: 0f,
-                        afr = data.afr ?: 0f,
-                        raw = data.raw,
-                        isConnected = true
+                        rpm = parsed.rpm ?: 0,
+                        temp = parsed.temp ?: 0f,
+                        afr = parsed.afr ?: 0f,
+                        raw = rawData
                     )
-                    **/
-                    it.copy(data = data)
                 }
             }
         }
@@ -54,5 +53,19 @@ class BleViewModel(
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun connect(device: Device) {
         repository.connectToDevice(device)
+    }
+
+    private fun parseCanData(rawData: String): CanData {
+        return try {
+            val parts = rawData.split(",").map { it.trim() }
+            CanData(
+                rpm = parts.getOrNull(0)?.toIntOrNull(),
+                temp = parts.getOrNull(1)?.toFloatOrNull(),
+                afr = parts.getOrNull(2)?.toFloatOrNull(),
+                raw = rawData
+            )
+        } catch (e: Exception) {
+            CanData(raw = rawData)
+        }
     }
 }

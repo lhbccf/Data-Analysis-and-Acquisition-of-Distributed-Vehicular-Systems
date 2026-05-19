@@ -40,8 +40,27 @@ class BleManager(private val context: Context) {
 
     private var gatt: BluetoothGatt? = null
 
-    // Prevent duplicates
+    // Prevent duplicates - keeps all devices found
     private val foundDevices = mutableMapOf<String, Device>()
+
+    init {
+        // Load bonded devices on initialization
+        loadBondedDevices()
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private fun loadBondedDevices() {
+        try {
+            adapter.bondedDevices.forEach { device ->
+                val bleDevice = Device(device.name ?: "Unknown", device.address)
+                foundDevices[device.address] = bleDevice
+            }
+            _devicesFlow.value = foundDevices.values.toList()
+            Log.d(TAG, "Loaded ${foundDevices.size} bonded devices")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading bonded devices", e)
+        }
+    }
 
     // --------------------------------------------------
     // 🔍 SCAN
@@ -49,11 +68,7 @@ class BleManager(private val context: Context) {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     fun startScan(adapter: BluetoothAdapter) {
-        foundDevices.clear()
-        _devicesFlow.value = emptyList()
-
-        Log.d(TAG, "Starting BLE scan")
-
+        Log.d(TAG, "Starting BLE scan (preserving ${foundDevices.size} existing devices)")
         scanner.startScan(scanCallback)
     }
 
@@ -130,6 +145,7 @@ class BleManager(private val context: Context) {
             }
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onServicesDiscovered(
             gatt: BluetoothGatt,
             status: Int
@@ -142,6 +158,14 @@ class BleManager(private val context: Context) {
             if (characteristic == null) {
                 Log.e(TAG, "Characteristic not found")
                 return
+            }
+
+            gatt.setCharacteristicNotification(characteristic, true)
+
+            val descriptor = characteristic.getDescriptor(CCCD_UUID)
+            if (descriptor != null) {
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                gatt.writeDescriptor(descriptor)
             }
         }
 

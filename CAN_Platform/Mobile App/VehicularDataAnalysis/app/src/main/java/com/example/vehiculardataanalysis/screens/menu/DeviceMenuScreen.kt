@@ -19,19 +19,20 @@ import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuScreen(
+fun DeviceMenuScreen(
+    deviceAddress: String = "Unknown",
+    deviceName: String = "Unknown Device",
     viewModel: BleViewModel,
     adapter: BluetoothAdapter,
     scannedDevices: List<Device> = emptyList(),
-    onDeviceSelected: (DeviceUi) -> Unit,
-    onAboutRequested: () -> Unit
+    onLiveDataSelected: () -> Unit,
 ) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.app_name), fontSize = 28.sp) },
+                title = { Text(deviceName, fontSize = 28.sp) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -48,35 +49,13 @@ fun MenuScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Convert scanned Device objects to DeviceUi for display
-            val deviceUiList = mutableListOf(DeviceUi(
-                name = "Test Device",
-                mac = "0000:0000:0000:0000",
-                tags = listOf("Test")
-            ))
-
-            scannedDevices.forEach { device ->
-                deviceUiList.add(
-                    DeviceUi(
-                        name = device.name,
-                        mac = device.address,
-                        tags = listOf("BLE")
-                    )
-                )
-            }
-
-
-            DeviceSection(
-                devices = deviceUiList,
-                onClick = onDeviceSelected
-            )
 
             Button(
                 modifier = Modifier
                     .padding(innerPadding),
-                onClick = onAboutRequested
+                onClick = onLiveDataSelected
             ) {
-                Text("About")
+                Text("Live Data")
             }
         }
     }

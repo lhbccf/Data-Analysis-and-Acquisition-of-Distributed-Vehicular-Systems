@@ -4,6 +4,8 @@
 
     <!-- Bluetooth feature permissions -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -31,6 +33,11 @@
         </activity>
         <activity
             android:name=".screens.about.AboutActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VehicularDataAnalysis" />
+        <activity
+            android:name=".screens.menu.DeviceMenuActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.VehicularDataAnalysis" />

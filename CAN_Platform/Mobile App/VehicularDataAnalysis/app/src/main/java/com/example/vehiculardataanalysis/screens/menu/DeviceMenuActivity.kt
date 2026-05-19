@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.example.bleapp.ui.menu.DeviceMenuScreen
 import com.example.bleapp.ui.menu.MenuScreen
 import com.example.vehiculardataanalysis.DependencyContainer
 import com.example.vehiculardataanalysis.domain.Device
@@ -22,19 +23,24 @@ import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 import com.example.vehiculardataanalysis.ui.BaseActivity
 import com.example.vehiculardataanalysis.ui.theme.VehicularDataAnalysisTheme
 
-class MenuActivity : BaseActivity() {
+class DeviceMenuActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "MenuActivity"
         private const val PERMISSION_REQUEST_CODE = 1001
     }
 
+    private var deviceAddress = "Unknown"
+    private var deviceName = "Unknown Device"
     private var viewModel: BleViewModel? = null
     private var adapter: android.bluetooth.BluetoothAdapter? = null
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        deviceAddress = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
+        deviceName = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
 
         val bluetoothManager =
             getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -88,17 +94,18 @@ class MenuActivity : BaseActivity() {
                 val repository = container.bleRepository
                 val scannedDevices = repository.scannedDevices.collectAsState(initial = emptyList()).value
 
-                MenuScreen(
+                DeviceMenuScreen(
+                    deviceAddress = deviceAddress,
+                    deviceName = deviceName,
                     viewModel = viewModel!!,
                     adapter = adapter!!,
                     scannedDevices = scannedDevices,
-                    onDeviceSelected = { device ->
-                        navigate<DeviceMenuActivity> {
-                            it.putExtra("DEVICE_ADDRESS", device.mac)
-                            it.putExtra("DEVICE_NAME", device.name)
+                    onLiveDataSelected = {
+                        navigate<DataDisplayActivity> {
+                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
+                            it.putExtra("DEVICE_NAME", deviceName)
                         }
                     },
-                    onAboutRequested = { navigate<AboutActivity>() }
                 )
             }
         }
