@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' /home/isel/Desktop/projeto/Data-Analysis-and-Acquisition-of-Distributed-Vehicular-Systems/CAN_Platform/Controller/venv/bin/python3 "$0" "$@"
+'''exec' /home/goncalo/Desktop/Data-Analysis-and-Acquisition-of-Distributed-Vehicular-Systems/CAN_Platform/Controller/venv/bin/python3 "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

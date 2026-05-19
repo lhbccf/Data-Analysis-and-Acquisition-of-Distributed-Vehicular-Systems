@@ -6,6 +6,14 @@ import random
 import json
 import struct
 import cantools
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(threadName)s] %(levelname)s: %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 
 # =========================================================
@@ -79,7 +87,7 @@ def load_dbc(path):
 
     db = cantools.database.load_file(path)
 
-    print(f"DBC loaded: {path}")
+    logger.info(f"DBC loaded: {path}")
 
     return db
 
@@ -385,7 +393,7 @@ def can_reader(config, data_queue):
     # enable GVRET binary mode
     ser.write(bytes([0xE7]))
 
-    print("GVRET binary mode enabled")
+    logger.info("GVRET binary mode enabled")
 
     while True:
 
@@ -402,7 +410,7 @@ def can_reader(config, data_queue):
 
         except Exception as e:
 
-            print(f"CAN ERROR: {e}")
+            logger.info(f"CAN ERROR: {e}")
 
             time.sleep(1)
 
@@ -473,7 +481,7 @@ def speeduino_reader(config, data_queue):
 
         except Exception as e:
 
-            print(f"SPEEDUINO ERROR: {e}")
+            logger.info(f"SPEEDUINO ERROR: {e}")
 
             time.sleep(1)
 
@@ -526,7 +534,7 @@ def start_producer(config, data_queue):
 
         thread.start()
 
-        print("Speeduino thread started")
+        logger.info("Speeduino thread started")
 
         return thread
 
@@ -540,7 +548,7 @@ def start_producer(config, data_queue):
 
         thread.start()
 
-        print("CAN/GVRET thread started")
+        logger.info("CAN/GVRET thread started")
 
         return thread
 

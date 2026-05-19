@@ -1,7 +1,10 @@
 {
     "type": "rusefi_can",
+    "mode": "nextion",
     "com": "/dev/ttyACM0",
     "baud_rate": 2000000,
     "command": "a",
-    "dbc": "./rusefi.dbc"
+    "dbc": "./rusefi.dbc",
+    "nextion_port": "/dev/serial0",
+    "nextion_baud": 115200
 }
