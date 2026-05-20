@@ -24,11 +24,13 @@ class DataDisplayActivity: BaseActivity(){
     companion object {
         private const val TAG = "DataDisplayActivity"
         private const val PERMISSION_REQUEST_CODE = 1002
+        private const val TEST_DEVICE_MAC = "AA:BB:CC:DD:EE:FF"
     }
 
     private var deviceAddress = "Unknown"
     private var deviceName = "Unknown Device"
     private var viewModel: BleViewModel? = null
+    private var isTestDevice = false
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +38,9 @@ class DataDisplayActivity: BaseActivity(){
         
         deviceAddress = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
         deviceName = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
+
+        // Check if this is the test device
+        isTestDevice = deviceAddress == TEST_DEVICE_MAC
 
         val bluetoothManager =
             getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -84,16 +89,23 @@ class DataDisplayActivity: BaseActivity(){
             return
         }
 
-        /*val device = Device(deviceName, deviceAddress)
-        viewModel!!.connect(device)
-        viewModel!!.start(adapter)*/
+        // Only connect if it's NOT the test device
+        if (!isTestDevice) {
+            val device = Device(deviceName, deviceAddress)
+            viewModel!!.connect(device)
+            viewModel!!.start(adapter)
+        } else {
+            // Test device - start mock data generation
+            viewModel!!.startMockData()
+        }
 
         setContent {
             VehicularDataAnalysisTheme {
                 DataDisplayScreen(
                     deviceAddress = deviceAddress,
                     deviceName = deviceName,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    isTestDevice = isTestDevice
                 )
             }
         }

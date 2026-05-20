@@ -9,8 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.vehiculardataanalysis.domain.CanData
 import com.example.vehiculardataanalysis.domain.Device
 import com.example.vehiculardataanalysis.screens.data.BleRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 data class MainUiState(
     val rpm: Int = 0,
@@ -53,6 +55,49 @@ class BleViewModel(
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun connect(device: Device) {
         repository.connectToDevice(device)
+    }
+
+    fun startMockData() {
+        // Initialize mock sensor values
+        var currentRpm = 2000
+        var currentTemp = 80f
+        var currentAfr = 14.2f
+        var currentTps = 15f
+        var currentMap = 50f
+        var currentBattery = 12.5f
+        var currentDwell = 5f
+        var currentTiming = 10f
+
+        viewModelScope.launch {
+            while (true) {
+                // Update frequency
+                delay(200)
+                
+                // Simulate realistic incremental changes (not random jumps)
+                currentRpm = (currentRpm + Random.nextInt(-150, 150)).coerceIn(1000, 8000)
+                currentTemp = (currentTemp + Random.nextFloat() * 0.4f - 0.2f).coerceIn(50f, 120f)
+                currentAfr = (currentAfr + Random.nextFloat() * 0.1f - 0.05f).coerceIn(10f, 20f)
+                currentTps = (currentTps + Random.nextFloat() * 3f - 1.5f).coerceIn(0f, 100f)
+                currentMap = (currentMap + Random.nextFloat() * 5f - 2.5f).coerceIn(0f, 300f)
+                currentBattery = (currentBattery + Random.nextFloat() * 0.04f - 0.02f).coerceIn(8f, 18f)
+                currentDwell = (currentDwell + Random.nextFloat() * 2f - 1f).coerceIn(0f, 180f)
+                currentTiming = (currentTiming + Random.nextFloat() * 1.5f - 0.75f).coerceIn(0f, 180f)
+
+                _uiState.update {
+                    it.copy(
+                        rpm = currentRpm,
+                        temp = currentTemp,
+                        afr = currentAfr,
+                        tps = currentTps,
+                        map = currentMap,
+                        battery = currentBattery,
+                        dwell = currentDwell,
+                        timing = currentTiming,
+                        raw = "$currentRpm,$currentTemp,$currentAfr,$currentTps,$currentMap,$currentBattery,$currentDwell,$currentTiming"
+                    )
+                }
+            }
+        }
     }
 
     private fun parseCanData(rawData: String): CanData {

@@ -58,7 +58,7 @@ fun SignalSection(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${value.toInt()} $unit",
+                text = "%.2f".format(value) + " $unit",
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )

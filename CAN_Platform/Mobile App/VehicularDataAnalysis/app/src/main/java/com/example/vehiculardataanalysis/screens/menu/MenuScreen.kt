@@ -48,12 +48,15 @@ fun MenuScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            // Convert scanned Device objects to DeviceUi for display
-            val deviceUiList = mutableListOf(DeviceUi(
+            // Test Device option
+            val testDeviceUi = DeviceUi(
                 name = "Test Device",
-                mac = "0000:0000:0000:0000",
-                tags = listOf("Test")
-            ))
+                mac = "AA:BB:CC:DD:EE:FF",
+                tags = listOf("Mock")
+            )
+
+            // Convert scanned Device objects to DeviceUi for display
+            val deviceUiList = mutableListOf(testDeviceUi)
 
             scannedDevices.forEach { device ->
                 deviceUiList.add(

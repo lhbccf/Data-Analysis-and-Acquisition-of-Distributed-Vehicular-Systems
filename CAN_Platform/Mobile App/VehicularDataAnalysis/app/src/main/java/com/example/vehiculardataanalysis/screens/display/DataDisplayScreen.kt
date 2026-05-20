@@ -37,7 +37,8 @@ import com.example.vehiculardataanalysis.screens.viewmodel.MainUiState
 fun DataDisplayScreen (
     deviceAddress: String = "Unknown",
     deviceName: String = "Unknown Device",
-    viewModel: BleViewModel? = null
+    viewModel: BleViewModel? = null,
+    isTestDevice: Boolean = false
 ){
     val state = viewModel?.uiState?.collectAsState()?.value
         ?: MainUiState()
@@ -45,7 +46,7 @@ fun DataDisplayScreen (
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("$deviceName - Live Data", fontSize = 20.sp) },
+                title = { Text("$deviceName${if(isTestDevice) " (Mock)" else ""} - Live Data", fontSize = 20.sp) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -112,7 +113,7 @@ fun DataDisplayScreen (
                 text = "Raw Data: ${state.raw}",
                 modifier = Modifier.padding(16.dp),
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 12.sp
+                fontSize = 8.sp
             )
         }
     }
