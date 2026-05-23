@@ -105,7 +105,8 @@ class DataDisplayActivity: BaseActivity(){
                     deviceAddress = deviceAddress,
                     deviceName = deviceName,
                     viewModel = viewModel,
-                    isTestDevice = isTestDevice
+                    isTestDevice = isTestDevice,
+                    onBackPressed = { finish() }
                 )
             }
         }

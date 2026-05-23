@@ -38,7 +38,7 @@ import com.example.vehiculardataanalysis.screens.viewmodel.MainUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DataDisplayScreen (
+fun StatsDisplayScreen (
     deviceAddress: String = "Unknown",
     deviceName: String = "Unknown Device",
     viewModel: BleViewModel? = null,
@@ -60,7 +60,7 @@ fun DataDisplayScreen (
                         )
                     }
                 },
-                title = { Text("$deviceName${if(isTestDevice) " (Mock)" else ""} - Live Data", fontSize = 20.sp) },
+                title = { Text("$deviceName${if(isTestDevice) " (Mock)" else ""} - Statistics", fontSize = 20.sp) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,

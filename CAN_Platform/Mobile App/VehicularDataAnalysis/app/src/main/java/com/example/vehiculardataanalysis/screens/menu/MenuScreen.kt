@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,7 +33,15 @@ fun MenuScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.app_name), fontSize = 28.sp) },
+                title = { Text(stringResource(R.string.app_name), fontSize = 24.sp) },
+                actions = {
+                    IconButton(onClick = onAboutRequested) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Information"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -74,13 +84,6 @@ fun MenuScreen(
                 onClick = onDeviceSelected
             )
 
-            Button(
-                modifier = Modifier
-                    .padding(innerPadding),
-                onClick = onAboutRequested
-            ) {
-                Text("About")
-            }
         }
     }
 }

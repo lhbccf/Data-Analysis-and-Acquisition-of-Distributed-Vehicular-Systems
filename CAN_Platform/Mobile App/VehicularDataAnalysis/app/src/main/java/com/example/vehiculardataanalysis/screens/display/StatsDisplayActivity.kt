@@ -1,59 +1,59 @@
-package com.example.vehiculardataanalysis.screens.menu
-
+package com.example.vehiculardataanalysis.screens.display
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.bleapp.ui.menu.DeviceMenuScreen
-import com.example.bleapp.ui.menu.MenuScreen
 import com.example.vehiculardataanalysis.DependencyContainer
 import com.example.vehiculardataanalysis.domain.Device
-import com.example.vehiculardataanalysis.screens.about.AboutActivity
-import com.example.vehiculardataanalysis.screens.display.DataDisplayActivity
 import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 import com.example.vehiculardataanalysis.ui.BaseActivity
 import com.example.vehiculardataanalysis.ui.theme.VehicularDataAnalysisTheme
 
-class DeviceMenuActivity : BaseActivity() {
+class StatsDisplayActivity: BaseActivity(){
 
     companion object {
-        private const val TAG = "DeviceMenuActivity"
-        private const val PERMISSION_REQUEST_CODE = 1003
+        private const val TAG = "DataDisplayActivity"
+        private const val PERMISSION_REQUEST_CODE = 1002
+        private const val TEST_DEVICE_MAC = "AA:BB:CC:DD:EE:FF"
     }
 
     private var deviceAddress = "Unknown"
     private var deviceName = "Unknown Device"
     private var viewModel: BleViewModel? = null
-    private var adapter: android.bluetooth.BluetoothAdapter? = null
+    private var isTestDevice = false
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        
         deviceAddress = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
         deviceName = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
 
+        // Check if this is the test device
+        isTestDevice = deviceAddress == TEST_DEVICE_MAC
+
         val bluetoothManager =
-            getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        adapter = bluetoothManager.adapter
+            getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+        val adapter = bluetoothManager.adapter
 
         val container = applicationContext as DependencyContainer
         val factory = container.bleViewModelFactory
-        viewModel =
-            ViewModelProvider(this, factory)[BleViewModel::class.java]
+        viewModel = ViewModelProvider(this, factory)[BleViewModel::class.java]
 
-        // Check permissions before setting content
+        // Check permissions before connecting
         if (hasBluetoothPermissions()) {
-            showMenu()
+            connectAndDisplay(adapter)
         } else {
             requestBluetoothPermissions()
         }
@@ -62,11 +62,11 @@ class DeviceMenuActivity : BaseActivity() {
     private fun hasBluetoothPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
-            Manifest.permission.BLUETOOTH_SCAN
+            Manifest.permission.BLUETOOTH_CONNECT
         ) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(
                     this,
-                    Manifest.permission.BLUETOOTH_CONNECT
+                    Manifest.permission.BLUETOOTH_SCAN
                 ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -74,8 +74,8 @@ class DeviceMenuActivity : BaseActivity() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
-                Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ),
             PERMISSION_REQUEST_CODE
@@ -83,30 +83,31 @@ class DeviceMenuActivity : BaseActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun showMenu() {
-        // Start scanning for devices
-        viewModel?.start(adapter!!)
+    private fun connectAndDisplay(adapter: BluetoothAdapter?) {
+        if (adapter == null || viewModel == null) {
+            Log.e(TAG, "Adapter or ViewModel is null")
+            finish()
+            return
+        }
+
+        // Only connect if it's NOT the test device
+        if (!isTestDevice) {
+            val device = Device(deviceName, deviceAddress)
+            viewModel!!.connect(device)
+            viewModel!!.start(adapter)
+        } else {
+            // Test device - start mock data generation
+            viewModel!!.startMockData()
+        }
 
         setContent {
             VehicularDataAnalysisTheme {
-                // Observe scanned devices from repository
-                val container = applicationContext as DependencyContainer
-                val repository = container.bleRepository
-                val scannedDevices = repository.scannedDevices.collectAsState(initial = emptyList()).value
-
-                DeviceMenuScreen(
+                StatsDisplayScreen(
                     deviceAddress = deviceAddress,
                     deviceName = deviceName,
-                    viewModel = viewModel!!,
-                    adapter = adapter!!,
-                    scannedDevices = scannedDevices,
-                    onBackPressed = { finish() },
-                    onLiveDataSelected = {
-                        navigate<DataDisplayActivity> {
-                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
-                            it.putExtra("DEVICE_NAME", deviceName)
-                        }
-                    },
+                    viewModel = viewModel,
+                    isTestDevice = isTestDevice,
+                    onBackPressed = { finish() }
                 )
             }
         }
@@ -125,7 +126,9 @@ class DeviceMenuActivity : BaseActivity() {
                 grantResults[1] == PackageManager.PERMISSION_GRANTED
             ) {
                 Log.d(TAG, "Bluetooth permissions granted")
-                showMenu()
+                val bluetoothManager =
+                    getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+                connectAndDisplay(bluetoothManager.adapter)
             } else {
                 Log.e(TAG, "Bluetooth permissions denied")
                 finish()
@@ -135,5 +138,13 @@ class DeviceMenuActivity : BaseActivity() {
 
     override fun backPressed() {
         finish()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StatsPreview() {
+    VehicularDataAnalysisTheme {
+        DataDisplayScreen()
     }
 }

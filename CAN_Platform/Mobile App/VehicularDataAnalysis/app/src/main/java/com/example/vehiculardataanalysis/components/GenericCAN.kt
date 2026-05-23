@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,9 @@ fun SignalSection(
     unit: String,
     onValueChange: (Float) -> Unit = {}
 ) {
+    // Use remember to prevent unnecessary recomposition of Card and Child composables
+    val formattedValue = remember(value) { "%.2f".format(value) }
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,7 +48,8 @@ fun SignalSection(
             Slider(
                 value = value,
                 onValueChange = onValueChange,
-                valueRange = range
+                valueRange = range,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Row(
@@ -58,7 +63,7 @@ fun SignalSection(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "%.2f".format(value) + " $unit",
+                text = "$formattedValue $unit",
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.vehiculardataanalysis.domain.CanData
 import com.example.vehiculardataanalysis.domain.Device
 import com.example.vehiculardataanalysis.screens.data.BleRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -38,17 +39,24 @@ class BleViewModel(
         repository.startScan(adapter)
 
         viewModelScope.launch {
-            repository.canData.collect { rawData ->
-                val parsed = parseCanData(rawData)
-                _uiState.update {
-                    it.copy(
-                        rpm = parsed.rpm ?: 0,
-                        temp = parsed.temp ?: 0f,
-                        afr = parsed.afr ?: 0f,
-                        raw = rawData
-                    )
+            repository.canData
+                .flowOn(Dispatchers.Default)  // Parse on background thread
+                .collect { rawData ->
+                    // Parse data on Default dispatcher (CPU-bound work)
+                    val parsed = parseCanData(rawData)
+                    
+                    // Switch back to Main for UI state update
+                    viewModelScope.launch(Dispatchers.Main) {
+                        _uiState.update {
+                            it.copy(
+                                rpm = parsed.rpm ?: 0,
+                                temp = parsed.temp ?: 0f,
+                                afr = parsed.afr ?: 0f,
+                                raw = rawData
+                            )
+                        }
+                    }
                 }
-            }
         }
     }
 
@@ -68,7 +76,7 @@ class BleViewModel(
         var currentDwell = 5f
         var currentTiming = 10f
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {  // Run on background thread
             while (true) {
                 // Update frequency
                 delay(200)
@@ -83,18 +91,21 @@ class BleViewModel(
                 currentDwell = (currentDwell + Random.nextFloat() * 2f - 1f).coerceIn(0f, 180f)
                 currentTiming = (currentTiming + Random.nextFloat() * 1.5f - 0.75f).coerceIn(0f, 180f)
 
-                _uiState.update {
-                    it.copy(
-                        rpm = currentRpm,
-                        temp = currentTemp,
-                        afr = currentAfr,
-                        tps = currentTps,
-                        map = currentMap,
-                        battery = currentBattery,
-                        dwell = currentDwell,
-                        timing = currentTiming,
-                        raw = "$currentRpm,$currentTemp,$currentAfr,$currentTps,$currentMap,$currentBattery,$currentDwell,$currentTiming"
-                    )
+                // Switch to Main thread only for state update
+                launch(Dispatchers.Main) {
+                    _uiState.update {
+                        it.copy(
+                            rpm = currentRpm,
+                            temp = currentTemp,
+                            afr = currentAfr,
+                            tps = currentTps,
+                            map = currentMap,
+                            battery = currentBattery,
+                            dwell = currentDwell,
+                            timing = currentTiming,
+                            raw = "$currentRpm,$currentTemp,$currentAfr,$currentTps,$currentMap,$currentBattery,$currentDwell,$currentTiming"
+                        )
+                    }
                 }
             }
         }

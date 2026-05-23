@@ -36,7 +36,7 @@ class BleManager(private val context: Context) {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 
     private val adapter: BluetoothAdapter = bluetoothManager.adapter
-    private val scanner: BluetoothLeScanner = adapter.bluetoothLeScanner
+    private var scanner: BluetoothLeScanner? = null
 
     private var gatt: BluetoothGatt? = null
 
@@ -44,8 +44,12 @@ class BleManager(private val context: Context) {
     private val foundDevices = mutableMapOf<String, Device>()
 
     init {
-        // Load bonded devices on initialization
-        loadBondedDevices()
+        // Initialize scanner lazily when needed (after permissions are granted)
+        try {
+            scanner = adapter.bluetoothLeScanner
+        } catch (e: SecurityException) {
+            Log.w(TAG, "BluetoothLeScanner initialization deferred (permissions not yet granted)")
+        }
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
@@ -68,14 +72,30 @@ class BleManager(private val context: Context) {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     fun startScan(adapter: BluetoothAdapter) {
+        // Initialize scanner if not yet initialized (permissions now granted)
+        if (scanner == null) {
+            try {
+                scanner = adapter.bluetoothLeScanner
+                Log.d(TAG, "BluetoothLeScanner initialized")
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Failed to initialize BluetoothLeScanner", e)
+                return
+            }
+        }
+        
+        // Load bonded devices if not yet loaded (permissions now granted)
+        if (foundDevices.isEmpty()) {
+            loadBondedDevices()
+        }
+        
         Log.d(TAG, "Starting BLE scan (preserving ${foundDevices.size} existing devices)")
-        scanner.startScan(scanCallback)
+        scanner?.startScan(scanCallback)
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     fun stopScan() {
         Log.d(TAG, "Stopping BLE scan")
-        scanner.stopScan(scanCallback)
+        scanner?.stopScan(scanCallback)
     }
 
     private val scanCallback = object : ScanCallback() {

@@ -5,16 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
-import com.example.vehiculardataanalysis.R
-import com.example.vehiculardataanalysis.components.DeviceSection
 import com.example.vehiculardataanalysis.domain.Device
-import com.example.vehiculardataanalysis.domain.DeviceUi
 import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,6 +23,7 @@ fun DeviceMenuScreen(
     viewModel: BleViewModel,
     adapter: BluetoothAdapter,
     scannedDevices: List<Device> = emptyList(),
+    onBackPressed: () -> Unit,
     onLiveDataSelected: () -> Unit,
 ) {
 
@@ -32,7 +31,15 @@ fun DeviceMenuScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(deviceName, fontSize = 28.sp) },
+                title = { Text(deviceName, fontSize = 24.sp) },
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,

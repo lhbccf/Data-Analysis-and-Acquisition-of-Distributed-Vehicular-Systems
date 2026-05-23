@@ -34,7 +34,7 @@ class AboutActivity: BaseActivity() {
 
         setContent {
             VehicularDataAnalysisTheme {
-                AboutScreen()
+                AboutScreen(onBackPressed = { finish() })
             }
         }
     }
