@@ -6,6 +6,7 @@ import time
 from Producer.thread import start_producer
 from nextion.thread import start_nextion
 from UI.App import App
+from repository.database.database_manager import database_setup
 import logging
 
 logging.basicConfig(
@@ -24,6 +25,8 @@ def load_config(path="config.json"):
 def main():
 
     config = load_config()
+
+    database_setup()
 
     data_queue = Queue()
 

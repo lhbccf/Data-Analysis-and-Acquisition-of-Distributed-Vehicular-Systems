@@ -7,6 +7,7 @@ import json
 import struct
 import cantools
 import logging
+from services import Services
 
 logging.basicConfig(
     level=logging.INFO,
@@ -90,6 +91,16 @@ def load_dbc(path):
     logger.info(f"DBC loaded: {path}")
 
     return db
+
+
+def load_state_mapping(path):
+
+    with open(path, "r") as f:
+        mapping = json.load(f)
+
+    logger.info(f"State mapping loaded: {path}")
+
+    return mapping
 
 
 
@@ -199,105 +210,79 @@ ecu_state = {
 
 
 # =========================================================
-# UPDATE STATE FROM RUSEFI
+# UPDATE STATE FROM DBC MAPPING
 # =========================================================
 
-def update_rusefi_state(state, message_name, decoded):
+def convert_mapped_value(value, value_type):
 
-    # =====================================================
-    # BASE0
-    # =====================================================
+    if value_type == "bool":
+        return bool(value)
 
-    if message_name == "BASE0":
+    if value_type == "int":
+        return int(value)
 
-        state["fan"] = bool(decoded.get("Fan", 0))
-        state["fp"] = bool(decoded.get("FuelPumpAct", 0))
+    if value_type == "float":
+        return float(value)
 
-        state["sync"] = 1
-        state["engine_status"] = 1
+    return value
 
-    # =====================================================
-    # BASE1
-    # =====================================================
 
-    elif message_name == "BASE1":
+def should_ignore_mapped_value(value, rule):
 
-        state["rpm"] = int(decoded.get("RPM", 0))
+    if rule.get("ignore_if_zero") and float(value) == 0:
+        return True
 
-        state["advance"] = float(
-            decoded.get("IgnitionTiming", 0)
-        )
+    if "ignore_if_lte" in rule and float(value) <= rule["ignore_if_lte"]:
+        return True
 
-        state["vss"] = float(
-            decoded.get("VehicleSpeed", 0)
-        )
+    if "ignore_if_gte" in rule and float(value) >= rule["ignore_if_gte"]:
+        return True
 
-    # =====================================================
-    # BASE2
-    # =====================================================
+    return False
 
-    elif message_name == "BASE2":
 
-        state["tps"] = float(
-            decoded.get("TPS1", 0)
-        )
+def apply_signal_rule(decoded, rule):
 
-        state["boost_duty"] = float(
-            decoded.get("Wastegate", 0)
-        )
+    source = rule.get("source")
 
-    # =====================================================
-    # BASE3
-    # =====================================================
+    if source not in decoded:
+        if "default" not in rule:
+            return None
 
-    elif message_name == "BASE3":
+        value = rule["default"]
 
-        state["map"] = float(
-            decoded.get("MAP", 0)
-        )
+    else:
+        value = decoded[source]
 
-        state["clt"] = float(
-            decoded.get("CoolantTemp", 0)
-        )
+    if should_ignore_mapped_value(value, rule):
+        return None
 
-        state["iat"] = float(
-            decoded.get("IntakeTemp", 0)
-        )
+    if rule.get("type") == "bool":
+        return convert_mapped_value(value, "bool")
 
-    # =====================================================
-    # BASE4
-    # =====================================================
+    value = float(value) * rule.get("scale", 1) + rule.get("offset", 0)
 
-    elif message_name == "BASE4":
+    return convert_mapped_value(
+        value,
+        rule.get("type")
+    )
 
-        state["battery_voltage"] = float(
-            decoded.get("BattVolt", 0)
-        )
 
-    # =====================================================
-    # BASE5
-    # =====================================================
+def update_rusefi_state(state, message_name, decoded, state_mapping):
 
-    elif message_name == "BASE5":
+    message_rules = state_mapping.get("messages", {}).get(message_name)
 
-        state["pulse_width"] = float(
-            decoded.get("InjPW", 0)
-        )
+    if not message_rules:
+        return None
 
-    # =====================================================
-    # BASE7
-    # =====================================================
+    for target, value in message_rules.get("constants", {}).items():
+        state[target] = value
 
-    elif message_name == "BASE7":
+    for target, rule in message_rules.get("signals", {}).items():
+        value = apply_signal_rule(decoded, rule)
 
-        lam = float(decoded.get("Lam1", 0))
-
-        if lam > 0:
-            state["afr"] = lam * 14.7
-
-    # =====================================================
-    # UPDATE META
-    # =====================================================
+        if value is not None:
+            state[target] = value
 
     state["timestamp"] = time.time()
 
@@ -308,7 +293,7 @@ def update_rusefi_state(state, message_name, decoded):
 # GVRET FRAME PARSER
 # =========================================================
 
-def parse_gvret_frame(ser, config, dbc):
+def parse_gvret_frame(ser, config, dbc, state_mapping):
 
     global ecu_state
 
@@ -348,31 +333,48 @@ def parse_gvret_frame(ser, config, dbc):
 
         canid = canid_raw & 0x1FFFFFFF
 
+        raw_frame = {
+            "can_id": canid,
+            "can_dlc": dlc,
+            "can_data": data.hex(),
+            "can_timestamp": timestamp,
+            "received_at": time.time(),
+            "decoded": False
+        }
+
         try:
 
             message = dbc.get_message_by_frame_id(canid)
 
             # IGNORAR frames pequenas
             if dlc < message.length:
-                return None
+                return raw_frame
 
             decoded = message.decode(data)
 
             parsed = update_rusefi_state(
                 ecu_state,
                 message.name,
-                decoded
+                decoded,
+                state_mapping
             )
 
+            if not parsed:
+                return raw_frame
+
             parsed["can_id"] = canid
+            parsed["can_dlc"] = dlc
+            parsed["can_data"] = data.hex()
             parsed["can_message"] = message.name
             parsed["can_timestamp"] = timestamp
+            parsed["received_at"] = raw_frame["received_at"]
+            parsed["decoded"] = True
 
             return parsed
 
         except Exception as e:
 
-            return None
+            return raw_frame
 
     return None
 # =========================================================
@@ -383,6 +385,18 @@ def parse_gvret_frame(ser, config, dbc):
 def can_reader(config, data_queue):
 
     dbc = load_dbc(config["dbc"])
+    state_mapping = load_state_mapping(
+        config.get("state_mapping", "./rusefi_state_mapping.json")
+    )
+
+    session = Services.create_session(
+        config.get("session_description", "CAN acquisition")
+    )
+
+    last_state_save = 0
+    state_save_interval = float(
+        config.get("state_save_interval", 1.0)
+    )
 
     ser = serial.Serial(
         port=config["com"],
@@ -394,6 +408,7 @@ def can_reader(config, data_queue):
     ser.write(bytes([0xE7]))
 
     logger.info("GVRET binary mode enabled")
+    logger.info(f"CAN DB session started: {session.id}")
 
     while True:
 
@@ -402,10 +417,28 @@ def can_reader(config, data_queue):
             frame = parse_gvret_frame(
                 ser,
                 config,
-                dbc
+                dbc,
+                state_mapping
             )
 
             if frame:
+                Services.create_can_frame(
+                    session_id=session.id,
+                    can_id=frame["can_id"],
+                    dlc=frame["can_dlc"],
+                    data=frame["can_data"],
+                    timestamp=frame.get("received_at")
+                )
+
+                if not frame.get("decoded"):
+                    continue
+
+                now = time.time()
+
+                if now - last_state_save >= state_save_interval:
+                    Services.create_vehicle_state(frame)
+                    last_state_save = now
+
                 data_queue.put(frame)
 
         except Exception as e:
