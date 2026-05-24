@@ -1,11 +1,10 @@
 import sys
 import json
 from queue import Queue
-from PyQt5 import QtWidgets
 import time
+from pathlib import Path
 from Producer.thread import start_producer
 from nextion.thread import start_nextion
-from UI.App import App
 from repository.database.database_manager import database_setup
 import logging
 
@@ -16,10 +15,28 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def load_config(path="config.json"):
+BASE_DIR = Path(__file__).resolve().parent
+
+
+def resolve_relative_path(path):
+    resolved_path = Path(path)
+
+    if resolved_path.is_absolute():
+        return str(resolved_path)
+
+    return str(BASE_DIR / resolved_path)
+
+
+def load_config(path=BASE_DIR / "config.json"):
 
     with open(path, "r") as f:
-        return json.load(f)
+        config = json.load(f)
+
+    for key in ["dbc", "state_mapping"]:
+        if key in config:
+            config[key] = resolve_relative_path(config[key])
+
+    return config
 
 
 def main():
@@ -35,6 +52,9 @@ def main():
     start_producer(config, data_queue)
     
     if config["mode"] == "pi_screen" :
+
+      from PyQt5 import QtWidgets
+      from UI.App import App
     
       app = QtWidgets.QApplication(sys.argv)
 
