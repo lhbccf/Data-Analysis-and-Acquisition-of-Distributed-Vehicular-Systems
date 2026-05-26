@@ -521,7 +521,7 @@ def speeduino_reader(config):
 
 
 
-def start_speeduino(config):
+def start_speeduino(config, data_queue=None):
 
     thread = threading.Thread(
         target=speeduino_reader,
@@ -534,7 +534,7 @@ def start_speeduino(config):
     return thread
 
 
-def start_can(config):
+def start_can(config, data_queue=None):
 
     thread = threading.Thread(
         target=can_reader,
@@ -553,7 +553,7 @@ def load_config(path="../config.json"):
     with open(path, "r") as f:
         return json.load(f)
 
-def start_producer(config):
+def start_producer(config, data_queue=None):
 
     mode = config.get("type")
 

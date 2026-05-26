@@ -71,19 +71,19 @@ def nextion_worker(config):
         logger.exception(f"SERIAL INIT ERROR: {e}")
         return
 
-    last_timestamp = None
+    last_version = None
 
     while True:
 
         try:
 
             data = signal_cache.get_all()
-            timestamp = data.get("timestamp")
+            version = data.get("_version")
 
-            if timestamp and timestamp != last_timestamp:
+            if version != last_version:
 
                 update_nextion(ser, data)
-                last_timestamp = timestamp
+                last_version = version
 
             time.sleep(0.1)
 
@@ -94,7 +94,7 @@ def nextion_worker(config):
             time.sleep(1)
 
 
-def start_nextion(config):
+def start_nextion(config, data_queue=None):
 
     thread = threading.Thread(
         target=nextion_worker,

@@ -66,7 +66,7 @@ class InfoCard(QtWidgets.QFrame):
 
 class App(QtWidgets.QMainWindow):
 
-    def __init__(self):
+    def __init__(self, data_queue=None):
 
         super().__init__()
 
