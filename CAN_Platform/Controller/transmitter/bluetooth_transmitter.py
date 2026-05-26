@@ -1,16 +1,21 @@
 from bluezero import peripheral
-import threading
-import time
+from gi.repository import GLib
 
 from extra.signal_cache import signal_cache
 
 SERVICE_UUID = '12345678-1234-5678-1234-56789abcdef0'
-CHAR_UUID    = '12345678-1234-5678-1234-56789abcdef1'
+CHAR_UUID    = 'abcdef01-1234-5678-1234-56789abcdef0'
+
+NOTIFY_INTERVAL_MS = 200  # 5 Hz
+
 
 class BLETlmServer:
     def __init__(self):
+        self._char = None         # localGATT.Characteristic, set on subscribe
+        self._timer_id = None     # GLib timer source ID
+
         self.ble = peripheral.Peripheral(
-            adapter_addr='00:00:00:00:00:00',
+            adapter_address='88:A2:9E:B1:52:A9',
             local_name='Vehicular_Monitor',
         )
 
@@ -21,41 +26,43 @@ class BLETlmServer:
             chr_id=1,
             uuid=CHAR_UUID,
             value=[],
-            notifying=True,
+            notifying=False,
             flags=['read', 'notify'],
-            read_callback=self.read_callback
+            read_callback=self.read_callback,
+            # bluezero 0.9.x calls notify_callback(notifying: bool,
+            # characteristic: localGATT.Characteristic) on subscribe/unsubscribe.
+            # It does NOT call it periodically — we drive that ourselves via GLib.
+            notify_callback=self.notify_cb,
         )
 
     def read_callback(self):
-        """Callback when client reads the characteristic.
-        Format: rpm,temp,afr,tps,map,battery,dwell,timing
-        """
-        formatted_data = signal_cache.get_formatted_string()
-        return formatted_data.encode('utf-8')
+        """Called when the Android client reads the characteristic explicitly."""
+        return list(signal_cache.get_formatted_string().encode('utf-8'))
 
-    def notify_loop(self):
-        """Periodic notification loop - sends data every 200ms (5 updates/sec).
-        This matches the mobile app's mock data update frequency.
-        """
-        while True:
-            try:
-                # Update characteristic with latest data
-                self.ble.update_characteristic_value(1, 1)
-                time.sleep(0.2)  # 200ms = 5 updates per second
-            except Exception as e:
-                print(f"Error in notify_loop: {e}")
-                time.sleep(0.2)
+    def notify_cb(self, notifying: bool, characteristic) -> None:
+        """Called by bluezero when the Android subscribes or unsubscribes."""
+        if notifying:
+            self._char = characteristic
+            self._timer_id = GLib.timeout_add(NOTIFY_INTERVAL_MS, self._send_notify)
+        else:
+            self._char = None
+            if self._timer_id is not None:
+                GLib.source_remove(self._timer_id)
+                self._timer_id = None
 
-    def start(self):
-        print("Starting BLE server...")
-        self.ble.publish()
+    def _send_notify(self) -> bool:
+        """GLib timer callback — pushes one BLE notification then reschedules."""
+        if self._char is None or not self._char.is_notifying:
+            self._timer_id = None
+            return False  # remove timer
+        self._char.set_value(
+            list(signal_cache.get_formatted_string().encode('utf-8'))
+        )
+        return True  # keep timer running
 
-        threading.Thread(target=self.notify_loop, daemon=True).start()
-
-        print("BLE running as Vehicular_Monitor")
-        print(f"Service UUID: {SERVICE_UUID}")
-        print(f"Characteristic UUID: {CHAR_UUID}")
-        print("Data format: rpm,temp,afr,tps,map,battery,dwell,timing")
+    def start(self) -> None:
+        print("Starting BLE server ...")
+        self.ble.publish()  # blocks – runs the D-Bus / GLib main loop
 
 
 # Singleton

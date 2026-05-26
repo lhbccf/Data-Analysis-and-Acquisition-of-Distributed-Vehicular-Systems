@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothAdapter
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vehiculardataanalysis.domain.CanData
 import com.example.vehiculardataanalysis.domain.Device
 import com.example.vehiculardataanalysis.screens.data.BleRepository
 import kotlinx.coroutines.Dispatchers
@@ -40,21 +39,12 @@ class BleViewModel(
 
         viewModelScope.launch {
             repository.canData
-                .flowOn(Dispatchers.Default)  // Parse on background thread
+                .flowOn(Dispatchers.Default)
                 .collect { rawData ->
-                    // Parse data on Default dispatcher (CPU-bound work)
-                    val parsed = parseCanData(rawData)
-                    
-                    // Switch back to Main for UI state update
+                    if (rawData.isBlank()) return@collect
+                    val newState = parseCanData(rawData)
                     viewModelScope.launch(Dispatchers.Main) {
-                        _uiState.update {
-                            it.copy(
-                                rpm = parsed.rpm ?: 0,
-                                temp = parsed.temp ?: 0f,
-                                afr = parsed.afr ?: 0f,
-                                raw = rawData
-                            )
-                        }
+                        _uiState.value = newState
                     }
                 }
         }
@@ -111,17 +101,22 @@ class BleViewModel(
         }
     }
 
-    private fun parseCanData(rawData: String): CanData {
+    private fun parseCanData(rawData: String): MainUiState {
         return try {
-            val parts = rawData.split(",").map { it.trim() }
-            CanData(
-                rpm = parts.getOrNull(0)?.toIntOrNull(),
-                temp = parts.getOrNull(1)?.toFloatOrNull(),
-                afr = parts.getOrNull(2)?.toFloatOrNull(),
-                raw = rawData
+            val p = rawData.split(",").map { it.trim() }
+            MainUiState(
+                rpm     = p.getOrNull(0)?.toIntOrNull()   ?: 0,
+                temp    = p.getOrNull(1)?.toFloatOrNull() ?: 0f,
+                afr     = p.getOrNull(2)?.toFloatOrNull() ?: 0f,
+                tps     = p.getOrNull(3)?.toFloatOrNull() ?: 0f,
+                map     = p.getOrNull(4)?.toFloatOrNull() ?: 0f,
+                battery = p.getOrNull(5)?.toFloatOrNull() ?: 0f,
+                dwell   = p.getOrNull(6)?.toFloatOrNull() ?: 0f,
+                timing  = p.getOrNull(7)?.toFloatOrNull() ?: 0f,
+                raw     = rawData
             )
         } catch (e: Exception) {
-            CanData(raw = rawData)
+            MainUiState(raw = rawData)
         }
     }
 }
