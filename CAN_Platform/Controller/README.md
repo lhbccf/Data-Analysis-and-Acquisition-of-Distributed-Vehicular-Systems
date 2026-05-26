@@ -13,9 +13,10 @@ Runtime flow:
 1. Load `config.json`.
 2. Create/update the SQLite schema in `ecu_data.db`.
 3. Start a producer thread according to `config.type`.
-4. Send decoded vehicle state dictionaries to a consumer according to
-   `config.mode`.
-5. Persist all raw CAN frames and periodic `vehicle_state` snapshots.
+4. Write the latest decoded vehicle state into the shared `signal_cache`
+   singleton.
+5. Start the configured consumer according to `config.mode`.
+6. Persist all raw CAN frames and periodic `vehicle_state` snapshots.
 
 Main modules:
 
@@ -23,6 +24,7 @@ Main modules:
 | --- | --- |
 | `main.py` | Application entrypoint and runtime mode selection. |
 | `Producer/thread.py` | CAN/GVRET and Speeduino readers, DBC decode, state mapping. |
+| `extra/signal_cache.py` | Thread-safe singleton with the latest normalized vehicle state. |
 | `nextion/thread.py` | Sends vehicle state values to the Nextion display. |
 | `UI/App.py` | PyQt dashboard for `pi_screen` mode. |
 | `repository/` | SQLite persistence layer. |
@@ -30,6 +32,111 @@ Main modules:
 | `rusefi.dbc` | DBC used to decode rusefi CAN frames. |
 | `rusefi_state_mapping.json` | Mapping from decoded DBC signals to controller vehicle state fields. |
 | `init.sh` | Startup script intended for Raspberry Pi/systemd. |
+
+## Distributed System Architecture
+
+The platform is split into small nodes that communicate through serial links,
+CAN frames, a local shared-memory cache, and SQLite persistence. The controller
+is the central edge node: it receives ECU data, normalizes it, stores it, and
+feeds whichever display or transmitter is enabled.
+
+```mermaid
+flowchart LR
+    ECU["Vehicle ECU<br/>rusefi or Speeduino"]
+    CAN["CAN bus / serial ECU link"]
+    Adapter["GVRET adapter<br/>or Arduino serial"]
+    Controller["Raspberry Pi Controller<br/>main.py"]
+    Cache["SignalCache singleton<br/>latest vehicle state"]
+    DB["SQLite<br/>ecu_data.db"]
+    Nextion["Nextion display"]
+    PyQt["Pi touchscreen<br/>PyQt dashboard"]
+    Mobile["Mobile app / BLE client"]
+
+    ECU --> CAN
+    CAN --> Adapter
+    Adapter --> Controller
+    Controller --> Cache
+    Controller --> DB
+    Cache --> Nextion
+    Cache --> PyQt
+    Cache -. formatted string .-> Mobile
+```
+
+The important design point is that decoded state is not passed as a one-time
+queue message anymore. Producers update `SignalCache`, and consumers read the
+latest snapshot whenever they need it. This lets multiple consumers observe the
+same state without stealing messages from each other.
+
+## Thread And Dependency Model
+
+At runtime, `main.py` owns process startup. It creates the database schema,
+starts one producer thread, and starts one display mode. The shared dependency
+between producers and consumers is `extra.signal_cache.signal_cache`.
+
+```mermaid
+flowchart TD
+    Main["main.py<br/>main thread"]
+    Config["config.json"]
+    DBSetup["database_setup()"]
+    ProducerStart["start_producer(config)"]
+    ProducerThread["Producer thread<br/>can_reader or speeduino_reader"]
+    DBC["rusefi.dbc"]
+    Mapping["rusefi_state_mapping.json"]
+    Services["services/Services.py"]
+    Repos["repository/*Repo.py"]
+    Cache["signal_cache<br/>threading.Lock protected"]
+    Mode{"config.mode"}
+    NextionThread["NextionThread<br/>nextion_worker"]
+    PyQtLoop["Qt event loop<br/>App.update_ui timer"]
+    NextionSerial["/dev/serial0<br/>Nextion UART"]
+    Screen["Local Pi screen"]
+
+    Main --> Config
+    Main --> DBSetup
+    Main --> ProducerStart
+    ProducerStart --> ProducerThread
+    ProducerThread --> DBC
+    ProducerThread --> Mapping
+    ProducerThread --> Services
+    Services --> Repos
+    ProducerThread --> Cache
+    Main --> Mode
+    Mode -->|"nextion"| NextionThread
+    Mode -->|"pi_screen"| PyQtLoop
+    NextionThread --> Cache
+    PyQtLoop --> Cache
+    NextionThread --> NextionSerial
+    PyQtLoop --> Screen
+```
+
+### Runtime Threads
+
+| Thread | Created by | Runs | Responsibilities |
+| --- | --- | --- | --- |
+| Main thread | Python process | `main.py` | Loads configuration, prepares SQLite, starts the producer and selected output mode. |
+| Producer thread | `start_producer()` | `can_reader()` or `speeduino_reader()` | Reads ECU data, decodes/maps it, writes latest state to `signal_cache`, and stores CAN/state data. |
+| Nextion thread | `start_nextion()` when `mode = nextion` | `nextion_worker()` | Reads the latest cache snapshot and sends text updates over the Nextion UART. |
+| Qt event loop | `QApplication.exec_()` when `mode = pi_screen` | `App.update_ui()` timer | Reads the latest cache snapshot and refreshes the local dashboard. |
+
+`SignalCache` uses a `threading.Lock`, so readers never observe a partially
+updated dictionary while the producer is writing a new batch. It also keeps a
+monotonic `_version` counter: every cache update increments it, and the Nextion
+thread uses that value to avoid sending duplicate screen updates.
+
+The cache preserves the older signal names used by other modules:
+
+| New normalized field | Backwards-compatible alias |
+| --- | --- |
+| `clt` | `temp` |
+| `battery_voltage` | `battery` |
+| `advance` | `timing` |
+| `tps` | `throttle` |
+
+`get_formatted_string()` still emits the legacy BLE/mobile payload format:
+
+```text
+rpm,temp,afr,tps,map,battery,dwell,timing
+```
 
 ## Configuration
 
@@ -60,6 +167,8 @@ Example:
   "state_mapping": "./rusefi_state_mapping.json",
   "session_description": "CAN acquisition",
   "state_save_interval": 1.0,
+  "log_can_activity": true,
+  "can_log_interval": 5.0,
   "nextion_port": "/dev/serial0",
   "nextion_baud": 115200
 }
@@ -76,6 +185,8 @@ Fields:
 | `state_mapping` | Yes | JSON mapping file used after DBC decode. |
 | `session_description` | No | Description stored in the `sessions` table. |
 | `state_save_interval` | No | Seconds between periodic vehicle state DB snapshots. Default: `1.0`. |
+| `log_can_activity` | No | Enables periodic CAN activity summaries in the service log. Default: `true`. |
+| `can_log_interval` | No | Seconds between CAN activity log summaries. Default: `5.0`. |
 
 #### `speeduino_arduino`
 
@@ -106,8 +217,8 @@ Fields:
 
 ### `nextion`
 
-Starts `nextion/thread.py` and sends decoded vehicle state values to a Nextion
-display over serial.
+Starts `nextion/thread.py`. The Nextion worker reads the latest values from
+`signal_cache` and sends them to the display over serial.
 
 Required fields:
 
@@ -129,7 +240,8 @@ Example:
 
 ### `pi_screen`
 
-Starts the PyQt dashboard in `UI/App.py`.
+Starts the PyQt dashboard in `UI/App.py`. The dashboard reads the latest values
+from `signal_cache` on a Qt timer.
 
 Required fields:
 

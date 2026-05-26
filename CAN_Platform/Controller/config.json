@@ -8,6 +8,8 @@
     "state_mapping": "./rusefi_state_mapping.json",
     "session_description": "CAN acquisition",
     "state_save_interval": 1.0,
+    "log_can_activity": true,
+    "can_log_interval": 5.0,
     "nextion_port": "/dev/serial0",
     "nextion_baud": 115200
 }
