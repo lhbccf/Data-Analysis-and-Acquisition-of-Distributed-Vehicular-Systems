@@ -1,7 +1,10 @@
 {
     "type": "rusefi_can",
-    "com": "/dev/ttyACM0",
+    "mode": "nextion",
+    "com": "/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_58:E6:C5:10:77:9C-if00",
     "baud_rate": 2000000,
     "command": "a",
-    "dbc": "./rusefi.dbc"
+    "dbc": "./rusefi.dbc",
+    "nextion_port": "/dev/serial0",
+    "nextion_baud": 115200
 }
