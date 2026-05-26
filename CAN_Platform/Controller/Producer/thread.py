@@ -1,6 +1,5 @@
 import serial
 import threading
-from queue import Queue
 import time
 import random
 import json
@@ -8,6 +7,7 @@ import struct
 import cantools
 import logging
 from services import Services
+from extra.signal_cache import signal_cache
 
 logging.basicConfig(
     level=logging.INFO,
@@ -382,7 +382,7 @@ def parse_gvret_frame(ser, config, dbc, state_mapping):
 # =========================================================
 
 
-def can_reader(config, data_queue):
+def can_reader(config):
 
     dbc = load_dbc(config["dbc"])
     state_mapping = load_state_mapping(
@@ -439,7 +439,7 @@ def can_reader(config, data_queue):
                     Services.create_vehicle_state(frame)
                     last_state_save = now
 
-                data_queue.put(frame)
+                signal_cache.update_batch(frame)
 
         except Exception as e:
 
@@ -486,7 +486,7 @@ def generate_fake_data():
     }
 
 
-def speeduino_reader(config, data_queue):
+def speeduino_reader(config):
 
     ser = serial.Serial(
         port=config["port"],
@@ -510,7 +510,7 @@ def speeduino_reader(config, data_queue):
 
                 parsed["type"] = "speeduino"
 
-                data_queue.put(parsed)
+                signal_cache.update_batch(parsed)
 
         except Exception as e:
 
@@ -521,11 +521,11 @@ def speeduino_reader(config, data_queue):
 
 
 
-def start_speeduino(config, data_queue):
+def start_speeduino(config):
 
     thread = threading.Thread(
         target=speeduino_reader,
-        args=(config, data_queue),
+        args=(config,),
         daemon=True
     )
 
@@ -534,11 +534,11 @@ def start_speeduino(config, data_queue):
     return thread
 
 
-def start_can(config, data_queue):
+def start_can(config):
 
     thread = threading.Thread(
         target=can_reader,
-        args=(config, data_queue),
+        args=(config,),
         daemon=True
     )
 
@@ -553,7 +553,7 @@ def load_config(path="../config.json"):
     with open(path, "r") as f:
         return json.load(f)
 
-def start_producer(config, data_queue):
+def start_producer(config):
 
     mode = config.get("type")
 
@@ -561,7 +561,7 @@ def start_producer(config, data_queue):
 
         thread = threading.Thread(
             target=speeduino_reader,
-            args=(config, data_queue),
+            args=(config,),
             daemon=True
         )
 
@@ -575,7 +575,7 @@ def start_producer(config, data_queue):
 
         thread = threading.Thread(
             target=can_reader,
-            args=(config, data_queue),
+            args=(config,),
             daemon=True
         )
 

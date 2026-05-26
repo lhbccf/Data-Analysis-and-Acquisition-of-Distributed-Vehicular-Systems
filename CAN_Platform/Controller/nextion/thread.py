@@ -2,6 +2,7 @@ import serial
 import threading
 import time
 import logging
+from extra.signal_cache import signal_cache
 
 logging.basicConfig(
     level=logging.INFO,
@@ -51,7 +52,7 @@ def update_nextion(ser, data):
         logger.exception(f"NEXTION UPDATE ERROR: {e}")
 
 
-def nextion_worker(config, data_queue):
+def nextion_worker(config):
 
     try:
 
@@ -70,17 +71,21 @@ def nextion_worker(config, data_queue):
         logger.exception(f"SERIAL INIT ERROR: {e}")
         return
 
+    last_timestamp = None
+
     while True:
 
         try:
 
-            if not data_queue.empty():
+            data = signal_cache.get_all()
+            timestamp = data.get("timestamp")
 
-                data = data_queue.get()
+            if timestamp and timestamp != last_timestamp:
 
                 update_nextion(ser, data)
+                last_timestamp = timestamp
 
-                time.sleep(0.1)
+            time.sleep(0.1)
 
         except Exception as e:
 
@@ -89,11 +94,11 @@ def nextion_worker(config, data_queue):
             time.sleep(1)
 
 
-def start_nextion(config, data_queue):
+def start_nextion(config):
 
     thread = threading.Thread(
         target=nextion_worker,
-        args=(config, data_queue),
+        args=(config,),
         daemon=True,
         name="NextionThread"
     )

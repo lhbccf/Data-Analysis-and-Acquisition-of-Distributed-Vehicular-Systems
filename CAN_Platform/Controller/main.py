@@ -1,6 +1,5 @@
 import sys
 import json
-from queue import Queue
 import time
 from pathlib import Path
 from Producer.thread import start_producer
@@ -45,11 +44,9 @@ def main():
 
     database_setup()
 
-    data_queue = Queue()
-
     print(config)
     
-    start_producer(config, data_queue)
+    start_producer(config)
     
     if config["mode"] == "pi_screen" :
 
@@ -58,7 +55,7 @@ def main():
     
       app = QtWidgets.QApplication(sys.argv)
 
-      window = App(data_queue)
+      window = App()
   
       window.show()
   
@@ -67,7 +64,7 @@ def main():
         time.sleep(1)
         
     elif config["mode"] == "nextion" :
-      start_nextion(config, data_queue)
+      start_nextion(config)
       while True:
         time.sleep(1)
       
