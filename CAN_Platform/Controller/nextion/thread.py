@@ -3,12 +3,9 @@ import threading
 import time
 import logging
 from extra.signal_cache import signal_cache
+from extra.logging_setup import configure_logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(threadName)s] %(levelname)s: %(message)s"
-)
-
+LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
 
 
@@ -47,9 +44,12 @@ def update_nextion(ser, data):
             f'vss.txt="{int(data["vss"])}"'
         )
 
+        return True
+
     except Exception as e:
 
         logger.exception(f"NEXTION UPDATE ERROR: {e}")
+        return False
 
 
 def nextion_worker(config):
@@ -82,8 +82,8 @@ def nextion_worker(config):
 
             if version != last_version:
 
-                update_nextion(ser, data)
-                last_version = version
+                if update_nextion(ser, data):
+                    last_version = version
 
             time.sleep(0.1)
 
@@ -94,7 +94,7 @@ def nextion_worker(config):
             time.sleep(1)
 
 
-def start_nextion(config, data_queue=None):
+def start_nextion(config):
 
     thread = threading.Thread(
         target=nextion_worker,

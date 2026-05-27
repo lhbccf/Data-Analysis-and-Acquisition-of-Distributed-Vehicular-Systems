@@ -8,12 +8,9 @@ import cantools
 import logging
 from services import Services
 from extra.signal_cache import signal_cache
+from extra.logging_setup import configure_logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(threadName)s] %(levelname)s: %(message)s"
-)
-
+LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
 
 gvret_parser_stats = {
@@ -220,79 +217,53 @@ ecu_state = {
 
 
 # =========================================================
-# UPDATE STATE FROM DBC MAPPING
+# UPDATE STATE FROM RUSEFI
 # =========================================================
 
-def convert_mapped_value(value, value_type):
+def update_rusefi_state(state, message_name, decoded, state_mapping=None):
 
-    if value_type == "bool":
-        return bool(value)
+    if message_name == "BASE0":
 
-    if value_type == "int":
-        return int(value)
+        state["fan"] = bool(decoded.get("Fan", 0))
+        state["fp"] = bool(decoded.get("FuelPumpAct", 0))
+        state["sync"] = 1
+        state["engine_status"] = 1
 
-    if value_type == "float":
-        return float(value)
+    elif message_name == "BASE1":
 
-    return value
+        state["rpm"] = int(decoded.get("RPM", 0))
+        state["advance"] = float(decoded.get("IgnitionTiming", 0))
+        state["vss"] = float(decoded.get("VehicleSpeed", 0))
 
+    elif message_name == "BASE2":
 
-def should_ignore_mapped_value(value, rule):
+        state["tps"] = float(decoded.get("TPS1", 0))
+        state["boost_duty"] = float(decoded.get("Wastegate", 0))
 
-    if rule.get("ignore_if_zero") and float(value) == 0:
-        return True
+    elif message_name == "BASE3":
 
-    if "ignore_if_lte" in rule and float(value) <= rule["ignore_if_lte"]:
-        return True
+        state["map"] = float(decoded.get("MAP", 0))
+        state["clt"] = float(decoded.get("CoolantTemp", 0))
+        state["iat"] = float(decoded.get("IntakeTemp", 0))
 
-    if "ignore_if_gte" in rule and float(value) >= rule["ignore_if_gte"]:
-        return True
+    elif message_name == "BASE4":
 
-    return False
+        state["battery_voltage"] = float(decoded.get("BattVolt", 0))
 
+    elif message_name == "BASE5":
 
-def apply_signal_rule(decoded, rule):
+        state["pulse_width"] = float(decoded.get("InjPW", 0))
 
-    source = rule.get("source")
+    elif message_name == "BASE7":
 
-    if source not in decoded:
-        if "default" not in rule:
-            return None
+        lam = float(decoded.get("Lam1", 0))
 
-        value = rule["default"]
+        if lam > 0:
+            state["afr"] = lam * 14.7
 
     else:
-        value = decoded[source]
 
-    if should_ignore_mapped_value(value, rule):
         return None
-
-    if rule.get("type") == "bool":
-        return convert_mapped_value(value, "bool")
-
-    value = float(value) * rule.get("scale", 1) + rule.get("offset", 0)
-
-    return convert_mapped_value(
-        value,
-        rule.get("type")
-    )
-
-
-def update_rusefi_state(state, message_name, decoded, state_mapping):
-
-    message_rules = state_mapping.get("messages", {}).get(message_name)
-
-    if not message_rules:
-        return None
-
-    for target, value in message_rules.get("constants", {}).items():
-        state[target] = value
-
-    for target, rule in message_rules.get("signals", {}).items():
-        value = apply_signal_rule(decoded, rule)
-
-        if value is not None:
-            state[target] = value
 
     state["timestamp"] = time.time()
 
@@ -390,9 +361,19 @@ def parse_gvret_frame(ser, config, dbc, state_mapping):
 
             return parsed
 
+        except KeyError:
+
+            return raw_frame
+
         except Exception as e:
 
             gvret_parser_stats["decoded_errors"] += 1
+            logger.exception(
+                "CAN decode/mapping error for id=0x%X dlc=%s data=%s",
+                canid,
+                dlc,
+                data.hex(),
+            )
             return raw_frame
 
     gvret_parser_stats["unknown_commands"] += 1

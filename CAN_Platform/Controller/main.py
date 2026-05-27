@@ -6,12 +6,9 @@ from Producer.thread import start_producer
 from nextion.thread import start_nextion
 from repository.database.database_manager import database_setup
 import logging
+from extra.logging_setup import configure_logging
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s [%(threadName)s] %(levelname)s: %(message)s',
-)
-
+LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -41,10 +38,11 @@ def load_config(path=BASE_DIR / "config.json"):
 def main():
 
     config = load_config()
+    logger.info("Controller starting. Log file: %s", LOG_PATH)
 
     database_setup()
 
-    print(config)
+    logger.info("Loaded config: %s", config)
     
     start_producer(config)
     
