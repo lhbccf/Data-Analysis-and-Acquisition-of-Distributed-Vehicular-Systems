@@ -4,7 +4,7 @@ def close_database():
     SessionRepo.conn.close()
     CANFrameRepo.conn.close()
     SignalRepo.conn.close()
-	StateRepo.conn.close()
+    StateRepo.conn.close()
 	
 def create_session(description: str):
     return SessionRepo.create_session(description=description)

@@ -75,25 +75,25 @@ fun DataDisplayScreen (
         {
 
             SignalSection(
-                title = "RPM",
+                title = "Rotations Per Minute",
                 value = state.rpm.toFloat(),
                 range = 0f..9000f,
                 unit = "RPM"
             )
             SignalSection(
-                title = "Coolant",
-                value = state.temp,
-                range = -40f..140f,
-                unit = "ºC"
+                title = "Vehicle Speed",
+                value = state.vss,
+                range = 0f..250f,
+                unit = "km/h"
             )
             SignalSection(
-                title = "TPS",
+                title = "Throttle Position Sensor",
                 value = state.tps,
                 range = 0f..100f,
                 unit = "V"
             )
             SignalSection(
-                title = "MAP",
+                title = "Manifold Absolute Pressure",
                 value = state.map,
                 range = 0f..300f,
                 unit = "Pressure"
@@ -105,10 +105,10 @@ fun DataDisplayScreen (
                 unit = "Ratio"
             )
             SignalSection(
-                title = "Battery",
+                title = "Battery Voltage",
                 value = state.battery,
                 range = 8f..18f,
-                unit = "Ah"
+                unit = "V"
             )
             SignalSection(
                 title = "Dwell",
@@ -121,6 +121,30 @@ fun DataDisplayScreen (
                 value = state.timing,
                 range = 0f..180f,
                 unit = "º"
+            )
+            SignalSection(
+                title = "Intake Air Temperature",
+                value = state.iat,
+                range = -40f..120f,
+                unit = "ºC"
+            )
+            SignalSection(
+                title = "O2 Sensor Trim",
+                value = state.ego_cor,
+                range = 70f..130f,
+                unit = "%"
+            )
+            SignalSection(
+                title = "Volumetric Efficiency",
+                value = state.ve,
+                range = 0f..120f,
+                unit = "%"
+            )
+            SignalSection(
+                title = "Crank/Cam Sync Status",
+                value = state.sync.toFloat(),
+                range = 0f..1f,
+                unit = ""
             )
 
         }

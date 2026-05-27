@@ -16,6 +16,5 @@ def create_session(description="Test Session"):
 
     session_id = cursor.lastrowid
     conn.commit()
-    conn.close()
     return Session(session_id, start_time, description)
 
