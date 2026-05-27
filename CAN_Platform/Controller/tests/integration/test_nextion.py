@@ -1,5 +1,12 @@
 import random
+import sys
 import time
+from pathlib import Path
+
+
+CONTROLLER_DIR = Path(__file__).resolve().parents[2]
+if str(CONTROLLER_DIR) not in sys.path:
+    sys.path.insert(0, str(CONTROLLER_DIR))
 
 from extra.signal_cache import signal_cache
 from nextion.thread import start_nextion

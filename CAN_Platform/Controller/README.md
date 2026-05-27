@@ -457,26 +457,24 @@ python main.py
 
 ## Tests
 
-CAN-to-database emulator test:
+The automatic tests live in `tests/` and use plain Python functions with
+`assert`, without a test framework.
 
 ```bash
-python test_can_db_emulator.py
+python tests/run_tests.py
 ```
 
-This test does not need real CAN hardware. It:
+These tests do not need real CAN hardware. They cover:
 
-- creates a temporary SQLite database;
-- emulates GVRET CAN frames;
-- decodes them with a fake DBC object;
-- applies `rusefi_state_mapping.json`;
-- writes rows into `can_frames` and `vehicle_state`;
-- checks that values such as `rpm`, `afr`, `map`, `clt`, and `battery_voltage`
-  were stored correctly.
+- `SignalCache` defaults, alias synchronization, version increments, defensive
+  copies, and legacy BLE/mobile formatting;
+- CAN-to-database emulation with a temporary SQLite database;
+- GVRET parsing of decoded, unknown, and short CAN frames.
 
 Hardware CAN print test:
 
 ```bash
-python test_can.py
+python tests/integration/test_can.py
 ```
 
 This requires the real CAN serial adapter and `rusefi.dbc`.
@@ -484,7 +482,7 @@ This requires the real CAN serial adapter and `rusefi.dbc`.
 Nextion test:
 
 ```bash
-python test_nextion.py
+python tests/integration/test_nextion.py
 ```
 
 This requires the real Nextion serial connection.

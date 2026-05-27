@@ -1,12 +1,20 @@
 import serial
 import struct
+import sys
+from pathlib import Path
+
+
+CONTROLLER_DIR = Path(__file__).resolve().parents[2]
+if str(CONTROLLER_DIR) not in sys.path:
+    sys.path.insert(0, str(CONTROLLER_DIR))
+
 import cantools
 
 PORT = "/dev/ttyACM0"
 BAUD = 2000000
 
 # carregar DBC
-db = cantools.database.load_file("rusefi.dbc")
+db = cantools.database.load_file(str(CONTROLLER_DIR / "rusefi.dbc"))
 
 ser = serial.Serial(PORT, BAUD, timeout=1)
 
