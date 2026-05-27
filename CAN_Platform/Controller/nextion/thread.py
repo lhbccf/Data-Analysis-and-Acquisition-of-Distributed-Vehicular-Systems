@@ -11,41 +11,50 @@ logger = logging.getLogger(__name__)
 
 def send_cmd(ser, cmd):
 
-    ser.write(cmd.encode())
-    ser.write(b'\xff\xff\xff')
+    payload = cmd.encode()
+    terminator = b'\xff\xff\xff'
+    written = ser.write(payload)
+    written_terminator = ser.write(terminator)
+    if hasattr(ser, "flush"):
+        ser.flush()
+    return (written or len(payload)) + (written_terminator or len(terminator))
 
 
 def update_nextion(ser, data):
 
     try:
 
-        send_cmd(
+        bytes_written = send_cmd(
             ser,
             f'rpm.txt="{int(data["rpm"])}"'
         )
 
-        send_cmd(
+        bytes_written += send_cmd(
             ser,
             f'afr.txt="{data["afr"]:.1f}"'
         )
 
-        send_cmd(
+        bytes_written += send_cmd(
             ser,
             f'clt.txt="{int(data["clt"])}C"'
         )
 
-        send_cmd(
+        bytes_written += send_cmd(
             ser,
             f'adv.txt="{data["advance"]:.1f}"'
         )
 
-        send_cmd(
+        bytes_written += send_cmd(
             ser,
             f'vss.txt="{int(data["vss"])}"'
         )
 
         logger.info(
-            "sent to nextion: rpm=%s afr=%.1f clt=%s advance=%.1f vss=%s",
+            "sent to nextion: version=%s decoded=%s bytes=%s "
+            "rpm=%s afr=%.1f clt=%s advance=%.1f vss=%s",
+            data.get("_version"),
+            data.get("decoded"),
+            bytes_written,
             int(data["rpm"]),
             float(data["afr"]),
             int(data["clt"]),
@@ -73,7 +82,12 @@ def nextion_worker(config):
 
         time.sleep(2)
 
-        logger.info("Nextion connected")
+        logger.info(
+            "Nextion connected on %s @ %s is_open=%s",
+            ser.port,
+            ser.baudrate,
+            ser.is_open,
+        )
 
     except Exception as e:
 
