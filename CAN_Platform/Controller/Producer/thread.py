@@ -385,31 +385,45 @@ def parse_gvret_frame(ser, config, dbc, state_mapping):
 
 def can_reader(config):
 
-    dbc = load_dbc(config["dbc"])
-    state_mapping = load_state_mapping(
-        config.get("state_mapping", "./rusefi_state_mapping.json")
-    )
+    try:
+        logger.info("CAN reader setup starting")
 
-    session = Services.create_session(
-        config.get("session_description", "CAN acquisition")
-    )
+        dbc = load_dbc(config["dbc"])
+        state_mapping = load_state_mapping(
+            config.get("state_mapping", "./rusefi_state_mapping.json")
+        )
 
-    last_state_save = 0
-    state_save_interval = float(
-        config.get("state_save_interval", 1.0)
-    )
+        logger.info("Creating CAN DB session")
+        session = Services.create_session(
+            config.get("session_description", "CAN acquisition")
+        )
+        logger.info("CAN DB session started: %s", session.id)
 
-    ser = serial.Serial(
-        port=config["com"],
-        baudrate=config["baud_rate"],
-        timeout=1
-    )
+        last_state_save = 0
+        state_save_interval = float(
+            config.get("state_save_interval", 1.0)
+        )
 
-    # enable GVRET binary mode
-    ser.write(bytes([0xE7]))
+        logger.info(
+            "Opening CAN serial port %s @ %s",
+            config["com"],
+            config["baud_rate"],
+        )
+        ser = serial.Serial(
+            port=config["com"],
+            baudrate=config["baud_rate"],
+            timeout=1
+        )
+        logger.info("CAN serial port opened")
 
-    logger.info("GVRET binary mode enabled")
-    logger.info(f"CAN DB session started: {session.id}")
+        # enable GVRET binary mode
+        logger.info("Enabling GVRET binary mode")
+        ser.write(bytes([0xE7]))
+        logger.info("GVRET binary mode enabled")
+
+    except Exception:
+        logger.exception("CAN reader setup failed")
+        return
 
     can_log_interval = float(config.get("can_log_interval", 5.0))
     log_can_activity = bool(config.get("log_can_activity", True))
@@ -477,8 +491,8 @@ def can_reader(config):
                     )
                 else:
                     logger.warning(
-                        "CAN reader alive, but no GVRET CAN frames received "
-                        "in the last %.1fs. parser=%s",
+                        "CAN serial is open, but no GVRET CAN frames were "
+                        "received in the last %.1fs. parser=%s",
                         can_log_interval,
                         parser_delta,
                     )

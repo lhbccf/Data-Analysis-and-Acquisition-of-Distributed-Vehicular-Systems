@@ -44,6 +44,15 @@ def update_nextion(ser, data):
             f'vss.txt="{int(data["vss"])}"'
         )
 
+        logger.info(
+            "sent to nextion: rpm=%s afr=%.1f clt=%s advance=%.1f vss=%s",
+            int(data["rpm"]),
+            float(data["afr"]),
+            int(data["clt"]),
+            float(data["advance"]),
+            int(data["vss"]),
+        )
+
         return True
 
     except Exception as e:
