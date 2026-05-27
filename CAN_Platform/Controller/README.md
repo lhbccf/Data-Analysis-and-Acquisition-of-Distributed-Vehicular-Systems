@@ -485,7 +485,13 @@ Nextion test:
 python tests/integration/test_nextion.py
 ```
 
-This requires the real Nextion serial connection.
+This requires the real Nextion serial connection. It sends a short manual
+sequence of fixed values to the `rpm`, `afr`, `clt`, `adv`, and `vss` fields,
+so the display can be checked visually. Optional port and baud arguments:
+
+```bash
+python tests/integration/test_nextion.py /dev/serial0 115200
+```
 
 ## Troubleshooting
 

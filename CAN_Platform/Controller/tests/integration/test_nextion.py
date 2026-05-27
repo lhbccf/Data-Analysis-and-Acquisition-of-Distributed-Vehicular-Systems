@@ -1,4 +1,3 @@
-import random
 import sys
 import time
 from pathlib import Path
@@ -12,29 +11,95 @@ from extra.signal_cache import signal_cache
 from nextion.thread import start_nextion
 
 
-config = {
-    "nextion_port": "/dev/serial0",
-    "nextion_baud": 9600
-}
+SCENARIOS = [
+    {
+        "name": "Idle",
+        "rpm": 850,
+        "afr": 14.7,
+        "clt": 72,
+        "advance": 8.0,
+        "vss": 0,
+    },
+    {
+        "name": "Warm cruise",
+        "rpm": 2450,
+        "afr": 14.2,
+        "clt": 86,
+        "advance": 28.5,
+        "vss": 58,
+    },
+    {
+        "name": "Acceleration",
+        "rpm": 5200,
+        "afr": 12.8,
+        "clt": 91,
+        "advance": 22.0,
+        "vss": 116,
+    },
+    {
+        "name": "High temperature",
+        "rpm": 3100,
+        "afr": 13.4,
+        "clt": 106,
+        "advance": 16.5,
+        "vss": 74,
+    },
+    {
+        "name": "Back to idle",
+        "rpm": 920,
+        "afr": 14.6,
+        "clt": 89,
+        "advance": 9.5,
+        "vss": 0,
+    },
+]
 
-start_nextion(config)
 
-print("Sending random test data to Nextion...")
+def read_config_from_args():
+    port = sys.argv[1] if len(sys.argv) > 1 else "/dev/serial0"
+    baud = int(sys.argv[2]) if len(sys.argv) > 2 else 9600
 
-
-while True:
-
-    fake_data = {
-        "rpm": random.randint(800, 9000),
-        "afr": round(random.uniform(10.0, 18.0), 1),
-        "clt": random.randint(60, 110),
-        "advance": round(random.uniform(0, 40), 1),
-        "vss": random.randint(0, 220),
-        "timestamp": time.time()
+    return {
+        "nextion_port": port,
+        "nextion_baud": baud,
     }
 
-    print(fake_data)
 
-    signal_cache.update_batch(fake_data)
+def print_scenario(index, scenario):
+    print(
+        f"{index}. {scenario['name']}: "
+        f"rpm={scenario['rpm']} "
+        f"afr={scenario['afr']} "
+        f"clt={scenario['clt']} "
+        f"advance={scenario['advance']} "
+        f"vss={scenario['vss']}"
+    )
 
-    time.sleep(0.2)
+
+def main():
+    config = read_config_from_args()
+    print(
+        "Starting Nextion manual value test on "
+        f"{config['nextion_port']} @ {config['nextion_baud']} baud"
+    )
+    print("Watch the display fields: rpm, afr, clt, adv, vss")
+    print()
+
+    start_nextion(config)
+    time.sleep(2.5)
+
+    for index, scenario in enumerate(SCENARIOS, start=1):
+        values = dict(scenario)
+        values.pop("name")
+        values["timestamp"] = time.time()
+
+        print_scenario(index, scenario)
+        signal_cache.update_batch(values)
+        time.sleep(2)
+
+    print()
+    print("Manual Nextion value test finished.")
+
+
+if __name__ == "__main__":
+    main()
