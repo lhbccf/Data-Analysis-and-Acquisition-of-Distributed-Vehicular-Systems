@@ -60,44 +60,59 @@ def build_gvret_frame(can_id, data, timestamp):
 
 def make_fake_dbc():
     return FakeDBC({
-        0x100: FakeMessage(
+        0x200: FakeMessage(
             "BASE0",
-            2,
+            8,
             lambda data: {
-                "Fan": data[0],
-                "FuelPumpAct": data[1],
+                "FuelPumpAct": (data[4] >> 2) & 0x01,
+                "Fan": (data[4] >> 6) & 0x01,
             },
         ),
-        0x101: FakeMessage(
+        0x201: FakeMessage(
             "BASE1",
-            6,
+            8,
             lambda data: {
                 "RPM": struct.unpack("<H", data[0:2])[0],
-                "IgnitionTiming": struct.unpack("<h", data[2:4])[0] / 10,
-                "VehicleSpeed": struct.unpack("<H", data[4:6])[0] / 10,
+                "IgnitionTiming": struct.unpack("<h", data[2:4])[0] * 0.02,
+                "VehicleSpeed": data[6],
             },
         ),
-        0x103: FakeMessage(
+        0x202: FakeMessage(
+            "BASE2",
+            8,
+            lambda data: {
+                "TPS1": struct.unpack("<h", data[2:4])[0] * 0.01,
+                "Wastegate": struct.unpack("<h", data[6:8])[0] * 0.01,
+            },
+        ),
+        0x203: FakeMessage(
             "BASE3",
-            6,
+            8,
             lambda data: {
-                "MAP": struct.unpack("<H", data[0:2])[0] / 10,
-                "CoolantTemp": struct.unpack("<h", data[2:4])[0] / 10,
-                "IntakeTemp": struct.unpack("<h", data[4:6])[0] / 10,
+                "MAP": struct.unpack("<H", data[0:2])[0] * 0.03333333,
+                "CoolantTemp": data[2] - 40,
+                "IntakeTemp": data[3] - 40,
             },
         ),
-        0x104: FakeMessage(
+        0x204: FakeMessage(
             "BASE4",
-            2,
+            8,
             lambda data: {
-                "BattVolt": struct.unpack("<H", data[0:2])[0] / 10,
+                "BattVolt": struct.unpack("<H", data[6:8])[0] * 0.001,
             },
         ),
-        0x107: FakeMessage(
-            "BASE7",
-            2,
+        0x205: FakeMessage(
+            "BASE5",
+            8,
             lambda data: {
-                "Lam1": struct.unpack("<H", data[0:2])[0] / 1000,
+                "InjPW": struct.unpack("<H", data[4:6])[0] * 0.003333333,
+            },
+        ),
+        0x207: FakeMessage(
+            "BASE7",
+            8,
+            lambda data: {
+                "Lam1": struct.unpack("<H", data[0:2])[0] * 0.0001,
             },
         ),
     })
@@ -162,11 +177,33 @@ def test_emulated_can_frames_are_saved_to_database():
         session = Services.create_session("emulated CAN DB test")
 
         frames = [
-            build_gvret_frame(0x100, bytes([1, 1]), 1000),
-            build_gvret_frame(0x101, struct.pack("<HhH", 3500, 225, 802), 1001),
-            build_gvret_frame(0x103, struct.pack("<Hhh", 1234, 865, 312), 1002),
-            build_gvret_frame(0x104, struct.pack("<H", 138), 1003),
-            build_gvret_frame(0x107, struct.pack("<H", 1000), 1004),
+            build_gvret_frame(0x200, bytes([0, 0, 0, 0, 0b01000100, 0, 0, 0]), 1000),
+            build_gvret_frame(
+                0x201,
+                struct.pack("<HhBBBx", 3500, 1125, 0, 0, 80),
+                1001,
+            ),
+            build_gvret_frame(
+                0x202,
+                struct.pack("<HhHh", 0, 4225, 0, 5550),
+                1002,
+            ),
+            build_gvret_frame(
+                0x203,
+                struct.pack("<HBBBBBB", 3702, 126, 71, 0, 0, 0, 0),
+                1003,
+            ),
+            build_gvret_frame(
+                0x204,
+                bytes([0, 0, 0, 0, 0, 0]) + struct.pack("<H", 13800),
+                1004,
+            ),
+            build_gvret_frame(
+                0x205,
+                bytes([0, 0, 0, 0]) + struct.pack("<H", 1260) + bytes([0, 0]),
+                1005,
+            ),
+            build_gvret_frame(0x207, struct.pack("<H", 10000) + bytes(6), 1006),
             build_gvret_frame(0x999, bytes.fromhex("01 02 03 04"), 1005),
         ]
 
@@ -192,11 +229,11 @@ def test_emulated_can_frames_are_saved_to_database():
             fetch_database_summary(db_path)
         )
 
-    assert len(parsed_frames) == 6
+    assert len(parsed_frames) == 8
     assert parsed_frames[-1]["decoded"] is False
     assert parsed_frames[-1]["can_id"] == 0x999
-    assert can_frame_count == 6
-    assert state_count == 5
+    assert can_frame_count == 8
+    assert state_count == 7
     assert raw_unknown_frame["data"] == "01020304"
     assert latest_state["rpm"] == 3500
     assert latest_state["sync"] == 1
@@ -204,11 +241,14 @@ def test_emulated_can_frames_are_saved_to_database():
     assert latest_state["fan"] == 1
     assert latest_state["fp"] == 1
     assert latest_state["advance"] == 22.5
-    assert latest_state["vss"] == 80.2
-    assert latest_state["map"] == 123.4
-    assert latest_state["clt"] == 86.5
-    assert latest_state["iat"] == 31.2
+    assert latest_state["vss"] == 80
+    assert latest_state["tps"] == 42.25
+    assert latest_state["boost_duty"] == 55.5
+    assert round(latest_state["map"], 2) == 123.40
+    assert latest_state["clt"] == 86
+    assert latest_state["iat"] == 31
     assert latest_state["battery_voltage"] == 13.8
+    assert round(latest_state["pulse_width"], 2) == 4.20
     assert latest_state["afr"] == 14.7
 
 
@@ -216,11 +256,11 @@ def test_short_gvret_payload_is_not_decoded():
     mapping = producer_thread.load_state_mapping(
         CONTROLLER_DIR / "rusefi_state_mapping.json"
     )
-    ser = FakeSerial(build_gvret_frame(0x101, bytes([0xAA, 0xBB]), 2000))
+    ser = FakeSerial(build_gvret_frame(0x201, bytes([0xAA, 0xBB]), 2000))
 
     frame = producer_thread.parse_gvret_frame(ser, {}, make_fake_dbc(), mapping)
 
-    assert frame["can_id"] == 0x101
+    assert frame["can_id"] == 0x201
     assert frame["can_dlc"] == 2
     assert frame["can_data"] == "aabb"
     assert frame["decoded"] is False
