@@ -170,9 +170,6 @@ def fetch_database_summary(db_path):
 
 def test_emulated_can_frames_are_saved_to_database():
     with isolated_database() as db_path:
-        mapping = producer_thread.load_state_mapping(
-            CONTROLLER_DIR / "rusefi_state_mapping.json"
-        )
         dbc = make_fake_dbc()
         session = Services.create_session("emulated CAN DB test")
 
@@ -211,7 +208,7 @@ def test_emulated_can_frames_are_saved_to_database():
         parsed_frames = []
 
         for _ in frames:
-            frame = producer_thread.parse_gvret_frame(ser, {}, dbc, mapping)
+            frame = producer_thread.parse_gvret_frame(ser, {}, dbc)
             parsed_frames.append(frame)
 
             Services.create_can_frame(
@@ -253,12 +250,9 @@ def test_emulated_can_frames_are_saved_to_database():
 
 
 def test_short_gvret_payload_is_not_decoded():
-    mapping = producer_thread.load_state_mapping(
-        CONTROLLER_DIR / "rusefi_state_mapping.json"
-    )
     ser = FakeSerial(build_gvret_frame(0x201, bytes([0xAA, 0xBB]), 2000))
 
-    frame = producer_thread.parse_gvret_frame(ser, {}, make_fake_dbc(), mapping)
+    frame = producer_thread.parse_gvret_frame(ser, {}, make_fake_dbc())
 
     assert frame["can_id"] == 0x201
     assert frame["can_dlc"] == 2

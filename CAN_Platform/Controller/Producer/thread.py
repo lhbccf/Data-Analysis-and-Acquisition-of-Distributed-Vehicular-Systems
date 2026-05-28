@@ -2,7 +2,6 @@ import serial
 import threading
 import time
 import random
-import json
 import struct
 import cantools
 import logging
@@ -22,11 +21,6 @@ gvret_parser_stats = {
     "short_payloads": 0,
     "decoded_errors": 0,
 }
-
-
-# =========================================================
-# HELPERS
-# =========================================================
 
 def get16(data, i):
     return (data[i] << 8) | data[i + 1]
@@ -89,8 +83,6 @@ def parse_speeduino(data):
 
     return parsed
 
-
-
 def load_dbc(path):
 
     db = cantools.database.load_file(path)
@@ -99,75 +91,6 @@ def load_dbc(path):
 
     return db
 
-
-def load_state_mapping(path):
-
-    with open(path, "r") as f:
-        mapping = json.load(f)
-
-    logger.info(f"State mapping loaded: {path}")
-
-    return mapping
-
-
-
-def rusefi_to_speeduino(decoded):
-
-    # decoded = dict com sinais da DBC
-
-    return {
-
-        # ENGINE
-        "rpm": int(decoded.get("RPMValue", 0)),
-        "sync": 1,
-        "engine_status": 1,
-
-        # LOADS
-        "map": float(decoded.get("MAPValue", 0)),
-        "baro": float(decoded.get("BaroPressure", 101.3)),
-        "tps": float(decoded.get("TPSValue", 0)),
-
-        # TEMPERATURES
-        "iat": float(decoded.get("IAT", 0)),
-        "clt": float(decoded.get("CLT", 0)),
-
-        # FUELING
-        "afr": float(decoded.get("Lambda", 0)) * 14.7,
-        "ego_correction": 100,
-        "pulse_width": float(decoded.get("InjectionPW", 0)),
-        "ve": 0,
-
-        # IGNITION
-        "advance": float(decoded.get("IgnitionAdvance", 0)),
-        "dwell": float(decoded.get("Dwell", 0)),
-
-        # ELECTRICAL
-        "battery_voltage": float(decoded.get("BatteryVoltage", 0)),
-
-        # BOOST
-        "boost_target": float(decoded.get("BoostTarget", 0)),
-        "boost_duty": float(decoded.get("BoostDuty", 0)),
-
-        # VEHICLE
-        "vss": float(decoded.get("VehicleSpeed", 0)),
-
-        # FLAGS
-        "fan": False,
-        "fp": True,
-        "boost_cut": False,
-
-        "timestamp": time.time(),
-
-        "type": "speeduino"
-    }
-
-
-# =========================================================
-# GVRET FRAME PARSER
-# =========================================================
-# =========================================================
-# GLOBAL ECU STATE
-# =========================================================
 
 ecu_state = {
 
@@ -215,12 +138,7 @@ ecu_state = {
     "type": "speeduino"
 }
 
-
-# =========================================================
-# UPDATE STATE FROM RUSEFI
-# =========================================================
-
-def update_rusefi_state(state, message_name, decoded, state_mapping=None):
+def update_rusefi_state(state, message_name, decoded):
 
     if message_name == "BASE0":
 
@@ -269,12 +187,7 @@ def update_rusefi_state(state, message_name, decoded, state_mapping=None):
 
     return state.copy()
 
-
-# =========================================================
-# GVRET FRAME PARSER
-# =========================================================
-
-def parse_gvret_frame(ser, config, dbc, state_mapping):
+def parse_gvret_frame(ser, config, dbc):
 
     global ecu_state
     global gvret_parser_stats
@@ -335,7 +248,6 @@ def parse_gvret_frame(ser, config, dbc, state_mapping):
 
             message = dbc.get_message_by_frame_id(canid)
 
-            # IGNORAR frames pequenas
             if dlc < message.length:
                 return raw_frame
 
@@ -344,8 +256,7 @@ def parse_gvret_frame(ser, config, dbc, state_mapping):
             parsed = update_rusefi_state(
                 ecu_state,
                 message.name,
-                decoded,
-                state_mapping
+                decoded
             )
 
             if not parsed:
@@ -378,10 +289,6 @@ def parse_gvret_frame(ser, config, dbc, state_mapping):
 
     gvret_parser_stats["unknown_commands"] += 1
     return None
-# =========================================================
-# CAN THREAD
-# =========================================================
-
 
 def can_reader(config):
 
@@ -389,9 +296,6 @@ def can_reader(config):
         logger.info("CAN reader setup starting")
 
         dbc = load_dbc(config["dbc"])
-        state_mapping = load_state_mapping(
-            config.get("state_mapping", "./rusefi_state_mapping.json")
-        )
 
         logger.info("Creating CAN DB session")
         session = Services.create_session(
@@ -441,8 +345,7 @@ def can_reader(config):
             frame = parse_gvret_frame(
                 ser,
                 config,
-                dbc,
-                state_mapping
+                dbc
             )
 
             now = time.time()

@@ -99,10 +99,6 @@ class App(QtWidgets.QMainWindow):
             }
         """)
 
-        # =====================================================
-        # CENTRAL
-        # =====================================================
-
         central = QtWidgets.QWidget()
 
         self.setCentralWidget(central)
@@ -111,17 +107,9 @@ class App(QtWidgets.QMainWindow):
 
         central.setLayout(root)
 
-        # =====================================================
-        # LEFT SIDE
-        # =====================================================
-
         left = QtWidgets.QVBoxLayout()
 
         root.addLayout(left, 2)
-
-        # =====================================================
-        # RPM GAUGE
-        # =====================================================
 
         self.gauge = CircularGauge(
             min_value=0,
@@ -153,10 +141,6 @@ class App(QtWidgets.QMainWindow):
 
         left.addWidget(self.rpm_label)
 
-        # =====================================================
-        # BARS
-        # =====================================================
-
         self.tps_bar = QtWidgets.QProgressBar()
         self.tps_bar.setMaximum(100)
 
@@ -165,10 +149,6 @@ class App(QtWidgets.QMainWindow):
 
         left.addWidget(self.tps_bar)
         left.addWidget(self.map_bar)
-
-        # =====================================================
-        # STATUS
-        # =====================================================
 
         status_layout = QtWidgets.QHBoxLayout()
 
@@ -195,10 +175,6 @@ class App(QtWidgets.QMainWindow):
             status_layout.addWidget(lbl)
 
         left.addLayout(status_layout)
-
-        # =====================================================
-        # RIGHT SIDE
-        # =====================================================
 
         right = QtWidgets.QGridLayout()
 
@@ -239,29 +215,17 @@ class App(QtWidgets.QMainWindow):
                 col = 0
                 row += 1
 
-        # =====================================================
-        # TIMER
-        # =====================================================
-
         self.timer = QtCore.QTimer()
 
         self.timer.timeout.connect(self.update_ui)
 
         self.timer.start(30)
 
-    # =========================================================
-    # UPDATE UI
-    # =========================================================
-
     def update_ui(self):
 
         d = signal_cache.get_all()
 
         rpm = int(d.get("rpm", 0))
-
-        # =================================================
-        # RPM
-        # =================================================
 
         self.gauge.value = rpm
         self.gauge.update()
@@ -276,10 +240,6 @@ class App(QtWidgets.QMainWindow):
             color: {rpm_color};
         """)
 
-        # =================================================
-        # BARS
-        # =================================================
-
         tps = float(d.get("tps", 0))
         mapv = float(d.get("map", 0))
 
@@ -288,10 +248,6 @@ class App(QtWidgets.QMainWindow):
 
         self.map_bar.setValue(int(mapv))
         self.map_bar.setFormat(f"MAP {mapv:.1f} kPa")
-
-        # =================================================
-        # STATUS
-        # =================================================
 
         self.set_status(
             self.sync_status,
@@ -310,10 +266,6 @@ class App(QtWidgets.QMainWindow):
             "FAN",
             d.get("fan", False)
         )
-
-        # =================================================
-        # CARDS
-        # =================================================
 
         self.cards["TPS"].set_value(
             f"{tps:.1f}"
@@ -366,10 +318,6 @@ class App(QtWidgets.QMainWindow):
         self.cards["DWELL"].set_value(
             f"{d.get('dwell', 0):.1f}"
         )
-
-    # =========================================================
-    # STATUS HELPER
-    # =========================================================
 
     def set_status(self, widget, text, active):
 

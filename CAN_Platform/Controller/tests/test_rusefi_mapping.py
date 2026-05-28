@@ -1,11 +1,9 @@
-import json
 import re
 from pathlib import Path
 
 
 CONTROLLER_DIR = Path(__file__).resolve().parents[1]
 DBC_PATH = CONTROLLER_DIR / "rusefi.dbc"
-MAPPING_PATH = CONTROLLER_DIR / "rusefi_state_mapping.json"
 
 
 def parse_dbc_messages(path):
@@ -30,22 +28,25 @@ def parse_dbc_messages(path):
     return messages
 
 
-def test_state_mapping_references_existing_dbc_messages_and_signals():
+def test_rusefi_dbc_has_signals_used_by_the_producer():
     dbc_messages = parse_dbc_messages(DBC_PATH)
-    state_mapping = json.loads(MAPPING_PATH.read_text())
 
-    for message_name, rules in state_mapping["messages"].items():
+    expected_signals = {
+        "BASE0": {"Fan", "FuelPumpAct"},
+        "BASE1": {"RPM", "IgnitionTiming", "VehicleSpeed"},
+        "BASE2": {"TPS1", "Wastegate"},
+        "BASE3": {"MAP", "CoolantTemp", "IntakeTemp"},
+        "BASE4": {"BattVolt"},
+        "BASE5": {"InjPW"},
+        "BASE7": {"Lam1"},
+    }
+
+    for message_name, signal_names in expected_signals.items():
         assert message_name in dbc_messages
-
-        dbc_signals = dbc_messages[message_name]["signals"]
-        for target, rule in rules.get("signals", {}).items():
-            assert rule["source"] in dbc_signals, (
-                f"{message_name}.{target} maps missing DBC signal "
-                f"{rule['source']}"
-            )
+        assert signal_names.issubset(dbc_messages[message_name]["signals"])
 
 
-def test_mapped_base_messages_use_rusefi_standard_ids():
+def test_base_messages_use_rusefi_standard_ids():
     dbc_messages = parse_dbc_messages(DBC_PATH)
 
     assert dbc_messages["BASE0"]["frame_id"] == 0x200

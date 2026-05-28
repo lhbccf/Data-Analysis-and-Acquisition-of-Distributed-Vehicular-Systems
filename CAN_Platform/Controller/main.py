@@ -28,7 +28,7 @@ def load_config(path=BASE_DIR / "config.json"):
     with open(path, "r") as f:
         config = json.load(f)
 
-    for key in ["dbc", "state_mapping"]:
+    for key in ["dbc"]:
         if key in config:
             config[key] = resolve_relative_path(config[key])
 

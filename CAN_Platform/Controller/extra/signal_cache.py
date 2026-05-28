@@ -53,7 +53,6 @@ DEFAULT_SIGNAL_DATA = {
     "decoded": False,
     "_version": 0,
 
-    # Backwards-compatible aliases used by older consumers.
     "temp": 0.0,
     "battery": 12.5,
     "timing": 0.0,
@@ -97,7 +96,6 @@ class SignalCache:
             self._mark_updated()
 
     def update_batch(self, data_dict):
-        """Update multiple signals at once."""
         with self._lock:
             self._data.update(data_dict)
             self._sync_aliases(set(data_dict.keys()))
@@ -108,9 +106,7 @@ class SignalCache:
             return dict(self._data)
 
     def get_formatted_string(self):
-        """Return signals as comma-separated string for BLE transmission."""
         with self._lock:
-            # Format: rpm,temp,afr,tps,map,battery,dwell,timing
             return (
                 f"{int(self._data['rpm'])},"
                 f"{self._data['temp']:.1f},"
@@ -122,5 +118,4 @@ class SignalCache:
                 f"{self._data['timing']:.1f}"
             )
 
-# Singleton instance
 signal_cache = SignalCache()
