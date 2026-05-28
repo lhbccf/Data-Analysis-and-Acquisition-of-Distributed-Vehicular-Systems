@@ -1,0 +1,20 @@
+{
+    "0x0CFF": [
+        {
+            "name": "RPM",
+            "start_byte": 0,
+            "length": 2,
+            "factor": 0.25,
+            "offset": 0,
+            "unit": "rpm"
+        },
+        {
+            "name": "CoolantTemp",
+            "start_byte": 2,
+            "length": 1,
+            "factor": 1,
+            "offset": -40,
+            "unit": "°C"
+        }
+    ]
+}
