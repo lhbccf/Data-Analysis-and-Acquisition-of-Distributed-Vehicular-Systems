@@ -51,11 +51,6 @@
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.VehicularDataAnalysis" />
-        <activity
-            android:name=".ui.BaseViewModelActivity"
-            android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.VehicularDataAnalysis" />
     </application>
 
 </manifest>

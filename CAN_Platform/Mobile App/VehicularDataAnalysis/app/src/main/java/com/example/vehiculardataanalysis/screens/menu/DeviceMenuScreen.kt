@@ -9,9 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.vehiculardataanalysis.components.ButtonOption
 import com.example.vehiculardataanalysis.domain.Device
 import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 
@@ -50,20 +51,24 @@ fun DeviceMenuScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(innerPadding)
+                .padding(16.dp)
                 .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(rememberScrollState())
         ) {
 
 
-            Button(
-                modifier = Modifier
-                    .padding(innerPadding),
-                onClick = onLiveDataSelected
-            ) {
-                Text("Live Data")
-            }
+            Text(
+                text = "Device Options",
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ButtonOption("Live Data", onClick = onLiveDataSelected)
+            ButtonOption("Sessions Information", onClick = onLiveDataSelected)
+            ButtonOption("Overall Statistics", onClick = onLiveDataSelected)
+            ButtonOption("Device Information", onClick = onLiveDataSelected)
+
         }
     }
 }
