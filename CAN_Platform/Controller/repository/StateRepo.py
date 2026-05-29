@@ -7,6 +7,7 @@ from repository.database.database_manager import DB_PATH
 
 
 STATE_COLUMNS = (
+    "session_id",
     "rpm",
     "sync",
     "engine_status",
@@ -34,6 +35,7 @@ STATE_COLUMNS = (
 def create_vehicle_state(state):
     timestamp = time.time()
     values = (
+        state.get("session_id"),
         state.get("rpm", 0),
         int(state.get("sync", 0)),
         int(state.get("engine_status", 0)),
@@ -89,6 +91,34 @@ def get_latest_vehicle_state():
             "SELECT * FROM vehicle_state ORDER BY timestamp DESC LIMIT 1"
         )
         return cursor.fetchone()
+
+
+def get_vehicle_states_by_session_id(session_id, signals):
+    allowed_columns = {"timestamp", *STATE_COLUMNS}
+    selected_signals = [
+        signal for signal in signals
+        if signal in allowed_columns and signal != "session_id"
+    ]
+
+    if not selected_signals:
+        return []
+
+    columns = ["timestamp", *selected_signals]
+    column_sql = ", ".join(columns)
+
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute(
+            f"""
+            SELECT {column_sql}
+            FROM vehicle_state
+            WHERE session_id = ?
+            ORDER BY timestamp ASC
+            """,
+            (session_id,),
+        )
+        return [dict(row) for row in cursor.fetchall()]
 
 
 def delete_all_vehicle_states():

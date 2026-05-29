@@ -5,6 +5,16 @@ from contextlib import closing
 DB_PATH = "ecu_data.db"
 
 
+def _ensure_column(cursor, table_name, column_name, definition):
+    cursor.execute(f"PRAGMA table_info({table_name})")
+    columns = {row[1] for row in cursor.fetchall()}
+
+    if column_name not in columns:
+        cursor.execute(
+            f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}"
+        )
+
+
 def database_setup():
     with closing(sqlite3.connect(DB_PATH)) as conn:
         cursor = conn.cursor()
@@ -42,6 +52,7 @@ def database_setup():
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS vehicle_state (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id INTEGER REFERENCES sessions(id),
             timestamp REAL NOT NULL,
             rpm INTEGER,
             sync INTEGER,
@@ -66,6 +77,13 @@ def database_setup():
             boost_cut INTEGER
         )
         """)
+
+        _ensure_column(
+            cursor,
+            "vehicle_state",
+            "session_id",
+            "INTEGER REFERENCES sessions(id)",
+        )
 
         conn.commit()
 

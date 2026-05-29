@@ -64,3 +64,11 @@ def get_all_vehicle_states():
 
 def delete_all_vehicle_states():
     StateRepo.delete_all_vehicle_states()
+
+
+def get_recent_sessions(limit=5):
+    return SessionRepo.get_recent_sessions(limit)
+
+
+def get_vehicle_states_by_session_id(session_id, signals):
+    return StateRepo.get_vehicle_states_by_session_id(session_id, signals)

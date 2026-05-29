@@ -6,6 +6,12 @@ from domain.Session import Session
 from repository.database.database_manager import DB_PATH
 
 
+def _row_to_session(row):
+    session = Session(row[0], row[1], row[3])
+    session.end_time = row[2]
+    return session
+
+
 def create_session(description="Test Session"):
     with closing(sqlite3.connect(DB_PATH)) as conn:
         cursor = conn.cursor()
@@ -45,6 +51,21 @@ def clear_session_frames(session_id):
             (session_id,),
         )
         conn.commit()
+
+
+def get_recent_sessions(limit=5):
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT id, start_time, end_time, description
+            FROM sessions
+            ORDER BY start_time DESC
+            LIMIT ?
+            """,
+            (limit,),
+        )
+        return [_row_to_session(row) for row in cursor.fetchall()]
 
 
 def close_database():

@@ -12,16 +12,6 @@ from extra.logging_setup import configure_logging
 LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
 
-gvret_parser_stats = {
-    "empty_reads": 0,
-    "bad_start_bytes": 0,
-    "empty_commands": 0,
-    "unknown_commands": 0,
-    "short_headers": 0,
-    "short_payloads": 0,
-    "decoded_errors": 0,
-}
-
 def get16(data, i):
     return (data[i] << 8) | data[i + 1]
 
@@ -190,22 +180,18 @@ def update_rusefi_state(state, message_name, decoded):
 def parse_gvret_frame(ser, config, dbc):
 
     global ecu_state
-    global gvret_parser_stats
 
     start = ser.read(1)
 
     if not start:
-        gvret_parser_stats["empty_reads"] += 1
         return None
 
     if start[0] != 0xF1:
-        gvret_parser_stats["bad_start_bytes"] += 1
         return None
 
     cmd = ser.read(1)
 
     if not cmd:
-        gvret_parser_stats["empty_commands"] += 1
         return None
 
     cmd = cmd[0]
@@ -215,7 +201,6 @@ def parse_gvret_frame(ser, config, dbc):
         header = ser.read(9)
 
         if len(header) < 9:
-            gvret_parser_stats["short_headers"] += 1
             return None
 
         timestamp = struct.unpack('<I', header[0:4])[0]
@@ -229,9 +214,6 @@ def parse_gvret_frame(ser, config, dbc):
         data = ser.read(dlc)
 
         ser.read(1)
-
-        if len(data) < dlc:
-            gvret_parser_stats["short_payloads"] += 1
 
         canid = canid_raw & 0x1FFFFFFF
 
@@ -278,7 +260,6 @@ def parse_gvret_frame(ser, config, dbc):
 
         except Exception as e:
 
-            gvret_parser_stats["decoded_errors"] += 1
             logger.exception(
                 "CAN decode/mapping error for id=0x%X dlc=%s data=%s",
                 canid,
@@ -287,7 +268,6 @@ def parse_gvret_frame(ser, config, dbc):
             )
             return raw_frame
 
-    gvret_parser_stats["unknown_commands"] += 1
     return None
 
 def can_reader(config):
@@ -336,7 +316,6 @@ def can_reader(config):
     decoded_seen = 0
     undecoded_seen = 0
     latest_frame = None
-    last_parser_stats = gvret_parser_stats.copy()
 
     while True:
 
@@ -368,40 +347,32 @@ def can_reader(config):
                     decoded_seen += 1
 
                     if now - last_state_save >= state_save_interval:
+                        frame["session_id"] = session.id
                         Services.create_vehicle_state(frame)
                         last_state_save = now
 
                     signal_cache.update_batch(frame)
 
             if log_can_activity and now - last_can_log >= can_log_interval:
-                parser_delta = {
-                    key: gvret_parser_stats[key] - last_parser_stats.get(key, 0)
-                    for key in gvret_parser_stats
-                }
-
                 if latest_frame:
                     logger.info(
                         "CAN activity: frames=%s decoded=%s undecoded=%s "
-                        "latest_id=0x%X latest_msg=%s latest_dlc=%s "
-                        "parser=%s",
+                        "latest_id=0x%X latest_msg=%s latest_dlc=%s",
                         frames_seen,
                         decoded_seen,
                         undecoded_seen,
                         latest_frame["can_id"],
                         latest_frame.get("can_message", "unknown"),
                         latest_frame.get("can_dlc"),
-                        parser_delta,
                     )
                 else:
                     logger.warning(
                         "CAN serial is open, but no GVRET CAN frames were "
-                        "received in the last %.1fs. parser=%s",
+                        "received in the last %.1fs.",
                         can_log_interval,
-                        parser_delta,
                     )
 
                 last_can_log = now
-                last_parser_stats = gvret_parser_stats.copy()
                 frames_seen = 0
                 decoded_seen = 0
                 undecoded_seen = 0

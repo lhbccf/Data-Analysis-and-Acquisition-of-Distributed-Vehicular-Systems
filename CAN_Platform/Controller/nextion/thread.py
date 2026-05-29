@@ -4,6 +4,7 @@ import time
 import logging
 from extra.signal_cache import signal_cache
 from extra.logging_setup import configure_logging
+from nextion.reader import start_nextion_reader
 
 LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
@@ -210,6 +211,7 @@ def nextion_worker(config):
             ser.baudrate,
             ser.is_open,
         )
+        start_nextion_reader(ser, config)
 
     except Exception as e:
 
