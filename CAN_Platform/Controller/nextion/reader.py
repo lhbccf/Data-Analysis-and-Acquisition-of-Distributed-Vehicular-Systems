@@ -2,16 +2,16 @@ import logging
 import threading
 import time
 
-from nextion.graph_requests import handle_graph_request
+from nextion.graph_requests import handle_nextion_request
 from nextion.protocol import parse_nextion_message
 
 
 logger = logging.getLogger(__name__)
 
 
-def nextion_reader_worker(ser, config, stop_event=None, on_graph_request=None):
+def nextion_reader_worker(ser, config, stop_event=None, on_request=None):
     stop_event = stop_event or threading.Event()
-    on_graph_request = on_graph_request or handle_graph_request
+    on_request = on_request or handle_nextion_request
     max_message_size = int(config.get("nextion_rx_max_message_size", 256))
     buffer = bytearray()
 
@@ -46,7 +46,7 @@ def nextion_reader_worker(ser, config, stop_event=None, on_graph_request=None):
                 logger.debug("Ignoring Nextion RX message: %r", raw_message)
                 continue
 
-            on_graph_request(ser, request)
+            on_request(ser, request, config)
 
         except Exception as exc:
             logger.exception("Nextion RX error: %s", exc)
@@ -54,11 +54,11 @@ def nextion_reader_worker(ser, config, stop_event=None, on_graph_request=None):
             time.sleep(0.5)
 
 
-def start_nextion_reader(ser, config, on_graph_request=None):
+def start_nextion_reader(ser, config, on_request=None):
     thread = threading.Thread(
         target=nextion_reader_worker,
         args=(ser, config),
-        kwargs={"on_graph_request": on_graph_request},
+        kwargs={"on_request": on_request},
         daemon=True,
         name="NextionRxThread",
     )

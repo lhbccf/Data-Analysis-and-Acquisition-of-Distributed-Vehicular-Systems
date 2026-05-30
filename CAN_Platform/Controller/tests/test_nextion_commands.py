@@ -13,6 +13,7 @@ if "serial" not in sys.modules and importlib.util.find_spec("serial") is None:
     sys.modules["serial"] = types.ModuleType("serial")
 
 from nextion.thread import update_nextion
+from nextion.thread import format_sessions_text
 
 
 class FakeSerial:
@@ -26,6 +27,21 @@ class FakeSerial:
 class BrokenSerial:
     def write(self, data):
         raise OSError("serial write failed")
+
+
+class FakeSession:
+    def __init__(self, id, description):
+        self.id = id
+        self.description = description
+
+
+def test_format_sessions_text_uses_display_indices_and_sanitizes_names():
+    text = format_sessions_text([
+        FakeSession(10, 'Track "A"'),
+        FakeSession(9, None),
+    ])
+
+    assert text == "0: Track 'A'\r1: Session 9"
 
 
 def test_update_nextion_sends_expected_hardcoded_fields():

@@ -1,6 +1,7 @@
 import logging
 
-from nextion.protocol import GraphRequest
+from extra.session_manager import session_manager
+from nextion.protocol import GraphRequest, NewSessionRequest
 from repository import SessionRepo, StateRepo
 
 
@@ -33,7 +34,13 @@ def build_graph_payload(request):
     }
 
 
-def handle_graph_request(ser, request):
+def handle_nextion_request(ser, request, config=None):
+    if isinstance(request, NewSessionRequest):
+        description = "CAN acquisition"
+        if config:
+            description = config.get("session_description", description)
+        return session_manager.start_new_session(description)
+
     if not isinstance(request, GraphRequest):
         logger.warning("Ignoring unsupported Nextion request: %r", request)
         return None

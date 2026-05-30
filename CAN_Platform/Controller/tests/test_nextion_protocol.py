@@ -18,3 +18,9 @@ def test_parse_graph_params_message_normalizes_aliases():
 
 def test_parse_non_params_message_is_ignored():
     assert parse_nextion_message(b"\x01\xff\xff\xff") is None
+
+
+def test_parse_new_session_message():
+    request = parse_nextion_message(b"NEW_SESSION|")
+
+    assert request.__class__.__name__ == "NewSessionRequest"

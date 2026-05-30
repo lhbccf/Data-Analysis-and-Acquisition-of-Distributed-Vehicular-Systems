@@ -8,6 +8,7 @@ import logging
 from services import Services
 from extra.signal_cache import signal_cache
 from extra.logging_setup import configure_logging
+from extra.session_manager import session_manager
 
 LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
@@ -277,11 +278,7 @@ def can_reader(config):
 
         dbc = load_dbc(config["dbc"])
 
-        logger.info("Creating CAN DB session")
-        session = Services.create_session(
-            config.get("session_description", "CAN acquisition")
-        )
-        logger.info("CAN DB session started: %s", session.id)
+        logger.info("Waiting for Nextion NEW_SESSION before DB recording")
 
         last_state_save = 0
         state_save_interval = float(
@@ -316,6 +313,7 @@ def can_reader(config):
     decoded_seen = 0
     undecoded_seen = 0
     latest_frame = None
+    active_session_id = None
 
     while True:
 
@@ -332,21 +330,27 @@ def can_reader(config):
             if frame:
                 frames_seen += 1
                 latest_frame = frame
+                session = session_manager.get_current_session()
 
-                Services.create_can_frame(
-                    session_id=session.id,
-                    can_id=frame["can_id"],
-                    dlc=frame["can_dlc"],
-                    data=frame["can_data"],
-                    timestamp=frame.get("received_at")
-                )
+                if session is not None:
+                    if session.id != active_session_id:
+                        active_session_id = session.id
+                        last_state_save = 0
+
+                    Services.create_can_frame(
+                        session_id=session.id,
+                        can_id=frame["can_id"],
+                        dlc=frame["can_dlc"],
+                        data=frame["can_data"],
+                        timestamp=frame.get("received_at")
+                    )
 
                 if not frame.get("decoded"):
                     undecoded_seen += 1
                 else:
                     decoded_seen += 1
 
-                    if now - last_state_save >= state_save_interval:
+                    if session is not None and now - last_state_save >= state_save_interval:
                         frame["session_id"] = session.id
                         Services.create_vehicle_state(frame)
                         last_state_save = now

@@ -5,6 +5,7 @@ import logging
 from extra.signal_cache import signal_cache
 from extra.logging_setup import configure_logging
 from nextion.reader import start_nextion_reader
+from repository import SessionRepo
 
 LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
@@ -19,6 +20,26 @@ def send_cmd(ser, cmd):
     if hasattr(ser, "flush"):
         ser.flush()
     return (written or len(payload)) + (written_terminator or len(terminator))
+
+
+def _sanitize_nextion_text(value):
+    return str(value).replace('"', "'").replace("\n", " ").replace("\r", " ")
+
+
+def format_sessions_text(sessions):
+    lines = []
+
+    for index, session in enumerate(sessions):
+        description = session.description or f"Session {session.id}"
+        lines.append(f"{index}: {_sanitize_nextion_text(description)}")
+
+    return "\r".join(lines)
+
+
+def update_sessions_list(ser, limit=5):
+    sessions = SessionRepo.get_recent_sessions(limit)
+    text = format_sessions_text(sessions)
+    return send_cmd(ser, f'sessions.txt="{text}"')
 
 
 def update_nextion(ser, data, max_rpm, shift_point):
@@ -219,6 +240,9 @@ def nextion_worker(config):
         return
 
     last_version = None
+    last_sessions_update = 0
+    sessions_interval = float(config.get("nextion_sessions_interval", 1.0))
+    sessions_limit = int(config.get("nextion_sessions_limit", 5))
 
     while True:
 
@@ -231,6 +255,11 @@ def nextion_worker(config):
 
                 if update_nextion(ser, data, config["redline"], config["shift_point"]):
                     last_version = version
+
+            now = time.time()
+            if now - last_sessions_update >= sessions_interval:
+                update_sessions_list(ser, sessions_limit)
+                last_sessions_update = now
 
             time.sleep(0.1)
 

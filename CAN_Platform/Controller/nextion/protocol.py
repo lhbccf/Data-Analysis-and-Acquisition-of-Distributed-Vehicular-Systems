@@ -7,6 +7,11 @@ class GraphRequest:
     signals: tuple
 
 
+@dataclass(frozen=True)
+class NewSessionRequest:
+    pass
+
+
 SIGNAL_ALIASES = {
     "adv": "advance",
     "pw": "pulse_width",
@@ -23,6 +28,9 @@ def parse_nextion_message(message):
         message = message.replace(b"\xff", b"").decode(errors="ignore")
 
     message = message.strip().strip("|").strip()
+
+    if message == "NEW_SESSION":
+        return NewSessionRequest()
 
     if not message.startswith("PARAMS:"):
         return None
