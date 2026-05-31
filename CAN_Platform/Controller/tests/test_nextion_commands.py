@@ -12,8 +12,7 @@ if str(CONTROLLER_DIR) not in sys.path:
 if "serial" not in sys.modules and importlib.util.find_spec("serial") is None:
     sys.modules["serial"] = types.ModuleType("serial")
 
-from nextion.thread import update_nextion
-from nextion.thread import format_sessions_text
+from nextion.thread import format_sessions_text, update_nextion
 
 
 class FakeSerial:

@@ -6,6 +6,7 @@ from repository import SessionRepo, StateRepo
 
 
 logger = logging.getLogger(__name__)
+DEFAULT_SESSION_DESCRIPTION = "CAN acquisition"
 
 
 def get_session_for_display_index(index, limit=5):
@@ -36,9 +37,11 @@ def build_graph_payload(request):
 
 def handle_nextion_request(ser, request, config=None):
     if isinstance(request, NewSessionRequest):
-        description = "CAN acquisition"
-        if config:
-            description = config.get("session_description", description)
+        config = config or {}
+        description = config.get(
+            "session_description",
+            DEFAULT_SESSION_DESCRIPTION,
+        )
         return session_manager.start_new_session(description)
 
     if not isinstance(request, GraphRequest):

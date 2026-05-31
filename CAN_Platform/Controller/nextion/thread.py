@@ -12,14 +12,19 @@ logger = logging.getLogger(__name__)
 
 
 def send_cmd(ser, cmd):
-
     payload = cmd.encode()
     terminator = b'\xff\xff\xff'
     written = ser.write(payload)
     written_terminator = ser.write(terminator)
+
     if hasattr(ser, "flush"):
         ser.flush()
+
     return (written or len(payload)) + (written_terminator or len(terminator))
+
+
+def clamp(value, minimum=0, maximum=100):
+    return max(minimum, min(maximum, value))
 
 
 def _sanitize_nextion_text(value):
@@ -43,153 +48,47 @@ def update_sessions_list(ser, limit=5):
 
 
 def update_nextion(ser, data, max_rpm, shift_point):
-
     try:
-        afr = float(data["afr"])
-        afr_gauge = int(((afr - 10) / 10) * 100)
+        text_commands = [
+            f'rpm.txt="{int(data["rpm"])}"',
+            f'afr.txt="AFR: {data["afr"]:.1f} AFR"',
+            f'clt.txt="CLT: {int(data["clt"])} C"',
+            f'adv.txt="ADV: {data["advance"]:.1f} deg"',
+            f'map.txt="MAP: {data["map"]:.1f} kPa"',
+            f'baro.txt="BARO: {data["baro"]:.1f} kPa"',
+            f'tps.txt="TPS: {data["tps"]:.1f} %"',
+            f'iat.txt="IAT: {int(data["iat"])} C"',
+            f'ego.txt="EGO: {data["ego_correction"]:.0f} %"',
+            f'pw.txt="PW: {data["pulse_width"]:.2f} ms"',
+            f've.txt="VE: {int(data["ve"])} %"',
+            f'dwell.txt="DWELL: {data["dwell"]:.1f} ms"',
+            f'bat.txt="BAT: {data["battery_voltage"]:.1f} V"',
+            f'boost.txt="BOOST: {data["boost_target"]:.1f} kPa"',
+            f'duty.txt="DUTY: {data["boost_duty"]:.0f} %"',
+            f'sync.txt="SYNC: {int(data["sync"])}"',
+            f'engine.txt="ENGINE: {int(data["engine_status"])}"',
+            f'fan.txt="FAN: {int(data["fan"])}"',
+            f'fp.txt="FP: {int(data["fp"])}"',
+            f'boostcut.txt="BOOSTCUT: {int(data["boost_cut"])}"',
+        ]
 
-        if afr_gauge < 0:
-            afr_gauge = 0
-        elif afr_gauge > 100:
-            afr_gauge = 100
-
-        bytes_written = send_cmd(
-            ser,
-            f'rpm.txt="{int(data["rpm"])}"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'afr.txt="AFR: {data["afr"]:.1f} AFR"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'clt.txt="CLT: {int(data["clt"])} C"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'adv.txt="ADV: {data["advance"]:.1f} deg"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'map.txt="MAP: {data["map"]:.1f} kPa"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'baro.txt="BARO: {data["baro"]:.1f} kPa"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'tps.txt="TPS: {data["tps"]:.1f} %"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'iat.txt="IAT: {int(data["iat"])} C"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'ego.txt="EGO: {data["ego_correction"]:.0f} %"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'pw.txt="PW: {data["pulse_width"]:.2f} ms"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f've.txt="VE: {int(data["ve"])} %"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'dwell.txt="DWELL: {data["dwell"]:.1f} ms"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'bat.txt="BAT: {data["battery_voltage"]:.1f} V"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'boost.txt="BOOST: {data["boost_target"]:.1f} kPa"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'duty.txt="DUTY: {data["boost_duty"]:.0f} %"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'sync.txt="SYNC: {int(data["sync"])}"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'engine.txt="ENGINE: {int(data["engine_status"])}"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'fan.txt="FAN: {int(data["fan"])}"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'fp.txt="FP: {int(data["fp"])}"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'boostcut.txt="BOOSTCUT: {int(data["boost_cut"])}"'
-        )
-
-        bytes_written += send_cmd(
-            ser,
-            f'rpmgauge.val="{int((data["rpm"] / max_rpm)*100)}"'
-        )
-
+        rpm_percent = int((data["rpm"] / max_rpm) * 100)
         clt = data["clt"]
+        clt_gauge = clamp(int(((clt - 60) / 60) * 100))
+        afr_gauge = clamp(int(((float(data["afr"]) - 10) / 10) * 100))
+        shiftlight_color = 6400 if int(data["rpm"]) > shift_point else 0
 
-        if clt < 60:
-            gauge = 0
-        elif clt > 120:
-            gauge = 100
-        else:
-            gauge = int(((clt - 60) / 60) * 100)
+        value_commands = [
+            f'rpmgauge.val="{rpm_percent}"',
+            f'cltgauge.val={clt_gauge}',
+            f'afrgauge.val={afr_gauge}',
+            f'vss.txt="VSS: {int(data["vss"])} km/h"',
+            f'shiftlight.pco="{shiftlight_color}"',
+        ]
 
-        bytes_written += send_cmd(
-            ser,
-            f'cltgauge.val={gauge}'
-        )
-        bytes_written += send_cmd(
-            ser,
-            f'afrgauge.val={afr_gauge}'
-        )
-        bytes_written += send_cmd(
-            ser,
-            f'vss.txt="VSS: {int(data["vss"])} km/h"'
-        )
-
-        if int(data["rpm"]) > shift_point:
-            bytes_written += send_cmd(
-                ser,
-                f'shiftlight.pco="{6400}"'
-            )
-        else:
-            bytes_written += send_cmd(
-                ser,
-                f'shiftlight.pco="{0}"'
-            )
+        bytes_written = 0
+        for command in text_commands + value_commands:
+            bytes_written += send_cmd(ser, command)
 
         logger.info(
             "sent to nextion: version=%s decoded=%s bytes=%s "
@@ -208,16 +107,14 @@ def update_nextion(ser, data, max_rpm, shift_point):
 
         return True
 
-    except Exception as e:
+    except Exception as exc:
 
-        logger.exception(f"NEXTION UPDATE ERROR: {e}")
+        logger.exception("NEXTION UPDATE ERROR: %s", exc)
         return False
 
 
 def nextion_worker(config):
-
     try:
-
         ser = serial.Serial(
             port=config["nextion_port"],
             baudrate=config.get("nextion_baud", 115200),
@@ -234,9 +131,9 @@ def nextion_worker(config):
         )
         start_nextion_reader(ser, config)
 
-    except Exception as e:
+    except Exception as exc:
 
-        logger.exception(f"SERIAL INIT ERROR: {e}")
+        logger.exception("SERIAL INIT ERROR: %s", exc)
         return
 
     last_version = None
@@ -253,7 +150,12 @@ def nextion_worker(config):
 
             if version != last_version:
 
-                if update_nextion(ser, data, config["redline"], config["shift_point"]):
+                if update_nextion(
+                    ser,
+                    data,
+                    config["redline"],
+                    config["shift_point"],
+                ):
                     last_version = version
 
             now = time.time()
@@ -263,9 +165,9 @@ def nextion_worker(config):
 
             time.sleep(0.1)
 
-        except Exception as e:
+        except Exception as exc:
 
-            logger.exception(f"NEXTION ERROR: {e}")
+            logger.exception("NEXTION ERROR: %s", exc)
 
             time.sleep(1)
 

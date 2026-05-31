@@ -17,6 +17,9 @@ SIGNAL_ALIASES = {
     "pw": "pulse_width",
 }
 
+NEW_SESSION_COMMAND = "NEW_SESSION"
+PARAMS_PREFIX = "PARAMS:"
+
 
 def normalize_signal_name(name):
     name = name.strip().lower()
@@ -29,10 +32,10 @@ def parse_nextion_message(message):
 
     message = message.strip().strip("|").strip()
 
-    if message == "NEW_SESSION":
+    if message == NEW_SESSION_COMMAND:
         return NewSessionRequest()
 
-    if not message.startswith("PARAMS:"):
+    if not message.startswith(PARAMS_PREFIX):
         return None
 
     parts = message.split(":", 2)

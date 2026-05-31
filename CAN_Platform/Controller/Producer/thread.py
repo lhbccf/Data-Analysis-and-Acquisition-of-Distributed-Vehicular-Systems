@@ -271,6 +271,22 @@ def parse_gvret_frame(ser, config, dbc):
 
     return None
 
+
+def save_can_frame(session, frame):
+    Services.create_can_frame(
+        session_id=session.id,
+        can_id=frame["can_id"],
+        dlc=frame["can_dlc"],
+        data=frame["can_data"],
+        timestamp=frame.get("received_at")
+    )
+
+
+def save_vehicle_state(session, frame):
+    frame["session_id"] = session.id
+    Services.create_vehicle_state(frame)
+
+
 def can_reader(config):
 
     try:
@@ -337,22 +353,20 @@ def can_reader(config):
                         active_session_id = session.id
                         last_state_save = 0
 
-                    Services.create_can_frame(
-                        session_id=session.id,
-                        can_id=frame["can_id"],
-                        dlc=frame["can_dlc"],
-                        data=frame["can_data"],
-                        timestamp=frame.get("received_at")
-                    )
+                    save_can_frame(session, frame)
 
                 if not frame.get("decoded"):
                     undecoded_seen += 1
                 else:
                     decoded_seen += 1
 
-                    if session is not None and now - last_state_save >= state_save_interval:
-                        frame["session_id"] = session.id
-                        Services.create_vehicle_state(frame)
+                    should_save_state = (
+                        session is not None
+                        and now - last_state_save >= state_save_interval
+                    )
+
+                    if should_save_state:
+                        save_vehicle_state(session, frame)
                         last_state_save = now
 
                     signal_cache.update_batch(frame)
@@ -382,9 +396,9 @@ def can_reader(config):
                 undecoded_seen = 0
                 latest_frame = None
 
-        except Exception as e:
+        except Exception as exc:
 
-            logger.info(f"CAN ERROR: {e}")
+            logger.info("CAN ERROR: %s", exc)
 
             time.sleep(1)
 
