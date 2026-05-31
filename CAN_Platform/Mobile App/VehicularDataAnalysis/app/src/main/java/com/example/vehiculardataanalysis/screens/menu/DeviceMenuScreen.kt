@@ -26,6 +26,7 @@ fun DeviceMenuScreen(
     scannedDevices: List<Device> = emptyList(),
     onBackPressed: () -> Unit,
     onLiveDataSelected: () -> Unit,
+    onSessionsSelected: () -> Unit,
 ) {
 
     Scaffold(
@@ -65,7 +66,7 @@ fun DeviceMenuScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             ButtonOption("Live Data", onClick = onLiveDataSelected)
-            ButtonOption("Sessions Information", onClick = onLiveDataSelected)
+            ButtonOption("Sessions Information", onClick = onSessionsSelected)
             ButtonOption("Overall Statistics", onClick = onLiveDataSelected)
             ButtonOption("Device Information", onClick = onLiveDataSelected)
 

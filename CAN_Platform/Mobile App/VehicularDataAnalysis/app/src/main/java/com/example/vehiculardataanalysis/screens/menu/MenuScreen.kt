@@ -73,7 +73,8 @@ fun MenuScreen(
                     DeviceUi(
                         name = device.name,
                         mac = device.address,
-                        tags = listOf("BLE")
+                        tags = if (device.isPairedOnly) listOf("Paired") else listOf("Connected"),
+                        isPairedOnly = device.isPairedOnly
                     )
                 )
             }

@@ -16,7 +16,7 @@ fun DeviceSection(devices: List<DeviceUi>, onClick: (DeviceUi) -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
 
         Text(
-            text = "Connected Devices",
+            text = "Paired Devices",
             style = MaterialTheme.typography.titleLarge
         )
 
@@ -27,6 +27,7 @@ fun DeviceSection(devices: List<DeviceUi>, onClick: (DeviceUi) -> Unit) {
                 name = it.name,
                 mac = it.mac,
                 tags = it.tags,
+                enabled = !it.isPairedOnly,
                 onClick = { onClick(it) }
             )
         }

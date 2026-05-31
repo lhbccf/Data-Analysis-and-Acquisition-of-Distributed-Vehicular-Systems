@@ -107,6 +107,12 @@ class DeviceMenuActivity : BaseActivity() {
                             it.putExtra("DEVICE_NAME", deviceName)
                         }
                     },
+                    onSessionsSelected = {
+                        navigate<SessionMenuActivity> {
+                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
+                            it.putExtra("DEVICE_NAME", deviceName)
+                        }
+                    },
                 )
             }
         }
