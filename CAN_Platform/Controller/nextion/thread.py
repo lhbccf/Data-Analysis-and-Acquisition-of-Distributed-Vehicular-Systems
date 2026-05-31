@@ -32,6 +32,7 @@ def update_sessions_list(ser, limit=5):
     text =  r"\r"
     for index, session in sessions:
         text += f"Session {session.id}"
+        text +="\r\n"
         
     return send_cmd(ser, f'sessions.txt="{text}"')
 
