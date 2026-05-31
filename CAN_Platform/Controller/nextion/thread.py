@@ -27,23 +27,12 @@ def clamp(value, minimum=0, maximum=100):
     return max(minimum, min(maximum, value))
 
 
-def _sanitize_nextion_text(value):
-    return str(value).replace('"', "'").replace("\n", " ").replace("\r", " ")
-
-
-def format_sessions_text(sessions):
-    lines = []
-
-    for index, session in enumerate(sessions):
-        description = session.description or f"Session {session.id}"
-        lines.append(f"{index}: {_sanitize_nextion_text(description)}")
-
-    return "\r".join(lines)
-
-
 def update_sessions_list(ser, limit=5):
     sessions = SessionRepo.get_recent_sessions(limit)
-    text = format_sessions_text(sessions)
+    text =  r"\r"
+    for index, session in sessions:
+        text += f"Session {session.id}"
+        
     return send_cmd(ser, f'sessions.txt="{text}"')
 
 
