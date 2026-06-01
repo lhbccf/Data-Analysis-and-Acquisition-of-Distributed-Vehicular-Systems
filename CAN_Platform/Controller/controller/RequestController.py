@@ -1,26 +1,14 @@
+import json
 from domain import Signal
 from services import Services
+from extra.signal_dispatcher import dispatch_signals
 
-SIGNAL_DEFINITIONS = {
-    0x0CFF: [
-        {
-            "name": "RPM",
-            "start_byte": 0,
-            "length": 2,
-            "factor": 0.25,
-            "offset": 0,
-            "unit": "rpm"
-        },
-        {
-            "name": "CoolantTemp",
-            "start_byte": 2,
-            "length": 1,
-            "factor": 1,
-            "offset": -40,
-            "unit": "°C"
-        }
-    ]
-}
+# Create json file with signal definitions
+
+
+with open('signal_definitions.json', 'r') as f:
+    SIGNAL_DEFINITIONS = json.load(f)
+
 
 def create_session(description: str):
     Services.create_session(description=description)
@@ -28,11 +16,12 @@ def create_session(description: str):
 def create_can_frame(session_id: int, can_id: int, dlc: int, data: str):
     frame = Services.create_can_frame(session_id=session_id, can_id=can_id, dlc=dlc, data=data)
     signal_list = process_frame(frame_id=frame.id, can_id=can_id, data=data)
+    dispatch_signals(signal_list)
     for signal in signal_list:
         Services.create_signal(can_frame_id=frame.id, signal_name=signal["name"], signal_value=signal["value"], signal_unit=signal["unit"])
 
-def create_signal(can_frame_id: int, signal_name: str, signal_value: str, signal_unit: str):
-    Services.create_signal(can_frame_id=can_frame_id, signal_name=signal_name, signal_value=signal_value, signal_unit=signal_unit)
+def show_signals_by_session(session_id: int):
+    return Services.show_signals_by_session(session_id=session_id)
 
 def end_session(session_id: int):
     Services.end_session(session_id=session_id)

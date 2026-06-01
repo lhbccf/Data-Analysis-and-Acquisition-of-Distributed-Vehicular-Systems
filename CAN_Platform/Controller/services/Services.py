@@ -42,6 +42,12 @@ def create_signal(
     )
 
 
+def show_signals_by_can_frame(can_frame_id: int):
+    return SignalRepo.get_signals_by_can_frame_id(can_frame_id=can_frame_id)
+
+def show_signals_by_session(session_id: int):
+    return SignalRepo.get_signals_by_session_id(session_id=session_id)
+
 def end_session(session_id: int):
     SessionRepo.end_session(session_id=session_id)
 

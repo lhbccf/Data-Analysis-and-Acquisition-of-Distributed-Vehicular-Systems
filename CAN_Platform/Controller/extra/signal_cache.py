@@ -115,7 +115,13 @@ class SignalCache:
                 f"{self._data['map']:.1f},"
                 f"{self._data['battery']:.1f},"
                 f"{self._data['dwell']:.1f},"
-                f"{self._data['timing']:.1f}"
+                f"{self._data['timing']:.1f},"
+                f"{self._data['vss']:.1f},"
+                f"{self._data['iat']:.1f},"
+                f"{self._data['ego_correction']:.1f},"
+                f"{self._data['ve']:.1f},"
+                f"{int(self._data['sync'])}"
             )
 
+# Singleton instance
 signal_cache = SignalCache()
