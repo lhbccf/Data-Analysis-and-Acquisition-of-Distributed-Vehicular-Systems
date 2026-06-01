@@ -2,6 +2,7 @@ import sys
 import json
 import time
 from pathlib import Path
+from transmitter.thread import start_bluetooth
 from Producer.thread import start_producer
 from nextion.thread import start_nextion
 from repository.database.database_manager import database_setup
@@ -45,7 +46,10 @@ def main():
     logger.info("Loaded config: %s", config)
     
     start_producer(config)
-    
+
+    if config.get("bluetooth_enabled", False):
+        start_bluetooth(config)
+
     if config["mode"] == "pi_screen" :
 
       from PyQt5 import QtWidgets

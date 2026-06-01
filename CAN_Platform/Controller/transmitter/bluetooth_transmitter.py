@@ -10,12 +10,12 @@ NOTIFY_INTERVAL_MS = 200  # 5 Hz
 
 
 class BLETlmServer:
-    def __init__(self):
-        self._char = None         # localGATT.Characteristic, set on subscribe
-        self._timer_id = None     # GLib timer source ID
+    def __init__(self, adapter_address: str):
+        self._char = None
+        self._timer_id = None
 
         self.ble = peripheral.Peripheral(
-            adapter_address='88:A2:9E:B1:52:A9',
+            adapter_address=adapter_address,
             local_name='Vehicular_Monitor',
         )
 
@@ -62,8 +62,4 @@ class BLETlmServer:
 
     def start(self) -> None:
         print("Starting BLE server ...")
-        self.ble.publish()  # blocks – runs the D-Bus / GLib main loop
-
-
-# Singleton
-ble_server = BLETlmServer()
+        self.ble.publish()

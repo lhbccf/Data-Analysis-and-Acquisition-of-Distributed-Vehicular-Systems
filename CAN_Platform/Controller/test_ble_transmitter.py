@@ -25,8 +25,14 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import json
+from pathlib import Path
+
 from extra.signal_cache import signal_cache
-from transmitter.bluetooth_transmitter import CHAR_UUID, SERVICE_UUID, ble_server
+from transmitter.bluetooth_transmitter import CHAR_UUID, SERVICE_UUID, BLETlmServer
+
+_config = json.loads((Path(__file__).parent / "config.json").read_text())
+ble_server = BLETlmServer(adapter_address=_config.get("bluetooth_adapter", ""))
 
 # ──────────────────────────── Mock CAN data generator ────────────────────────
 
