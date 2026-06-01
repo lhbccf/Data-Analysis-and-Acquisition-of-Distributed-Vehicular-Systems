@@ -13,6 +13,5 @@
     "nextion_baud": 115200,
     "shift_point": 6500,
     "redline": 7500,
-    "bluetooth_enabled": true,
-    "bluetooth_adapter": "88:A2:9E:B1:52:A9"
+    "bluetooth_enabled": true
 }

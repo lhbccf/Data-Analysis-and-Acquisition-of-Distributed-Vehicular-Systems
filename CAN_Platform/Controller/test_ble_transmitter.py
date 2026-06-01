@@ -30,9 +30,10 @@ from pathlib import Path
 
 from extra.signal_cache import signal_cache
 from transmitter.bluetooth_transmitter import CHAR_UUID, SERVICE_UUID, BLETlmServer
+from transmitter.thread import _resolve_adapter
 
 _config = json.loads((Path(__file__).parent / "config.json").read_text())
-ble_server = BLETlmServer(adapter_address=_config.get("bluetooth_adapter", ""))
+ble_server = BLETlmServer(adapter_address=_resolve_adapter(_config))
 
 # ──────────────────────────── Mock CAN data generator ────────────────────────
 
