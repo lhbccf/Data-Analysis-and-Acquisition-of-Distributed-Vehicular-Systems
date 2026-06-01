@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor, QFont
 from UI.ui_stuff import temp_color
 from UI.circulargauge import CircularGauge
+from extra.signal_cache import signal_cache
 
 
 class InfoCard(QtWidgets.QFrame):
@@ -65,11 +66,9 @@ class InfoCard(QtWidgets.QFrame):
 
 class App(QtWidgets.QMainWindow):
 
-    def __init__(self, data_queue):
+    def __init__(self, data_queue=None):
 
         super().__init__()
-
-        self.data_queue = data_queue
 
         self.setWindowTitle("ECU Dashboard")
 
@@ -100,10 +99,6 @@ class App(QtWidgets.QMainWindow):
             }
         """)
 
-        # =====================================================
-        # CENTRAL
-        # =====================================================
-
         central = QtWidgets.QWidget()
 
         self.setCentralWidget(central)
@@ -112,17 +107,9 @@ class App(QtWidgets.QMainWindow):
 
         central.setLayout(root)
 
-        # =====================================================
-        # LEFT SIDE
-        # =====================================================
-
         left = QtWidgets.QVBoxLayout()
 
         root.addLayout(left, 2)
-
-        # =====================================================
-        # RPM GAUGE
-        # =====================================================
 
         self.gauge = CircularGauge(
             min_value=0,
@@ -154,10 +141,6 @@ class App(QtWidgets.QMainWindow):
 
         left.addWidget(self.rpm_label)
 
-        # =====================================================
-        # BARS
-        # =====================================================
-
         self.tps_bar = QtWidgets.QProgressBar()
         self.tps_bar.setMaximum(100)
 
@@ -166,10 +149,6 @@ class App(QtWidgets.QMainWindow):
 
         left.addWidget(self.tps_bar)
         left.addWidget(self.map_bar)
-
-        # =====================================================
-        # STATUS
-        # =====================================================
 
         status_layout = QtWidgets.QHBoxLayout()
 
@@ -196,10 +175,6 @@ class App(QtWidgets.QMainWindow):
             status_layout.addWidget(lbl)
 
         left.addLayout(status_layout)
-
-        # =====================================================
-        # RIGHT SIDE
-        # =====================================================
 
         right = QtWidgets.QGridLayout()
 
@@ -240,139 +215,109 @@ class App(QtWidgets.QMainWindow):
                 col = 0
                 row += 1
 
-        # =====================================================
-        # TIMER
-        # =====================================================
-
         self.timer = QtCore.QTimer()
 
         self.timer.timeout.connect(self.update_ui)
 
         self.timer.start(30)
 
-    # =========================================================
-    # UPDATE UI
-    # =========================================================
-
     def update_ui(self):
 
-        while not self.data_queue.empty():
+        d = signal_cache.get_all()
 
-            d = self.data_queue.get()
+        rpm = int(d.get("rpm", 0))
 
-            rpm = int(d.get("rpm", 0))
+        self.gauge.value = rpm
+        self.gauge.update()
 
-            # =================================================
-            # RPM
-            # =================================================
+        rpm_color = "#ff3333" if rpm > 7000 else "white"
 
-            self.gauge.value = rpm
-            self.gauge.update()
+        self.rpm_label.setText(f"{rpm}")
 
-            rpm_color = "#ff3333" if rpm > 7000 else "white"
+        self.rpm_label.setStyleSheet(f"""
+            font-size: 52px;
+            font-weight: bold;
+            color: {rpm_color};
+        """)
 
-            self.rpm_label.setText(f"{rpm}")
+        tps = float(d.get("tps", 0))
+        mapv = float(d.get("map", 0))
 
-            self.rpm_label.setStyleSheet(f"""
-                font-size: 52px;
-                font-weight: bold;
-                color: {rpm_color};
-            """)
+        self.tps_bar.setValue(int(tps))
+        self.tps_bar.setFormat(f"TPS {tps:.1f}%")
 
-            # =================================================
-            # BARS
-            # =================================================
+        self.map_bar.setValue(int(mapv))
+        self.map_bar.setFormat(f"MAP {mapv:.1f} kPa")
 
-            tps = float(d.get("tps", 0))
-            mapv = float(d.get("map", 0))
+        self.set_status(
+            self.sync_status,
+            "SYNC",
+            d.get("sync", 0)
+        )
 
-            self.tps_bar.setValue(int(tps))
-            self.tps_bar.setFormat(f"TPS {tps:.1f}%")
+        self.set_status(
+            self.fp_status,
+            "FP",
+            d.get("fp", False)
+        )
 
-            self.map_bar.setValue(int(mapv))
-            self.map_bar.setFormat(f"MAP {mapv:.1f} kPa")
+        self.set_status(
+            self.fan_status,
+            "FAN",
+            d.get("fan", False)
+        )
 
-            # =================================================
-            # STATUS
-            # =================================================
+        self.cards["TPS"].set_value(
+            f"{tps:.1f}"
+        )
 
-            self.set_status(
-                self.sync_status,
-                "SYNC",
-                d.get("sync", 0)
-            )
+        self.cards["MAP"].set_value(
+            f"{mapv:.1f}"
+        )
 
-            self.set_status(
-                self.fp_status,
-                "FP",
-                d.get("fp", False)
-            )
+        self.cards["AFR"].set_value(
+            f"{d.get('afr', 0):.2f}",
+            "#00ffaa"
+        )
 
-            self.set_status(
-                self.fan_status,
-                "FAN",
-                d.get("fan", False)
-            )
+        self.cards["CLT"].set_value(
+            f"{d.get('clt', 0):.1f}",
+            temp_color(d.get("clt", 0))
+        )
 
-            # =================================================
-            # CARDS
-            # =================================================
+        self.cards["IAT"].set_value(
+            f"{d.get('iat', 0):.1f}",
+            temp_color(d.get("iat", 0))
+        )
 
-            self.cards["TPS"].set_value(
-                f"{tps:.1f}"
-            )
+        self.cards["ADV"].set_value(
+            f"{d.get('advance', 0):.1f}"
+        )
 
-            self.cards["MAP"].set_value(
-                f"{mapv:.1f}"
-            )
+        self.cards["BAT"].set_value(
+            f"{d.get('battery_voltage', 0):.1f}",
+            "#ffff66"
+        )
 
-            self.cards["AFR"].set_value(
-                f"{d.get('afr', 0):.2f}",
-                "#00ffaa"
-            )
+        self.cards["BOOST"].set_value(
+            f"{d.get('boost_target', 0):.1f}"
+        )
 
-            self.cards["CLT"].set_value(
-                f"{d.get('clt', 0):.1f}",
-                temp_color(d.get("clt", 0))
-            )
+        self.cards["DUTY"].set_value(
+            f"{d.get('boost_duty', 0):.0f}"
+        )
 
-            self.cards["IAT"].set_value(
-                f"{d.get('iat', 0):.1f}",
-                temp_color(d.get("iat", 0))
-            )
+        self.cards["VSS"].set_value(
+            f"{d.get('vss', 0):.0f}"
+        )
 
-            self.cards["ADV"].set_value(
-                f"{d.get('advance', 0):.1f}"
-            )
+        self.cards["PW"].set_value(
+            f"{d.get('pulse_width', 0):.2f}"
+        )
 
-            self.cards["BAT"].set_value(
-                f"{d.get('battery_voltage', 0):.1f}",
-                "#ffff66"
-            )
-
-            self.cards["BOOST"].set_value(
-                f"{d.get('boost_target', 0):.1f}"
-            )
-
-            self.cards["DUTY"].set_value(
-                f"{d.get('boost_duty', 0):.0f}"
-            )
-
-            self.cards["VSS"].set_value(
-                f"{d.get('vss', 0):.0f}"
-            )
-
-            self.cards["PW"].set_value(
-                f"{d.get('pulse_width', 0):.2f}"
-            )
-
-            self.cards["DWELL"].set_value(
-                f"{d.get('dwell', 0):.1f}"
-            )
-
-    # =========================================================
-    # STATUS HELPER
-    # =========================================================
+        self.cards["DWELL"].set_value(
+            f"{d.get('dwell', 0):.1f}"
+        )
 
     def set_status(self, widget, text, active):
 
