@@ -21,10 +21,12 @@ class SessionMenuActivity : BaseActivity() {
     companion object {
         private const val TAG = "SessionMenuActivity"
         private const val PERMISSION_REQUEST_CODE = 1004
+        private const val TEST_DEVICE_MAC = "AA:BB:CC:DD:EE:FF"
     }
 
     private var deviceAddress = "Unknown"
     private var deviceName = "Unknown Device"
+    private var isTestDevice = false
     private var bleViewModel: BleViewModel? = null
     private var sessionViewModel: SessionViewModel? = null
 
@@ -34,6 +36,7 @@ class SessionMenuActivity : BaseActivity() {
 
         deviceAddress = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
         deviceName = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
+        isTestDevice = deviceAddress == TEST_DEVICE_MAC
 
         val container = applicationContext as DependencyContainer
         val factory = container.bleViewModelFactory
@@ -66,15 +69,23 @@ class SessionMenuActivity : BaseActivity() {
 
     @SuppressLint("MissingPermission")
     private fun connectAndShow() {
-        bleViewModel?.connect(Device(deviceName, deviceAddress))
+        if (isTestDevice) {
+            sessionViewModel?.startMockSessions()
+        } else {
+            bleViewModel?.connect(Device(deviceName, deviceAddress))
+        }
 
         setContent {
             VehicularDataAnalysisTheme {
                 SessionMenuScreen(
                     deviceName = deviceName,
+                    isTestDevice = isTestDevice,
                     sessionViewModel = sessionViewModel!!,
                     onBackPressed = { finish() },
-                    onRefresh = { sessionViewModel?.requestSessions() }
+                    onRefresh = {
+                        if (isTestDevice) sessionViewModel?.startMockSessions()
+                        else sessionViewModel?.requestSessions()
+                    }
                 )
             }
         }

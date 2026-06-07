@@ -24,6 +24,7 @@ import java.util.*
 @Composable
 fun SessionMenuScreen(
     deviceName: String = "Unknown Device",
+    isTestDevice: Boolean = false,
     sessionViewModel: SessionViewModel,
     onBackPressed: () -> Unit,
     onRefresh: () -> Unit
@@ -34,7 +35,7 @@ fun SessionMenuScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("$deviceName — Sessions", fontSize = 20.sp) },
+                title = { Text("$deviceName${if (isTestDevice) " (Mock)" else ""} — Sessions", fontSize = 20.sp) },
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                         Icon(

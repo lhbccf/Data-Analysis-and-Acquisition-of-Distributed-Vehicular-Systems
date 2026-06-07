@@ -27,6 +27,8 @@ fun DeviceMenuScreen(
     onBackPressed: () -> Unit,
     onLiveDataSelected: () -> Unit,
     onSessionsSelected: () -> Unit,
+    onOverallStatsSelected: () -> Unit,
+    onDeviceInfoSelected: () -> Unit,
 ) {
 
     Scaffold(
@@ -67,8 +69,8 @@ fun DeviceMenuScreen(
 
             ButtonOption("Live Data", onClick = onLiveDataSelected)
             ButtonOption("Sessions Information", onClick = onSessionsSelected)
-            ButtonOption("Overall Statistics", onClick = onLiveDataSelected)
-            ButtonOption("Device Information", onClick = onLiveDataSelected)
+            ButtonOption("Overall Statistics", onClick = {})
+            ButtonOption("Device Information", onClick = {})
 
         }
     }
