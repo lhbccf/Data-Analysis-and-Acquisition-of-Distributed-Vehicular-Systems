@@ -1,6 +1,7 @@
 import sys
 import time
 import json
+import random
 from pathlib import Path
 
 
@@ -86,19 +87,42 @@ def print_scenario(index, scenario):
     )
 
 
+def generate_random_scenario(index):
+    profiles = [
+        ("Idle", 750, 1050, 13.8, 15.0, 70, 96, 5.0, 12.0, 0, 0),
+        ("Cruise", 1800, 3300, 13.8, 14.9, 78, 98, 18.0, 34.0, 30, 120),
+        ("Acceleration", 3500, 6800, 11.8, 13.3, 82, 104, 12.0, 28.0, 60, 180),
+        ("Hot", 1800, 4200, 12.8, 14.4, 98, 112, 8.0, 22.0, 20, 100),
+    ]
+
+    name, rpm_min, rpm_max, afr_min, afr_max, clt_min, clt_max, adv_min, adv_max, vss_min, vss_max = random.choice(profiles)
+
+    return {
+        "name": f"{name} #{index}",
+        "rpm": random.randint(rpm_min, rpm_max),
+        "afr": round(random.uniform(afr_min, afr_max), 1),
+        "clt": random.randint(clt_min, clt_max),
+        "advance": round(random.uniform(adv_min, adv_max), 1),
+        "vss": random.randint(vss_min, vss_max),
+    }
+
+
 def main():
     config = read_config_from_args()
     print(
         "Starting Nextion manual value test on "
         f"{config['nextion_port']} @ {config['nextion_baud']} baud"
     )
-    print("Watch the display fields: rpm, afr, clt, adv, vss")
+    print("Sending random values forever. Stop with Ctrl+C or systemctl stop.")
     print()
 
     start_nextion(config)
     time.sleep(2.5)
 
-    for index, scenario in enumerate(SCENARIOS, start=1):
+    index = 1
+
+    while True:
+        scenario = generate_random_scenario(index)
         values = dict(scenario)
         values.pop("name")
         values["timestamp"] = time.time()
@@ -106,9 +130,7 @@ def main():
         print_scenario(index, scenario)
         signal_cache.update_batch(values)
         time.sleep(2)
-
-    print()
-    print("Manual Nextion value test finished.")
+        index += 1
 
 
 if __name__ == "__main__":
