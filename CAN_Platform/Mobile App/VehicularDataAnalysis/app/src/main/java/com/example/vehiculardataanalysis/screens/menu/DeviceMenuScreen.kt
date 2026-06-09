@@ -27,8 +27,6 @@ fun DeviceMenuScreen(
     onBackPressed: () -> Unit,
     onLiveDataSelected: () -> Unit,
     onSessionsSelected: () -> Unit,
-    onOverallStatsSelected: () -> Unit,
-    onDeviceInfoSelected: () -> Unit,
 ) {
 
     Scaffold(

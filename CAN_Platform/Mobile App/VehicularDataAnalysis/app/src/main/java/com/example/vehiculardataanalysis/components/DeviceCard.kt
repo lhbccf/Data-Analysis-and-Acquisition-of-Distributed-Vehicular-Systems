@@ -51,9 +51,7 @@ fun DeviceCard(
                     AssistChip(
                         onClick = {},
                         label = { Text(tag) },
-                        modifier = Modifier.padding(end = 6.dp),
-                        colors = if(enabled) AssistChipDefaults.assistChipColors(labelColor = Color.Green)
-                        else AssistChipDefaults.assistChipColors(labelColor = Color.Red)
+                        modifier = Modifier.padding(end = 6.dp)
                     )
                 }
             }
