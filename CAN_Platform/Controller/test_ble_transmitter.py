@@ -25,8 +25,15 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import json
+from pathlib import Path
+
 from extra.signal_cache import signal_cache
-from transmitter.bluetooth_transmitter import CHAR_UUID, SERVICE_UUID, ble_server
+from transmitter.bluetooth_transmitter import CHAR_UUID, SERVICE_UUID, BLETlmServer
+from transmitter.thread import _resolve_adapter
+
+_config = json.loads((Path(__file__).parent / "config.json").read_text())
+ble_server = BLETlmServer(adapter_address=_resolve_adapter(_config))
 
 # ──────────────────────────── Mock CAN data generator ────────────────────────
 
@@ -62,7 +69,7 @@ class MockCANDataGenerator:
     def __init__(self) -> None:
         self._tick = 0
         self._coolant = 20.0
-        self._iat = 25.0
+        self._iat_value = 25.0
         self._running = False
         self._thread: threading.Thread | None = None
 
@@ -80,8 +87,8 @@ class MockCANDataGenerator:
 
     def _iat(self) -> float:
         # Slow heat soak from ambient toward ~50 °C
-        self._iat += (50.0 - self._iat) * 0.002
-        return round(self._iat, 1)
+        self._iat_value += (50.0 - self._iat_value) * 0.002
+        return round(self._iat_value, 1)
 
     def _afr(self) -> float:
         return round(14.7 + math.sin(self._tick * 0.17) * 0.4, 2)

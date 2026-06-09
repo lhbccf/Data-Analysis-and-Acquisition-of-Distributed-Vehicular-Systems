@@ -18,7 +18,7 @@ class BLETlmServer:
         self._session_response_char = None
 
         self.ble = peripheral.Peripheral(
-            adapter_address='88:A2:9E:B1:52:A9',
+            adapter_address=adapter_address,
             local_name='Vehicular_Monitor',
         )
 

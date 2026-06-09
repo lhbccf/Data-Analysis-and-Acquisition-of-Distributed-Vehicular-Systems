@@ -1,24 +1,17 @@
 import serial
 import threading
-from queue import Queue
 import time
 import random
-import json
 import struct
 import cantools
 import logging
+from services import Services
+from extra.signal_cache import signal_cache
+from extra.logging_setup import configure_logging
+from extra.session_manager import session_manager
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(threadName)s] %(levelname)s: %(message)s"
-)
-
+LOG_PATH = configure_logging()
 logger = logging.getLogger(__name__)
-
-
-# =========================================================
-# HELPERS
-# =========================================================
 
 def get16(data, i):
     return (data[i] << 8) | data[i + 1]
@@ -81,8 +74,6 @@ def parse_speeduino(data):
 
     return parsed
 
-
-
 def load_dbc(path):
 
     db = cantools.database.load_file(path)
@@ -91,65 +82,6 @@ def load_dbc(path):
 
     return db
 
-
-
-def rusefi_to_speeduino(decoded):
-
-    # decoded = dict com sinais da DBC
-
-    return {
-
-        # ENGINE
-        "rpm": int(decoded.get("RPMValue", 0)),
-        "sync": 1,
-        "engine_status": 1,
-
-        # LOADS
-        "map": float(decoded.get("MAPValue", 0)),
-        "baro": float(decoded.get("BaroPressure", 101.3)),
-        "tps": float(decoded.get("TPSValue", 0)),
-
-        # TEMPERATURES
-        "iat": float(decoded.get("IAT", 0)),
-        "clt": float(decoded.get("CLT", 0)),
-
-        # FUELING
-        "afr": float(decoded.get("Lambda", 0)) * 14.7,
-        "ego_correction": 100,
-        "pulse_width": float(decoded.get("InjectionPW", 0)),
-        "ve": 0,
-
-        # IGNITION
-        "advance": float(decoded.get("IgnitionAdvance", 0)),
-        "dwell": float(decoded.get("Dwell", 0)),
-
-        # ELECTRICAL
-        "battery_voltage": float(decoded.get("BatteryVoltage", 0)),
-
-        # BOOST
-        "boost_target": float(decoded.get("BoostTarget", 0)),
-        "boost_duty": float(decoded.get("BoostDuty", 0)),
-
-        # VEHICLE
-        "vss": float(decoded.get("VehicleSpeed", 0)),
-
-        # FLAGS
-        "fan": False,
-        "fp": True,
-        "boost_cut": False,
-
-        "timestamp": time.time(),
-
-        "type": "speeduino"
-    }
-
-
-# =========================================================
-# GVRET FRAME PARSER
-# =========================================================
-# =========================================================
-# GLOBAL ECU STATE
-# =========================================================
 
 ecu_state = {
 
@@ -197,96 +129,39 @@ ecu_state = {
     "type": "speeduino"
 }
 
-
-# =========================================================
-# UPDATE STATE FROM RUSEFI
-# =========================================================
-
 def update_rusefi_state(state, message_name, decoded):
-
-    # =====================================================
-    # BASE0
-    # =====================================================
 
     if message_name == "BASE0":
 
         state["fan"] = bool(decoded.get("Fan", 0))
         state["fp"] = bool(decoded.get("FuelPumpAct", 0))
-
         state["sync"] = 1
         state["engine_status"] = 1
-
-    # =====================================================
-    # BASE1
-    # =====================================================
 
     elif message_name == "BASE1":
 
         state["rpm"] = int(decoded.get("RPM", 0))
-
-        state["advance"] = float(
-            decoded.get("IgnitionTiming", 0)
-        )
-
-        state["vss"] = float(
-            decoded.get("VehicleSpeed", 0)
-        )
-
-    # =====================================================
-    # BASE2
-    # =====================================================
+        state["advance"] = float(decoded.get("IgnitionTiming", 0))
+        state["vss"] = float(decoded.get("VehicleSpeed", 0))
 
     elif message_name == "BASE2":
 
-        state["tps"] = float(
-            decoded.get("TPS1", 0)
-        )
-
-        state["boost_duty"] = float(
-            decoded.get("Wastegate", 0)
-        )
-
-    # =====================================================
-    # BASE3
-    # =====================================================
+        state["tps"] = float(decoded.get("TPS1", 0))
+        state["boost_duty"] = float(decoded.get("Wastegate", 0))
 
     elif message_name == "BASE3":
 
-        state["map"] = float(
-            decoded.get("MAP", 0)
-        )
-
-        state["clt"] = float(
-            decoded.get("CoolantTemp", 0)
-        )
-
-        state["iat"] = float(
-            decoded.get("IntakeTemp", 0)
-        )
-
-    # =====================================================
-    # BASE4
-    # =====================================================
+        state["map"] = float(decoded.get("MAP", 0))
+        state["clt"] = float(decoded.get("CoolantTemp", 0))
+        state["iat"] = float(decoded.get("IntakeTemp", 0))
 
     elif message_name == "BASE4":
 
-        state["battery_voltage"] = float(
-            decoded.get("BattVolt", 0)
-        )
-
-    # =====================================================
-    # BASE5
-    # =====================================================
+        state["battery_voltage"] = float(decoded.get("BattVolt", 0))
 
     elif message_name == "BASE5":
 
-        state["pulse_width"] = float(
-            decoded.get("InjPW", 0)
-        )
-
-    # =====================================================
-    # BASE7
-    # =====================================================
+        state["pulse_width"] = float(decoded.get("InjPW", 0))
 
     elif message_name == "BASE7":
 
@@ -295,18 +170,13 @@ def update_rusefi_state(state, message_name, decoded):
         if lam > 0:
             state["afr"] = lam * 14.7
 
-    # =====================================================
-    # UPDATE META
-    # =====================================================
+    else:
+
+        return None
 
     state["timestamp"] = time.time()
 
     return state.copy()
-
-
-# =========================================================
-# GVRET FRAME PARSER
-# =========================================================
 
 def parse_gvret_frame(ser, config, dbc):
 
@@ -348,13 +218,21 @@ def parse_gvret_frame(ser, config, dbc):
 
         canid = canid_raw & 0x1FFFFFFF
 
+        raw_frame = {
+            "can_id": canid,
+            "can_dlc": dlc,
+            "can_data": data.hex(),
+            "can_timestamp": timestamp,
+            "received_at": time.time(),
+            "decoded": False
+        }
+
         try:
 
             message = dbc.get_message_by_frame_id(canid)
 
-            # IGNORAR frames pequenas
             if dlc < message.length:
-                return None
+                return raw_frame
 
             decoded = message.decode(data)
 
@@ -364,36 +242,94 @@ def parse_gvret_frame(ser, config, dbc):
                 decoded
             )
 
+            if not parsed:
+                return raw_frame
+
             parsed["can_id"] = canid
+            parsed["can_dlc"] = dlc
+            parsed["can_data"] = data.hex()
             parsed["can_message"] = message.name
             parsed["can_timestamp"] = timestamp
+            parsed["received_at"] = raw_frame["received_at"]
+            parsed["decoded"] = True
 
             return parsed
 
+        except KeyError:
+
+            return raw_frame
+
         except Exception as e:
 
-            return None
+            logger.exception(
+                "CAN decode/mapping error for id=0x%X dlc=%s data=%s",
+                canid,
+                dlc,
+                data.hex(),
+            )
+            return raw_frame
 
     return None
-# =========================================================
-# CAN THREAD
-# =========================================================
 
 
-def can_reader(config, data_queue):
-
-    dbc = load_dbc(config["dbc"])
-
-    ser = serial.Serial(
-        port=config["com"],
-        baudrate=config["baud_rate"],
-        timeout=1
+def save_can_frame(session, frame):
+    Services.create_can_frame(
+        session_id=session.id,
+        can_id=frame["can_id"],
+        dlc=frame["can_dlc"],
+        data=frame["can_data"],
+        timestamp=frame.get("received_at")
     )
 
-    # enable GVRET binary mode
-    ser.write(bytes([0xE7]))
 
-    logger.info("GVRET binary mode enabled")
+def save_vehicle_state(session, frame):
+    frame["session_id"] = session.id
+    Services.create_vehicle_state(frame)
+
+
+def can_reader(config):
+
+    try:
+        logger.info("CAN reader setup starting")
+
+        dbc = load_dbc(config["dbc"])
+
+        logger.info("Waiting for Nextion NEW_SESSION before DB recording")
+
+        last_state_save = 0
+        state_save_interval = float(
+            config.get("state_save_interval", 1.0)
+        )
+
+        logger.info(
+            "Opening CAN serial port %s @ %s",
+            config["com"],
+            config["baud_rate"],
+        )
+        ser = serial.Serial(
+            port=config["com"],
+            baudrate=config["baud_rate"],
+            timeout=1
+        )
+        logger.info("CAN serial port opened")
+
+        # enable GVRET binary mode
+        logger.info("Enabling GVRET binary mode")
+        ser.write(bytes([0xE7]))
+        logger.info("GVRET binary mode enabled")
+
+    except Exception:
+        logger.exception("CAN reader setup failed")
+        return
+
+    can_log_interval = float(config.get("can_log_interval", 5.0))
+    log_can_activity = bool(config.get("log_can_activity", True))
+    last_can_log = time.time()
+    frames_seen = 0
+    decoded_seen = 0
+    undecoded_seen = 0
+    latest_frame = None
+    active_session_id = None
 
     while True:
 
@@ -405,12 +341,64 @@ def can_reader(config, data_queue):
                 dbc
             )
 
+            now = time.time()
+
             if frame:
-                data_queue.put(frame)
+                frames_seen += 1
+                latest_frame = frame
+                session = session_manager.get_current_session()
 
-        except Exception as e:
+                if session is not None:
+                    if session.id != active_session_id:
+                        active_session_id = session.id
+                        last_state_save = 0
 
-            logger.info(f"CAN ERROR: {e}")
+                    save_can_frame(session, frame)
+
+                if not frame.get("decoded"):
+                    undecoded_seen += 1
+                else:
+                    decoded_seen += 1
+
+                    should_save_state = (
+                        session is not None
+                        and now - last_state_save >= state_save_interval
+                    )
+
+                    if should_save_state:
+                        save_vehicle_state(session, frame)
+                        last_state_save = now
+
+                    signal_cache.update_batch(frame)
+
+            if log_can_activity and now - last_can_log >= can_log_interval:
+                if latest_frame:
+                    logger.info(
+                        "CAN activity: frames=%s decoded=%s undecoded=%s "
+                        "latest_id=0x%X latest_msg=%s latest_dlc=%s",
+                        frames_seen,
+                        decoded_seen,
+                        undecoded_seen,
+                        latest_frame["can_id"],
+                        latest_frame.get("can_message", "unknown"),
+                        latest_frame.get("can_dlc"),
+                    )
+                else:
+                    logger.warning(
+                        "CAN serial is open, but no GVRET CAN frames were "
+                        "received in the last %.1fs.",
+                        can_log_interval,
+                    )
+
+                last_can_log = now
+                frames_seen = 0
+                decoded_seen = 0
+                undecoded_seen = 0
+                latest_frame = None
+
+        except Exception as exc:
+
+            logger.info("CAN ERROR: %s", exc)
 
             time.sleep(1)
 
@@ -453,7 +441,7 @@ def generate_fake_data():
     }
 
 
-def speeduino_reader(config, data_queue):
+def speeduino_reader(config):
 
     ser = serial.Serial(
         port=config["port"],
@@ -477,7 +465,7 @@ def speeduino_reader(config, data_queue):
 
                 parsed["type"] = "speeduino"
 
-                data_queue.put(parsed)
+                signal_cache.update_batch(parsed)
 
         except Exception as e:
 
@@ -488,11 +476,11 @@ def speeduino_reader(config, data_queue):
 
 
 
-def start_speeduino(config, data_queue):
+def start_speeduino(config, data_queue=None):
 
     thread = threading.Thread(
         target=speeduino_reader,
-        args=(config, data_queue),
+        args=(config,),
         daemon=True
     )
 
@@ -501,11 +489,11 @@ def start_speeduino(config, data_queue):
     return thread
 
 
-def start_can(config, data_queue):
+def start_can(config, data_queue=None):
 
     thread = threading.Thread(
         target=can_reader,
-        args=(config, data_queue),
+        args=(config,),
         daemon=True
     )
 
@@ -520,7 +508,7 @@ def load_config(path="../config.json"):
     with open(path, "r") as f:
         return json.load(f)
 
-def start_producer(config, data_queue):
+def start_producer(config, data_queue=None):
 
     mode = config.get("type")
 
@@ -528,7 +516,7 @@ def start_producer(config, data_queue):
 
         thread = threading.Thread(
             target=speeduino_reader,
-            args=(config, data_queue),
+            args=(config,),
             daemon=True
         )
 
@@ -542,7 +530,7 @@ def start_producer(config, data_queue):
 
         thread = threading.Thread(
             target=can_reader,
-            args=(config, data_queue),
+            args=(config,),
             daemon=True
         )
 

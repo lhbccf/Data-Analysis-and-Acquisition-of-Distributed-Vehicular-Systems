@@ -1,0 +1,90 @@
+{
+    "messages": {
+        "BASE0": {
+            "constants": {
+                "sync": 1,
+                "engine_status": 1
+            },
+            "signals": {
+                "fan": {
+                    "source": "Fan",
+                    "type": "bool"
+                },
+                "fp": {
+                    "source": "FuelPumpAct",
+                    "type": "bool"
+                }
+            }
+        },
+        "BASE1": {
+            "signals": {
+                "rpm": {
+                    "source": "RPM",
+                    "type": "int"
+                },
+                "advance": {
+                    "source": "IgnitionTiming",
+                    "type": "float"
+                },
+                "vss": {
+                    "source": "VehicleSpeed",
+                    "type": "float"
+                }
+            }
+        },
+        "BASE2": {
+            "signals": {
+                "tps": {
+                    "source": "TPS1",
+                    "type": "float"
+                },
+                "boost_duty": {
+                    "source": "Wastegate",
+                    "type": "float"
+                }
+            }
+        },
+        "BASE3": {
+            "signals": {
+                "map": {
+                    "source": "MAP",
+                    "type": "float"
+                },
+                "clt": {
+                    "source": "CoolantTemp",
+                    "type": "float"
+                },
+                "iat": {
+                    "source": "IntakeTemp",
+                    "type": "float"
+                }
+            }
+        },
+        "BASE4": {
+            "signals": {
+                "battery_voltage": {
+                    "source": "BattVolt",
+                    "type": "float"
+                }
+            }
+        },
+        "BASE5": {
+            "signals": {
+                "pulse_width": {
+                    "source": "InjPW",
+                    "type": "float"
+                }
+            }
+        },
+        "BASE7": {
+            "signals": {
+                "afr": {
+                    "source": "Lam1",
+                    "type": "float",
+                    "scale": 14.7,
+                    "ignore_if_lte": 0
+                }
+            }
+        }
+    }
+}
