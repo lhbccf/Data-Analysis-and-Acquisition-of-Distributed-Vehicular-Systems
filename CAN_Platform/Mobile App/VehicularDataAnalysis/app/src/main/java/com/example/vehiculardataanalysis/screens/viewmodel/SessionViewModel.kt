@@ -17,6 +17,13 @@ sealed class SessionListState {
     data class Error(val message: String) : SessionListState()
 }
 
+data class OverallVehicleStats(
+    val avgRpm: Int,
+    val maxRpm: Int,
+    val avgClt: Float,
+    val maxVss: Float,
+)
+
 class SessionViewModel(
     private val repository: BleRepository
 ) : ViewModel() {
@@ -24,14 +31,17 @@ class SessionViewModel(
     private val _state = MutableStateFlow<SessionListState>(SessionListState.Idle)
     val state: StateFlow<SessionListState> = _state.asStateFlow()
 
+    private val _vehicleStats = MutableStateFlow<OverallVehicleStats?>(null)
+    val vehicleStats: StateFlow<OverallVehicleStats?> = _vehicleStats.asStateFlow()
+
     private val buffer = mutableListOf<SessionInfo>()
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
             repository.sessionData.collect { line ->
                 when {
-                    line.isBlank() -> {}
-                    line == "END" -> {
+                    line.isBlank()          -> {}
+                    line == "END"           -> {
                         _state.value = SessionListState.Loaded(buffer.toList())
                         buffer.clear()
                     }
@@ -39,7 +49,8 @@ class SessionViewModel(
                         _state.value = SessionListState.Error(line.removePrefix("ERR:"))
                         buffer.clear()
                     }
-                    else -> parseSessionLine(line)?.let { buffer.add(it) }
+                    line.startsWith("OVERALL:") -> parseOverallStats(line.removePrefix("OVERALL:"))
+                    else                    -> parseSessionLine(line)?.let { buffer.add(it) }
                 }
             }
         }
@@ -47,12 +58,19 @@ class SessionViewModel(
 
     fun requestSessions() {
         buffer.clear()
+        _vehicleStats.value = null
         _state.value = SessionListState.Loading
         repository.requestSessions()
     }
 
     fun startMockSessions() {
         val now = System.currentTimeMillis() / 1000.0
+        _vehicleStats.value = OverallVehicleStats(
+            avgRpm = 2350,
+            maxRpm = 5200,
+            avgClt = 87.5f,
+            maxVss = 142.3f,
+        )
         _state.value = SessionListState.Loaded(
             listOf(
                 SessionInfo(id = 1, startEpoch = now - 30 * 86400, durationSeconds = 1823.0),
@@ -77,5 +95,17 @@ class SessionViewModel(
         )
     } catch (e: Exception) {
         null
+    }
+
+    private fun parseOverallStats(data: String) {
+        try {
+            val p = data.split(",")
+            _vehicleStats.value = OverallVehicleStats(
+                avgRpm = p[0].toFloat().toInt(),
+                maxRpm = p[1].toIntOrNull() ?: 0,
+                avgClt = p[2].toFloatOrNull() ?: 0f,
+                maxVss = p[3].toFloatOrNull() ?: 0f,
+            )
+        } catch (_: Exception) {}
     }
 }

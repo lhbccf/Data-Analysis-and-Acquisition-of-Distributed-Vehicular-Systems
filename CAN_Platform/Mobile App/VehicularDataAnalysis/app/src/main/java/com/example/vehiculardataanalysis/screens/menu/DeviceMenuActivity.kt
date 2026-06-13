@@ -17,8 +17,9 @@ import com.example.bleapp.ui.menu.DeviceMenuScreen
 import com.example.bleapp.ui.menu.MenuScreen
 import com.example.vehiculardataanalysis.DependencyContainer
 import com.example.vehiculardataanalysis.domain.Device
-import com.example.vehiculardataanalysis.screens.about.AboutActivity
+import com.example.vehiculardataanalysis.screens.about.AboutDeviceActivity
 import com.example.vehiculardataanalysis.screens.display.DataDisplayActivity
+import com.example.vehiculardataanalysis.screens.display.OverallStatsActivity
 import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 import com.example.vehiculardataanalysis.ui.BaseActivity
 import com.example.vehiculardataanalysis.ui.theme.VehicularDataAnalysisTheme
@@ -32,6 +33,7 @@ class DeviceMenuActivity : BaseActivity() {
 
     private var deviceAddress = "Unknown"
     private var deviceName = "Unknown Device"
+    private var connectionTimeMs: Long = 0L
     private var viewModel: BleViewModel? = null
     private var adapter: android.bluetooth.BluetoothAdapter? = null
 
@@ -41,6 +43,7 @@ class DeviceMenuActivity : BaseActivity() {
 
         deviceAddress = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
         deviceName = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
+        connectionTimeMs = System.currentTimeMillis()
 
         val bluetoothManager =
             getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -111,6 +114,19 @@ class DeviceMenuActivity : BaseActivity() {
                         navigate<SessionMenuActivity> {
                             it.putExtra("DEVICE_ADDRESS", deviceAddress)
                             it.putExtra("DEVICE_NAME", deviceName)
+                        }
+                    },
+                    onOverallStatsSelected = {
+                        navigate<OverallStatsActivity> {
+                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
+                            it.putExtra("DEVICE_NAME", deviceName)
+                        }
+                    },
+                    onDeviceInfoSelected = {
+                        navigate<AboutDeviceActivity> {
+                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
+                            it.putExtra("DEVICE_NAME", deviceName)
+                            it.putExtra("CONNECTED_SINCE_MS", connectionTimeMs)
                         }
                     },
                 )

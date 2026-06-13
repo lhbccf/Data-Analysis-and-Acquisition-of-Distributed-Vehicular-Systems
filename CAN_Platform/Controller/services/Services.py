@@ -75,6 +75,10 @@ def delete_all_vehicle_states():
     StateRepo.delete_all_vehicle_states()
 
 
+def get_aggregate_vehicle_stats():
+    return StateRepo.get_aggregate_vehicle_stats()
+
+
 def get_recent_sessions(limit=5):
     return SessionRepo.get_recent_sessions(limit)
 

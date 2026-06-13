@@ -77,7 +77,7 @@ class BleViewModel(
 
         viewModelScope.launch(Dispatchers.Default) {
             while (true) {
-                delay(200)
+                delay(100)
 
                 currentRpm     = (currentRpm + Random.nextInt(-150, 150)).coerceIn(700, 8000)
                 currentTemp    = (currentTemp + Random.nextFloat() * 0.4f - 0.2f).coerceIn(20f, 120f)

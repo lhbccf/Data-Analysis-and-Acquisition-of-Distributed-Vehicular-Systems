@@ -37,12 +37,22 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.VehicularDataAnalysis" />
         <activity
+            android:name=".screens.about.AboutDeviceActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VehicularDataAnalysis" />
+        <activity
             android:name=".screens.menu.DeviceMenuActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.VehicularDataAnalysis" />
         <activity
             android:name=".screens.display.DataDisplayActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.VehicularDataAnalysis" />
+        <activity
+            android:name=".screens.display.OverallStatsActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.VehicularDataAnalysis" />

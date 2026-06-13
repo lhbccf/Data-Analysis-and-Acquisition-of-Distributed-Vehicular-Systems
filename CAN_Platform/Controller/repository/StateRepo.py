@@ -121,6 +121,26 @@ def get_vehicle_states_by_session_id(session_id, signals):
         return [dict(row) for row in cursor.fetchall()]
 
 
+def get_aggregate_vehicle_stats():
+    """
+    Returns (avg_rpm, max_rpm, avg_clt, max_vss) across all recorded vehicle states.
+    Zero-value RPM rows are excluded from the average to avoid idle noise skewing results.
+    Returns (0.0, 0, 0.0, 0.0) when no data exists.
+    """
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+                COALESCE(AVG(CASE WHEN rpm > 0 THEN rpm END), 0.0),
+                COALESCE(MAX(rpm), 0),
+                COALESCE(AVG(CASE WHEN clt > 0 THEN clt END), 0.0),
+                COALESCE(MAX(vss), 0.0)
+            FROM vehicle_state
+        """)
+        row = cursor.fetchone()
+        return row if row else (0.0, 0, 0.0, 0.0)
+
+
 def delete_all_vehicle_states():
     with closing(sqlite3.connect(DB_PATH)) as conn:
         cursor = conn.cursor()
