@@ -23,10 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val AccentBlue    = Color(0xFF00B0FF)
-private val WarnOrange    = Color(0xFFFF9800)
-private val DangerRed     = Color(0xFFF44336)
-private val SyncGreen     = Color(0xFF4CAF50)
+
 
 /**
  * Compact two-per-row signal tile used in the live data screen.
@@ -41,8 +38,8 @@ fun SignalTile(
     range: ClosedFloatingPointRange<Float>,
     unit: String,
     format: String = "%.1f",
-    warnFraction: Float = 0.75f,
-    dangerFraction: Float = 0.90f,
+    warnFraction: Float = 1f,
+    dangerFraction: Float = 1f,
     modifier: Modifier = Modifier,
 ) {
     val span     = range.endInclusive - range.start
@@ -50,9 +47,9 @@ fun SignalTile(
     val display  = remember(value, format) { format.format(value) }
 
     val accent = when {
-        fraction >= dangerFraction -> DangerRed
-        fraction >= warnFraction   -> WarnOrange
-        else                       -> AccentBlue
+        fraction >= dangerFraction -> MaterialTheme.colorScheme.error
+        fraction >= warnFraction   -> MaterialTheme.colorScheme.tertiary
+        else                       -> MaterialTheme.colorScheme.primary
     }
 
     val rangeStart = remember(range.start) {
@@ -118,7 +115,7 @@ fun SignalTile(
  */
 @Composable
 fun SyncTile(synced: Boolean, modifier: Modifier = Modifier) {
-    val color = if (synced) SyncGreen else DangerRed
+    val color = if (synced) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.error
     val label = if (synced) "LOCKED" else "NO SYNC"
 
     Card(
@@ -154,60 +151,6 @@ fun SyncTile(synced: Boolean, modifier: Modifier = Modifier) {
                     .background(if (synced) color else MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(2.dp))
             )
             Spacer(modifier = Modifier.height(12.dp))
-        }
-    }
-}
-
-/** Legacy full-width signal card kept for screens that still use it (StatsDisplayScreen). */
-@Composable
-fun SignalSection(
-    title: String,
-    value: Float,
-    range: ClosedFloatingPointRange<Float>,
-    unit: String,
-) {
-    val fraction    = if (range.endInclusive - range.start > 0f)
-        ((value - range.start) / (range.endInclusive - range.start)).coerceIn(0f, 1f) else 0f
-    val display     = remember(value) { "%.2f".format(value) }
-    val accent      = when {
-        fraction >= 0.90f -> DangerRed
-        fraction >= 0.75f -> WarnOrange
-        else              -> AccentBlue
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(title, style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
-                Text("$display $unit", fontFamily = FontFamily.Monospace,
-                    fontSize = 14.sp, color = accent)
-            }
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier.fillMaxWidth().height(4.dp)
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(2.dp))
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(fraction).height(4.dp)
-                        .background(accent, RoundedCornerShape(2.dp))
-                )
-            }
-            Spacer(modifier = Modifier.height(3.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("${range.start.toInt()}", fontSize = 9.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f))
-                Text("${range.endInclusive.toInt()}", fontSize = 9.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f))
-            }
         }
     }
 }

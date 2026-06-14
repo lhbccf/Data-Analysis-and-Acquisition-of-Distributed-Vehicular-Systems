@@ -21,6 +21,8 @@ private val CustomColorTheme = lightColorScheme(
     onSurface = TextPrimary,
     surfaceVariant = CardDark,
     onSurfaceVariant = TextSecondary,
+    tertiary = WarningOrange,
+    onTertiary = SyncGreen,
     error = ErrorRed
 
 )
