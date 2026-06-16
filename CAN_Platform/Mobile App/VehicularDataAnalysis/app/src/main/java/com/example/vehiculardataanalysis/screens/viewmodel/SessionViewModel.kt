@@ -38,6 +38,12 @@ class SessionViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
+            repository.connectionReady.collect { ready ->
+                if (ready) requestSessions()
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.Default) {
             repository.sessionData.collect { line ->
                 when {
                     line.isBlank()          -> {}

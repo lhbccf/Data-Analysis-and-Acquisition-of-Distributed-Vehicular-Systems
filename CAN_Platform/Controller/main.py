@@ -69,8 +69,11 @@ def main():
       start_nextion(config)
       while True:
         time.sleep(1)
-      
-    
+
+    else:
+      while True:
+        time.sleep(1)
+
 
 if __name__ == "__main__":
     main()

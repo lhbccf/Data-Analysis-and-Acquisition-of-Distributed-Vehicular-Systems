@@ -36,6 +36,9 @@ class BleManager(private val context: Context) {
     private val _sessionFlow = MutableStateFlow("")
     val sessionFlow = _sessionFlow
 
+    private val _connectionReady = MutableStateFlow(false)
+    val connectionReady: kotlinx.coroutines.flow.Flow<Boolean> = _connectionReady
+
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val adapter: BluetoothAdapter = bluetoothManager.adapter
@@ -117,6 +120,7 @@ class BleManager(private val context: Context) {
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun connect(device: Device) {
         Log.d(TAG, "Connecting to ${device.address}")
+        _connectionReady.value = false
         gatt = adapter.getRemoteDevice(device.address)
             .connectGatt(context, false, gattCallback)
     }
@@ -160,6 +164,7 @@ class BleManager(private val context: Context) {
                 gatt.discoverServices()
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d(TAG, "Disconnected")
+                _connectionReady.value = false
             }
         }
 
@@ -189,12 +194,18 @@ class BleManager(private val context: Context) {
             descriptor: BluetoothGattDescriptor,
             status: Int
         ) {
-            val sessionChar = pendingSessionCharSubscription ?: return
-            pendingSessionCharSubscription = null
-            sessionChar.getDescriptor(CCCD_UUID)?.let { desc ->
-                desc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                gatt.writeDescriptor(desc)
-                Log.d(TAG, "Session response characteristic subscribed")
+            val sessionChar = pendingSessionCharSubscription
+            if (sessionChar != null) {
+                pendingSessionCharSubscription = null
+                sessionChar.getDescriptor(CCCD_UUID)?.let { desc ->
+                    desc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                    gatt.writeDescriptor(desc)
+                    Log.d(TAG, "Session response characteristic subscribed")
+                }
+            } else {
+                // Both CCCDs written — Pi is subscribed, safe to request sessions
+                _connectionReady.value = true
+                Log.d(TAG, "BLE connection fully ready")
             }
         }
 

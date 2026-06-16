@@ -14,6 +14,7 @@ class BleRepository(
     val scannedDevices: Flow<List<Device>> = manager.devicesFlow
     val canData: Flow<String> = manager.dataFlow
     val sessionData: Flow<String> = manager.sessionFlow
+    val connectionReady: Flow<Boolean> = manager.connectionReady
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     fun startScan(adapter: BluetoothAdapter) = manager.startScan(adapter)
