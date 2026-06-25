@@ -1,12 +1,26 @@
 import logging
 
 from extra.session_manager import session_manager
+from nextion.graph_renderer import build_graph_commands
 from nextion.protocol import GraphRequest, NewSessionRequest
 from repository import SessionRepo, StateRepo
 
 
 logger = logging.getLogger(__name__)
 DEFAULT_SESSION_DESCRIPTION = "CAN acquisition"
+
+
+def send_cmd(ser, cmd):
+    ser.write(cmd.encode())
+    ser.write(b"\xff\xff\xff")
+
+    if hasattr(ser, "flush"):
+        ser.flush()
+
+
+def send_graph_commands(ser, commands):
+    for command in commands:
+        send_cmd(ser, command)
 
 
 def get_session_for_display_index(index, limit=5):
@@ -66,5 +80,7 @@ def handle_nextion_request(ser, request, config=None):
         len(payload["rows"]),
     )
 
-    # Next step: render payload["rows"] to an image and send it to the HMI.
+    commands = build_graph_commands(payload["rows"], request.signals, config)
+    send_graph_commands(ser, commands)
+
     return payload

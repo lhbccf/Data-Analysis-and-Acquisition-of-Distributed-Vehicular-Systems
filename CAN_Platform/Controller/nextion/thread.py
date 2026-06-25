@@ -83,6 +83,16 @@ def build_nextion_commands(data, max_rpm, shift_point):
     }
 
 
+def get_changed_commands(commands, last_commands):
+    changed_commands = {}
+
+    for name, command in commands.items():
+        if last_commands.get(name) != command:
+            changed_commands[name] = command
+
+    return changed_commands
+
+
 def send_commands(ser, commands):
     bytes_written = 0
     commands_sent = 0
@@ -94,17 +104,27 @@ def send_commands(ser, commands):
     return bytes_written, commands_sent
 
 
-def update_nextion(ser, data, max_rpm, shift_point):
+def update_nextion(ser, data, max_rpm, shift_point, last_commands=None):
     try:
         commands = build_nextion_commands(data, max_rpm, shift_point)
-        bytes_written, commands_sent = send_commands(ser, commands)
+
+        if last_commands is None:
+            commands_to_send = commands
+        else:
+            commands_to_send = get_changed_commands(commands, last_commands)
+
+        bytes_written, commands_sent = send_commands(ser, commands_to_send)
+
+        if last_commands is not None:
+            last_commands.update(commands_to_send)
 
         logger.info(
-            "sent to nextion: version=%s decoded=%s commands=%s bytes=%s "
+            "sent to nextion: version=%s decoded=%s commands=%s/%s bytes=%s "
             "rpm=%s afr=%.1f clt=%s advance=%.1f map=%.1f tps=%.1f vss=%s",
             data.get("_version"),
             data.get("decoded"),
             commands_sent,
+            len(commands),
             bytes_written,
             int(data["rpm"]),
             float(data["afr"]),
@@ -147,6 +167,7 @@ def nextion_worker(config):
         return
 
     last_version = None
+    last_commands = {}
     last_sessions_update = 0
     sessions_interval = float(config.get("nextion_sessions_interval", 1.0))
     sessions_limit = int(config.get("nextion_sessions_limit", 5))
@@ -166,6 +187,7 @@ def nextion_worker(config):
                     data,
                     config["redline"],
                     config["shift_point"],
+                    last_commands,
                 ):
                     last_version = version
 
