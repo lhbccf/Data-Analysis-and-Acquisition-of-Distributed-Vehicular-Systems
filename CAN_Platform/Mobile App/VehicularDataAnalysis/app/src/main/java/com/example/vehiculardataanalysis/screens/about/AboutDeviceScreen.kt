@@ -120,7 +120,7 @@ fun AboutDeviceScreen(
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 DeviceInfoRow(label = "MAC Address", value = deviceAddress)
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                DeviceInfoRow(label = "Connection Type", value = "Bluetooth Low Energy")
+                DeviceInfoRow(label = "Connection Type", value = "Bluetooth LE")
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 DeviceInfoRow(label = "Time Connected", value = elapsedFormatted)
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))

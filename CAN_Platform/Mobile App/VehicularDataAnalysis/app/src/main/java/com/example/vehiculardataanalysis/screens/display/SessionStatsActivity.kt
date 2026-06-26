@@ -1,4 +1,4 @@
-package com.example.vehiculardataanalysis.screens.menu
+package com.example.vehiculardataanalysis.screens.display
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -16,17 +16,20 @@ import com.example.vehiculardataanalysis.screens.viewmodel.SessionViewModel
 import com.example.vehiculardataanalysis.ui.BaseActivity
 import com.example.vehiculardataanalysis.ui.theme.VehicularDataAnalysisTheme
 
-class SessionMenuActivity : BaseActivity() {
+class SessionStatsActivity : BaseActivity() {
 
     companion object {
-        private const val TAG = "SessionMenuActivity"
-        private const val PERMISSION_REQUEST_CODE = 1004
+        private const val TAG = "SessionStatsActivity"
+        private const val PERMISSION_REQUEST_CODE = 1006
         private const val TEST_DEVICE_MAC = "AA:BB:CC:DD:EE:FF"
     }
 
     private var deviceAddress = "Unknown"
     private var deviceName = "Unknown Device"
     private var isTestDevice = false
+    private var sessionId = -1
+    private var sessionStart = 0.0
+    private var sessionDuration = 0.0
     private var bleViewModel: BleViewModel? = null
     private var sessionViewModel: SessionViewModel? = null
 
@@ -34,13 +37,16 @@ class SessionMenuActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        deviceAddress = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
-        deviceName = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
-        isTestDevice = deviceAddress == TEST_DEVICE_MAC
+        deviceAddress    = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
+        deviceName       = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
+        sessionId        = intent.getIntExtra("SESSION_ID", -1)
+        sessionStart     = intent.getDoubleExtra("SESSION_START", 0.0)
+        sessionDuration  = intent.getDoubleExtra("SESSION_DURATION", 0.0)
+        isTestDevice     = deviceAddress == TEST_DEVICE_MAC
 
         val container = applicationContext as DependencyContainer
-        val factory = container.bleViewModelFactory
-        bleViewModel = ViewModelProvider(this, factory)[BleViewModel::class.java]
+        val factory   = container.bleViewModelFactory
+        bleViewModel    = ViewModelProvider(this, factory)[BleViewModel::class.java]
         sessionViewModel = ViewModelProvider(this, factory)[SessionViewModel::class.java]
 
         if (hasBluetoothPermissions()) {
@@ -70,30 +76,25 @@ class SessionMenuActivity : BaseActivity() {
     @SuppressLint("MissingPermission")
     private fun connectAndShow() {
         if (isTestDevice) {
-            sessionViewModel?.startMockSessions()
+            sessionViewModel?.startMockSessionStats(sessionId)
         } else {
             bleViewModel?.connect(Device(deviceName, deviceAddress))
+            sessionViewModel?.requestSessionStats(sessionId)
         }
 
         setContent {
             VehicularDataAnalysisTheme {
-                SessionMenuScreen(
-                    deviceName = deviceName,
-                    isTestDevice = isTestDevice,
-                    sessionViewModel = sessionViewModel!!,
-                    onBackPressed = { finish() },
-                    onRefresh = {
-                        if (isTestDevice) sessionViewModel?.startMockSessions()
-                        else sessionViewModel?.requestSessions()
-                    },
-                    onSessionSelected = { session ->
-                        navigate<com.example.vehiculardataanalysis.screens.display.SessionStatsActivity> {
-                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
-                            it.putExtra("DEVICE_NAME", deviceName)
-                            it.putExtra("SESSION_ID", session.id)
-                            it.putExtra("SESSION_START", session.startEpoch)
-                            it.putExtra("SESSION_DURATION", session.durationSeconds)
-                        }
+                SessionStatsScreen(
+                    sessionId               = sessionId,
+                    sessionStartEpoch       = sessionStart,
+                    sessionDurationSeconds  = sessionDuration,
+                    deviceName              = deviceName,
+                    isTestDevice            = isTestDevice,
+                    sessionViewModel        = sessionViewModel!!,
+                    onBackPressed           = { finish() },
+                    onRetry                 = {
+                        if (isTestDevice) sessionViewModel?.startMockSessionStats(sessionId)
+                        else sessionViewModel?.requestSessionStats(sessionId)
                     }
                 )
             }

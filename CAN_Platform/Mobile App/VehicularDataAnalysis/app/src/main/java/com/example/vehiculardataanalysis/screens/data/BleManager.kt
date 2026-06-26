@@ -151,6 +151,21 @@ class BleManager(private val context: Context) {
         Log.d(TAG, "GET_SESSIONS command sent")
     }
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun requestSessionStats(sessionId: Int) {
+        val service = gatt?.getService(SERVICE_UUID) ?: run {
+            Log.e(TAG, "requestSessionStats: GATT not connected")
+            return
+        }
+        val requestChar = service.getCharacteristic(SESSION_REQUEST_CHAR_UUID) ?: run {
+            Log.e(TAG, "Session request characteristic not found")
+            return
+        }
+        requestChar.value = "GET_SESSION:$sessionId".toByteArray(Charsets.UTF_8)
+        gatt?.writeCharacteristic(requestChar)
+        Log.d(TAG, "GET_SESSION:$sessionId command sent")
+    }
+
     // --------------------------------------------------
     // GATT CALLBACK
     // --------------------------------------------------

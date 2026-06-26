@@ -85,3 +85,7 @@ def get_recent_sessions(limit=5):
 
 def get_vehicle_states_by_session_id(session_id, signals):
     return StateRepo.get_vehicle_states_by_session_id(session_id, signals)
+
+
+def get_session_vehicle_stats(session_id: int):
+    return StateRepo.get_session_vehicle_stats(session_id)

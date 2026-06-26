@@ -1,8 +1,7 @@
 package com.example.vehiculardataanalysis.components
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,19 +87,11 @@ fun SignalTile(
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
-            // Progress track
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(2.dp))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(fraction)
-                        .height(4.dp)
-                        .background(accent, RoundedCornerShape(2.dp))
-                )
+            val trackColor = MaterialTheme.colorScheme.surfaceVariant
+            Canvas(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                val r = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+                drawRoundRect(color = trackColor, cornerRadius = r)
+                drawRoundRect(color = accent, size = Size(size.width * fraction, size.height), cornerRadius = r)
             }
             Spacer(modifier = Modifier.height(3.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -144,12 +136,10 @@ fun SyncTile(synced: Boolean, modifier: Modifier = Modifier) {
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(if (synced) color else MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(2.dp))
-            )
+            val fillColor = if (synced) color else MaterialTheme.colorScheme.surfaceVariant
+            Canvas(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                drawRoundRect(color = fillColor, cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()))
+            }
             Spacer(modifier = Modifier.height(12.dp))
         }
     }

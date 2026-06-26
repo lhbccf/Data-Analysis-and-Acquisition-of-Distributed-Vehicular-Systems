@@ -24,4 +24,7 @@ class BleRepository(
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun requestSessions() = manager.requestSessions()
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun requestSessionStats(sessionId: Int) = manager.requestSessionStats(sessionId)
 }

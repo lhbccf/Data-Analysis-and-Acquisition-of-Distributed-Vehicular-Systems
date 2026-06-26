@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,7 +28,8 @@ fun SessionMenuScreen(
     isTestDevice: Boolean = false,
     sessionViewModel: SessionViewModel,
     onBackPressed: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onSessionSelected: (SessionInfo) -> Unit = {}
 ) {
     val state = sessionViewModel.state.collectAsState().value
 
@@ -113,7 +115,9 @@ fun SessionMenuScreen(
                         Spacer(modifier = Modifier.weight(1f))
                     } else {
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            items(state.sessions) { session -> SessionCard(session) }
+                            items(state.sessions) { session ->
+                                SessionCard(session, onClick = { onSessionSelected(session) })
+                            }
                         }
                     }
                 }
@@ -123,7 +127,7 @@ fun SessionMenuScreen(
 }
 
 @Composable
-private fun SessionCard(session: SessionInfo) {
+private fun SessionCard(session: SessionInfo, onClick: () -> Unit) {
     val dateFormat = SimpleDateFormat("dd MMM yyyy  HH:mm:ss", Locale.getDefault())
     val startDate = dateFormat.format(Date((session.startEpoch * 1000).toLong()))
     val duration = if (session.durationSeconds < 0) {
@@ -141,6 +145,7 @@ private fun SessionCard(session: SessionInfo) {
     }
 
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -153,26 +158,36 @@ private fun SessionCard(session: SessionInfo) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    "Session #${session.id}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    duration,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (session.durationSeconds < 0)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Session #${session.id}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        startDate,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        duration,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (session.durationSeconds < 0)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "View stats",
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                startDate,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
         }
     }
 }

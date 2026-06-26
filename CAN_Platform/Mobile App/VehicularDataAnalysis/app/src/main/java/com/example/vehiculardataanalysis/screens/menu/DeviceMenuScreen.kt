@@ -1,6 +1,5 @@
 package com.example.bleapp.ui.menu
 
-import android.bluetooth.BluetoothAdapter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,17 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vehiculardataanalysis.components.ButtonOption
-import com.example.vehiculardataanalysis.domain.Device
-import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceMenuScreen(
     deviceAddress: String = "Unknown",
     deviceName: String = "Unknown Device",
-    viewModel: BleViewModel,
-    adapter: BluetoothAdapter,
-    scannedDevices: List<Device> = emptyList(),
     onBackPressed: () -> Unit,
     onLiveDataSelected: () -> Unit,
     onSessionsSelected: () -> Unit,

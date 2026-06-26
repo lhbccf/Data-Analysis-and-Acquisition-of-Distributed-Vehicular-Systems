@@ -10,7 +10,7 @@ CHAR_UUID                  = 'abcdef01-1234-5678-1234-56789abcdef0'
 SESSION_REQUEST_CHAR_UUID  = 'abcdef02-1234-5678-1234-56789abcdef0'
 SESSION_RESPONSE_CHAR_UUID = 'abcdef03-1234-5678-1234-56789abcdef0'
 
-NOTIFY_INTERVAL_MS    = 100   # 10 Hz sensor stream
+NOTIFY_INTERVAL_MS    = 200   # 5 Hz sensor stream
 SESSION_DRIP_DELAY_MS = 50    # gap between consecutive session notifications
 
 
@@ -114,6 +114,44 @@ class BLETlmServer:
         command = bytes(value).decode('utf-8').strip()
         if command == 'GET_SESSIONS':
             GLib.idle_add(self._build_session_queue)
+        elif command.startswith('GET_SESSION:'):
+            try:
+                session_id = int(command.split(':', 1)[1])
+                GLib.idle_add(lambda: self._build_session_stats_queue(session_id))
+            except (ValueError, IndexError):
+                pass
+
+    def _build_session_stats_queue(self, session_id: int) -> bool:
+        """
+        Queues a single SESSION_STATS line for the requested session then END.
+        Runs once per GET_SESSION:<id> request via GLib.idle_add().
+        """
+        if self._session_response_char is None or not self._session_response_char.is_notifying:
+            return False
+
+        while not self._session_send_queue.empty():
+            try:
+                self._session_send_queue.get_nowait()
+            except queue.Empty:
+                break
+
+        try:
+            from services import Services
+
+            avg_rpm, max_rpm, avg_clt, max_vss = Services.get_session_vehicle_stats(session_id)
+            self._session_send_queue.put(
+                f"SESSION_STATS:{session_id},{avg_rpm:.0f},{int(max_rpm)},{avg_clt:.1f},{max_vss:.1f}"
+            )
+            self._session_send_queue.put('END')
+            GLib.timeout_add(SESSION_DRIP_DELAY_MS, self._flush_session_queue)
+
+        except Exception as exc:
+            print(f"[ERROR] Failed to build session stats queue: {exc}")
+            err_line = f'ERR:{exc}'
+            if self._session_response_char and self._session_response_char.is_notifying:
+                self._session_response_char.set_value(list(err_line.encode('utf-8')))
+
+        return False
 
     def _build_session_queue(self) -> bool:
         """
