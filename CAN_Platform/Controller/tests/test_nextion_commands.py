@@ -34,19 +34,8 @@ class FakeSession:
         self.description = description
 
 
-def test_format_sessions_text_uses_display_indices_and_sanitizes_names():
-    text = format_sessions_text([
-        FakeSession(10, 'Track "A"'),
-        FakeSession(9, None),
-    ])
-
-    assert text == "0: Track 'A'\r1: Session 9"
-
-
-def test_update_nextion_sends_expected_hardcoded_fields():
-    ser = FakeSerial()
-
-    ok = update_nextion(ser, {
+def build_test_data():
+    return {
         "rpm": 3120,
         "afr": 14.68,
         "clt": 86,
@@ -68,7 +57,22 @@ def test_update_nextion_sends_expected_hardcoded_fields():
         "fp": True,
         "boost_cut": False,
         "vss": 58,
-    }, 9000, 7000)
+    }
+
+
+def test_format_sessions_text_uses_display_indices_and_sanitizes_names():
+    text = format_sessions_text([
+        FakeSession(10, 'Track "A"'),
+        FakeSession(9, None),
+    ])
+
+    assert text == "0: Track 'A'\r1: Session 9"
+
+
+def test_update_nextion_sends_expected_hardcoded_fields():
+    ser = FakeSerial()
+
+    ok = update_nextion(ser, build_test_data(), 9000, 7000)
 
     assert ok is True
     assert ser.writes == [
@@ -121,6 +125,36 @@ def test_update_nextion_sends_expected_hardcoded_fields():
         b'vss.txt="VSS: 58 km/h"',
         b"\xff\xff\xff",
         b'shiftlight.pco="0"',
+        b"\xff\xff\xff",
+    ]
+
+
+def test_update_nextion_only_sends_changed_commands_when_cache_is_used():
+    ser = FakeSerial()
+    data = build_test_data()
+    last_commands = {}
+
+    ok = update_nextion(ser, data, 9000, 7000, last_commands)
+
+    assert ok is True
+    assert len(ser.writes) == 50
+
+    ser.writes.clear()
+    ok = update_nextion(ser, data, 9000, 7000, last_commands)
+
+    assert ok is True
+    assert ser.writes == []
+
+    data["rpm"] = 7200
+    ok = update_nextion(ser, data, 9000, 7000, last_commands)
+
+    assert ok is True
+    assert ser.writes == [
+        b'rpm.txt="7200"',
+        b"\xff\xff\xff",
+        b'rpmgauge.val="80"',
+        b"\xff\xff\xff",
+        b'shiftlight.pco="6400"',
         b"\xff\xff\xff",
     ]
 

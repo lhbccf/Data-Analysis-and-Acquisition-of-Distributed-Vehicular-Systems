@@ -11,6 +11,8 @@
     "can_log_interval": 5.0,
     "nextion_port": "/dev/serial0",
     "nextion_baud": 115200,
+    "nextion_sessions_interval": 1.0,
+    "nextion_sessions_limit": 5,
     "shift_point": 6500,
     "redline": 7500,
     "bluetooth_enabled": true

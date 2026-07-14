@@ -27,64 +27,104 @@ def clamp(value, minimum=0, maximum=100):
     return max(minimum, min(maximum, value))
 
 
+def _sanitize_nextion_text(value):
+    return str(value).replace('"', "'").replace("\n", " ").replace("\r", " ")
+
+
+def format_sessions_text(sessions):
+    lines = []
+
+    for index, session in enumerate(sessions):
+        description = session.description or f"Session {session.id}"
+        lines.append(f"{index}: {_sanitize_nextion_text(description)}")
+
+    return "\r".join(lines)
+
+
 def update_sessions_list(ser, limit=5):
     sessions = SessionRepo.get_recent_sessions(limit)
-    text =  r"\r"
-    for index, session in sessions:
-        text += f"Session {session.id}"
-        text +="\r\n"
-        
+    text = format_sessions_text(sessions)
     return send_cmd(ser, f'sessions.txt="{text}"')
 
 
-def update_nextion(ser, data, max_rpm, shift_point):
+def build_nextion_commands(data, max_rpm, shift_point):
+    rpm_percent = int((data["rpm"] / max_rpm) * 100)
+    clt = data["clt"]
+    clt_gauge = clamp(int(((clt - 60) / 60) * 100))
+    afr_gauge = clamp(int(((float(data["afr"]) - 10) / 10) * 100))
+    shiftlight_color = 6400 if int(data["rpm"]) > shift_point else 0
+
+    return {
+        "rpm": f'rpm.txt="{int(data["rpm"])}"',
+        "afr": f'afr.txt="AFR: {data["afr"]:.1f} AFR"',
+        "clt": f'clt.txt="CLT: {int(data["clt"])} C"',
+        "adv": f'adv.txt="ADV: {data["advance"]:.1f} deg"',
+        "map": f'map.txt="MAP: {data["map"]:.1f} kPa"',
+        "baro": f'baro.txt="BARO: {data["baro"]:.1f} kPa"',
+        "tps": f'tps.txt="TPS: {data["tps"]:.1f} %"',
+        "iat": f'iat.txt="IAT: {int(data["iat"])} C"',
+        "ego": f'ego.txt="EGO: {data["ego_correction"]:.0f} %"',
+        "pw": f'pw.txt="PW: {data["pulse_width"]:.2f} ms"',
+        "ve": f've.txt="VE: {int(data["ve"])} %"',
+        "dwell": f'dwell.txt="DWELL: {data["dwell"]:.1f} ms"',
+        "bat": f'bat.txt="BAT: {data["battery_voltage"]:.1f} V"',
+        "boost": f'boost.txt="BOOST: {data["boost_target"]:.1f} kPa"',
+        "duty": f'duty.txt="DUTY: {data["boost_duty"]:.0f} %"',
+        "sync": f'sync.txt="SYNC: {int(data["sync"])}"',
+        "engine": f'engine.txt="ENGINE: {int(data["engine_status"])}"',
+        "fan": f'fan.txt="FAN: {int(data["fan"])}"',
+        "fp": f'fp.txt="FP: {int(data["fp"])}"',
+        "boostcut": f'boostcut.txt="BOOSTCUT: {int(data["boost_cut"])}"',
+        "rpmgauge": f'rpmgauge.val="{rpm_percent}"',
+        "cltgauge": f'cltgauge.val={clt_gauge}',
+        "afrgauge": f'afrgauge.val={afr_gauge}',
+        "vss": f'vss.txt="VSS: {int(data["vss"])} km/h"',
+        "shiftlight": f'shiftlight.pco="{shiftlight_color}"',
+    }
+
+
+def get_changed_commands(commands, last_commands):
+    changed_commands = {}
+
+    for name, command in commands.items():
+        if last_commands.get(name) != command:
+            changed_commands[name] = command
+
+    return changed_commands
+
+
+def send_commands(ser, commands):
+    bytes_written = 0
+    commands_sent = 0
+
+    for command in commands.values():
+        bytes_written += send_cmd(ser, command)
+        commands_sent += 1
+
+    return bytes_written, commands_sent
+
+
+def update_nextion(ser, data, max_rpm, shift_point, last_commands=None):
     try:
-        text_commands = [
-            f'rpm.txt="{int(data["rpm"])}"',
-            f'afr.txt="AFR: {data["afr"]:.1f} AFR"',
-            f'clt.txt="CLT: {int(data["clt"])} C"',
-            f'adv.txt="ADV: {data["advance"]:.1f} deg"',
-            f'map.txt="MAP: {data["map"]:.1f} kPa"',
-            f'baro.txt="BARO: {data["baro"]:.1f} kPa"',
-            f'tps.txt="TPS: {data["tps"]:.1f} %"',
-            f'iat.txt="IAT: {int(data["iat"])} C"',
-            f'ego.txt="EGO: {data["ego_correction"]:.0f} %"',
-            f'pw.txt="PW: {data["pulse_width"]:.2f} ms"',
-            f've.txt="VE: {int(data["ve"])} %"',
-            f'dwell.txt="DWELL: {data["dwell"]:.1f} ms"',
-            f'bat.txt="BAT: {data["battery_voltage"]:.1f} V"',
-            f'boost.txt="BOOST: {data["boost_target"]:.1f} kPa"',
-            f'duty.txt="DUTY: {data["boost_duty"]:.0f} %"',
-            f'sync.txt="SYNC: {int(data["sync"])}"',
-            f'engine.txt="ENGINE: {int(data["engine_status"])}"',
-            f'fan.txt="FAN: {int(data["fan"])}"',
-            f'fp.txt="FP: {int(data["fp"])}"',
-            f'boostcut.txt="BOOSTCUT: {int(data["boost_cut"])}"',
-        ]
+        commands = build_nextion_commands(data, max_rpm, shift_point)
 
-        rpm_percent = int((data["rpm"] / max_rpm) * 100)
-        clt = data["clt"]
-        clt_gauge = clamp(int(((clt - 60) / 60) * 100))
-        afr_gauge = clamp(int(((float(data["afr"]) - 10) / 10) * 100))
-        shiftlight_color = 6400 if int(data["rpm"]) > shift_point else 0
+        if last_commands is None:
+            commands_to_send = commands
+        else:
+            commands_to_send = get_changed_commands(commands, last_commands)
 
-        value_commands = [
-            f'rpmgauge.val="{rpm_percent}"',
-            f'cltgauge.val={clt_gauge}',
-            f'afrgauge.val={afr_gauge}',
-            f'vss.txt="VSS: {int(data["vss"])} km/h"',
-            f'shiftlight.pco="{shiftlight_color}"',
-        ]
+        bytes_written, commands_sent = send_commands(ser, commands_to_send)
 
-        bytes_written = 0
-        for command in text_commands + value_commands:
-            bytes_written += send_cmd(ser, command)
+        if last_commands is not None:
+            last_commands.update(commands_to_send)
 
         logger.info(
-            "sent to nextion: version=%s decoded=%s bytes=%s "
+            "sent to nextion: version=%s decoded=%s commands=%s/%s bytes=%s "
             "rpm=%s afr=%.1f clt=%s advance=%.1f map=%.1f tps=%.1f vss=%s",
             data.get("_version"),
             data.get("decoded"),
+            commands_sent,
+            len(commands),
             bytes_written,
             int(data["rpm"]),
             float(data["afr"]),
@@ -127,6 +167,7 @@ def nextion_worker(config):
         return
 
     last_version = None
+    last_commands = {}
     last_sessions_update = 0
     sessions_interval = float(config.get("nextion_sessions_interval", 1.0))
     sessions_limit = int(config.get("nextion_sessions_limit", 5))
@@ -137,6 +178,7 @@ def nextion_worker(config):
 
             data = signal_cache.get_all()
             version = data.get("_version")
+            now = time.time()
 
             if version != last_version:
 
@@ -145,10 +187,10 @@ def nextion_worker(config):
                     data,
                     config["redline"],
                     config["shift_point"],
+                    last_commands,
                 ):
                     last_version = version
 
-            now = time.time()
             if now - last_sessions_update >= sessions_interval:
                 update_sessions_list(ser, sessions_limit)
                 last_sessions_update = now
