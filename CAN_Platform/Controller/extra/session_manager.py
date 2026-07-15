@@ -22,6 +22,16 @@ class SessionManager:
             logger.info("CAN DB session started: %s", self._current_session.id)
             return self._current_session
 
+    def end_current_session(self):
+        with self._lock:
+            if self._current_session is None:
+                return None
+            ended_id = self._current_session.id
+            Services.end_session(ended_id)
+            logger.info("Ended CAN DB session: %s", ended_id)
+            self._current_session = None
+            return ended_id
+
     def get_current_session(self):
         with self._lock:
             return self._current_session

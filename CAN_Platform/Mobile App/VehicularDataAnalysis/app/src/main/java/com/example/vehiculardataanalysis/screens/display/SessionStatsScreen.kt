@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.vehiculardataanalysis.screens.viewmodel.AsyncState
 import com.example.vehiculardataanalysis.screens.viewmodel.OverallVehicleStats
 import com.example.vehiculardataanalysis.screens.viewmodel.SessionStatsState
 import com.example.vehiculardataanalysis.screens.viewmodel.SessionViewModel
@@ -31,7 +32,7 @@ fun SessionStatsScreen(
     onBackPressed: () -> Unit,
     onRetry: () -> Unit
 ) {
-    val statsState = sessionViewModel.sessionStatsState.collectAsState().value
+    val statsState = sessionViewModel.uiState.collectAsState().value.sessionStats
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -60,7 +61,7 @@ fun SessionStatsScreen(
         }
     ) { innerPadding ->
         when (statsState) {
-            is SessionStatsState.Idle -> {
+            is AsyncState.Idle -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center
@@ -76,7 +77,7 @@ fun SessionStatsScreen(
                 }
             }
 
-            is SessionStatsState.Loading -> {
+            is AsyncState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center
@@ -92,7 +93,7 @@ fun SessionStatsScreen(
                 }
             }
 
-            is SessionStatsState.Error -> {
+            is AsyncState.Error -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center
@@ -138,7 +139,7 @@ private fun SessionStatsContent(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-        // ── Session info card ──────────────────────────────────────────────────
+        //Session info card
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -156,7 +157,7 @@ private fun SessionStatsContent(
             }
         }
 
-        // ── Engine analytics ───────────────────────────────────────────────────
+        //Engine analytics
         if (stats.maxRpm > 0) {
             item {
                 Text(

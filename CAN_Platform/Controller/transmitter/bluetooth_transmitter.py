@@ -120,6 +120,36 @@ class BLETlmServer:
                 GLib.idle_add(lambda: self._build_session_stats_queue(session_id))
             except (ValueError, IndexError):
                 pass
+        elif command == 'CREATE_SESSION':
+            GLib.idle_add(self._handle_create_session)
+        elif command == 'END_SESSION':
+            GLib.idle_add(self._handle_end_session)
+
+    def _handle_create_session(self) -> bool:
+        """Creates a new recording session (ends the current one if active)."""
+        try:
+            from extra.session_manager import session_manager
+            session = session_manager.start_new_session("BLE")
+            response = f"SESSION_CREATED:{session.id}"
+        except Exception as exc:
+            print(f"[ERROR] CREATE_SESSION failed: {exc}")
+            response = f"ERR:{exc}"
+        if self._session_response_char and self._session_response_char.is_notifying:
+            self._session_response_char.set_value(list(response.encode('utf-8')))
+        return False
+
+    def _handle_end_session(self) -> bool:
+        """Ends the currently active recording session."""
+        try:
+            from extra.session_manager import session_manager
+            ended_id = session_manager.end_current_session()
+            response = f"SESSION_ENDED:{ended_id}" if ended_id is not None else "ERR:No active session"
+        except Exception as exc:
+            print(f"[ERROR] END_SESSION failed: {exc}")
+            response = f"ERR:{exc}"
+        if self._session_response_char and self._session_response_char.is_notifying:
+            self._session_response_char.set_value(list(response.encode('utf-8')))
+        return False
 
     def _build_session_stats_queue(self, session_id: int) -> bool:
         """

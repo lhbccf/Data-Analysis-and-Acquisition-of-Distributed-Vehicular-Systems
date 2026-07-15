@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vehiculardataanalysis.domain.SessionInfo
+import com.example.vehiculardataanalysis.screens.viewmodel.AsyncState
 import com.example.vehiculardataanalysis.screens.viewmodel.OverallVehicleStats
 import com.example.vehiculardataanalysis.screens.viewmodel.SessionListState
 import com.example.vehiculardataanalysis.screens.viewmodel.SessionViewModel
@@ -53,8 +54,9 @@ fun OverallStatsScreen(
     onBackPressed: () -> Unit,
     onRefresh: () -> Unit
 ) {
-    val state        = sessionViewModel.state.collectAsState().value
-    val vehicleStats = sessionViewModel.vehicleStats.collectAsState().value
+    val uiState      = sessionViewModel.uiState.collectAsState().value
+    val state        = uiState.sessionList
+    val vehicleStats = uiState.vehicleStats
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -78,7 +80,7 @@ fun OverallStatsScreen(
         }
     ) { innerPadding ->
         when (state) {
-            is SessionListState.Idle -> {
+            is AsyncState.Idle -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center
@@ -94,7 +96,7 @@ fun OverallStatsScreen(
                 }
             }
 
-            is SessionListState.Loading -> {
+            is AsyncState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center
@@ -110,7 +112,7 @@ fun OverallStatsScreen(
                 }
             }
 
-            is SessionListState.Error -> {
+            is AsyncState.Error -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center

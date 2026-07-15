@@ -9,13 +9,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vehiculardataanalysis.domain.SessionInfo
+import com.example.vehiculardataanalysis.screens.viewmodel.AsyncState
 import com.example.vehiculardataanalysis.screens.viewmodel.SessionListState
 import com.example.vehiculardataanalysis.screens.viewmodel.SessionViewModel
 import java.text.SimpleDateFormat
@@ -29,9 +29,93 @@ fun SessionMenuScreen(
     sessionViewModel: SessionViewModel,
     onBackPressed: () -> Unit,
     onRefresh: () -> Unit,
-    onSessionSelected: (SessionInfo) -> Unit = {}
+    onSessionSelected: (SessionInfo) -> Unit = {},
+    onCreateSession: () -> Unit = {},
+    onEndSession: () -> Unit = {}
 ) {
-    val state = sessionViewModel.state.collectAsState().value
+    val uiState     = sessionViewModel.uiState.collectAsState().value
+    val state       = uiState.sessionList
+    val actionState = uiState.actionState
+
+    // ── Dialog state ─────────────────────────────────────────────────────────
+    var showCreateDialog by remember { mutableStateOf(false) }
+    var showEndDialog    by remember { mutableStateOf(false) }
+
+    val ongoingSession = (state as? SessionListState.Loaded)
+        ?.sessions?.firstOrNull { it.durationSeconds < 0 }
+
+    // ── Error dialog from action failures ────────────────────────────────────
+    if (actionState is AsyncState.Error) {
+        AlertDialog(
+            onDismissRequest = { sessionViewModel.clearActionError() },
+            title = { Text("Action Failed") },
+            text  = { Text(actionState.message) },
+            confirmButton = {
+                TextButton(onClick = { sessionViewModel.clearActionError() }) { Text("OK") }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor  = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+
+    // ── Create session confirmation ───────────────────────────────────────────
+    if (showCreateDialog) {
+        val title: String
+        val body: String
+        val confirmLabel: String
+        if (ongoingSession != null) {
+            title        = "Active Session Running"
+            body         = "Session #${ongoingSession.id} is currently recording. " +
+                           "A new session cannot start until it ends.\n\n" +
+                           "End session #${ongoingSession.id} and start a new one?"
+            confirmLabel = "End & Create"
+        } else {
+            title        = "Start New Session"
+            body         = "Begin a new recording session?"
+            confirmLabel = "Start"
+        }
+        AlertDialog(
+            onDismissRequest = { showCreateDialog = false },
+            title = { Text(title) },
+            text  = { Text(body) },
+            dismissButton = {
+                TextButton(onClick = { showCreateDialog = false }) { Text("Cancel") }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showCreateDialog = false
+                    onCreateSession()
+                }) { Text(confirmLabel) }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor  = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+
+    // ── End session confirmation ──────────────────────────────────────────────
+    if (showEndDialog && ongoingSession != null) {
+        AlertDialog(
+            onDismissRequest = { showEndDialog = false },
+            title = { Text("End Recording Session") },
+            text  = { Text("Stop recording for session #${ongoingSession.id}?") },
+            dismissButton = {
+                TextButton(onClick = { showEndDialog = false }) { Text("Cancel") }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showEndDialog = false
+                        onEndSession()
+                    }
+                ) { Text("End Session") }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor  = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -52,6 +136,48 @@ fun SessionMenuScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                 )
             )
+        },
+        bottomBar = {
+            Surface(
+                color = MaterialTheme.colorScheme.background,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = { showCreateDialog = true },
+                        modifier = Modifier.weight(1f),
+                        enabled = actionState !is AsyncState.Loading
+                    ) {
+                        if (actionState is AsyncState.Loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Text("New Session")
+                        }
+                    }
+                    OutlinedButton(
+                        onClick = { showEndDialog = true },
+                        modifier = Modifier.weight(1f),
+                        enabled = ongoingSession != null && actionState !is AsyncState.Loading,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                        border = ButtonDefaults.outlinedButtonBorder.copy(
+                            width = if (ongoingSession != null) 1.dp else 0.dp
+                        )
+                    ) {
+                        Text("End Session")
+                    }
+                }
+            }
         }
     ) { innerPadding ->
         Column(
@@ -63,7 +189,7 @@ fun SessionMenuScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (state) {
-                is SessionListState.Idle -> {
+                is AsyncState.Idle -> {
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         "No sessions loaded.",
@@ -74,7 +200,7 @@ fun SessionMenuScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
 
-                is SessionListState.Loading -> {
+                is AsyncState.Loading -> {
                     Spacer(modifier = Modifier.weight(1f))
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(12.dp))
@@ -85,7 +211,7 @@ fun SessionMenuScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
 
-                is SessionListState.Error -> {
+                is AsyncState.Error -> {
                     Spacer(modifier = Modifier.weight(1f))
                     Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
@@ -114,7 +240,10 @@ fun SessionMenuScreen(
                         )
                         Spacer(modifier = Modifier.weight(1f))
                     } else {
-                        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
                             items(state.sessions) { session ->
                                 SessionCard(session, onClick = { onSessionSelected(session) })
                             }
@@ -130,7 +259,8 @@ fun SessionMenuScreen(
 private fun SessionCard(session: SessionInfo, onClick: () -> Unit) {
     val dateFormat = SimpleDateFormat("dd MMM yyyy  HH:mm:ss", Locale.getDefault())
     val startDate = dateFormat.format(Date((session.startEpoch * 1000).toLong()))
-    val duration = if (session.durationSeconds < 0) {
+    val isOngoing = session.durationSeconds < 0
+    val duration = if (isOngoing) {
         "Ongoing"
     } else {
         val total = session.durationSeconds.toLong()
@@ -175,7 +305,7 @@ private fun SessionCard(session: SessionInfo, onClick: () -> Unit) {
                     Text(
                         duration,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (session.durationSeconds < 0)
+                        color = if (isOngoing)
                             MaterialTheme.colorScheme.primary
                         else
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)

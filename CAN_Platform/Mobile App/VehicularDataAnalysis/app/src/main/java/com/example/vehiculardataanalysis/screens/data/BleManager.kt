@@ -152,6 +152,36 @@ class BleManager(private val context: Context) {
     }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun createSession() {
+        val service = gatt?.getService(SERVICE_UUID) ?: run {
+            Log.e(TAG, "createSession: GATT not connected")
+            return
+        }
+        val requestChar = service.getCharacteristic(SESSION_REQUEST_CHAR_UUID) ?: run {
+            Log.e(TAG, "Session request characteristic not found")
+            return
+        }
+        requestChar.value = "CREATE_SESSION".toByteArray(Charsets.UTF_8)
+        gatt?.writeCharacteristic(requestChar)
+        Log.d(TAG, "CREATE_SESSION command sent")
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    fun endSession() {
+        val service = gatt?.getService(SERVICE_UUID) ?: run {
+            Log.e(TAG, "endSession: GATT not connected")
+            return
+        }
+        val requestChar = service.getCharacteristic(SESSION_REQUEST_CHAR_UUID) ?: run {
+            Log.e(TAG, "Session request characteristic not found")
+            return
+        }
+        requestChar.value = "END_SESSION".toByteArray(Charsets.UTF_8)
+        gatt?.writeCharacteristic(requestChar)
+        Log.d(TAG, "END_SESSION command sent")
+    }
+
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun requestSessionStats(sessionId: Int) {
         val service = gatt?.getService(SERVICE_UUID) ?: run {
             Log.e(TAG, "requestSessionStats: GATT not connected")

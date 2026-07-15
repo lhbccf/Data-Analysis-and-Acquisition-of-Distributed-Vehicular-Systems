@@ -94,6 +94,14 @@ class SessionMenuActivity : BaseActivity() {
                             it.putExtra("SESSION_START", session.startEpoch)
                             it.putExtra("SESSION_DURATION", session.durationSeconds)
                         }
+                    },
+                    onCreateSession = {
+                        if (isTestDevice) sessionViewModel?.startMockCreateSession()
+                        else sessionViewModel?.createSession()
+                    },
+                    onEndSession = {
+                        if (isTestDevice) sessionViewModel?.startMockEndSession()
+                        else sessionViewModel?.endSession()
                     }
                 )
             }
