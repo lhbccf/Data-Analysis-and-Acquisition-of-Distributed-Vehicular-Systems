@@ -1,0 +1,647 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{jg}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=1b5200495908caecc40011940c5b02a8}{%
+           family={Ribbens},
+           familyi={R\bibinitperiod},
+           given={W.\bibnamedelimi B.},
+           giveni={W\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Butterworth-Heinemann}%
+      }
+      \strng{namehash}{1b5200495908caecc40011940c5b02a8}
+      \strng{fullhash}{1b5200495908caecc40011940c5b02a8}
+      \strng{fullhashraw}{1b5200495908caecc40011940c5b02a8}
+      \strng{bibnamehash}{1b5200495908caecc40011940c5b02a8}
+      \strng{authorbibnamehash}{1b5200495908caecc40011940c5b02a8}
+      \strng{authornamehash}{1b5200495908caecc40011940c5b02a8}
+      \strng{authorfullhash}{1b5200495908caecc40011940c5b02a8}
+      \strng{authorfullhashraw}{1b5200495908caecc40011940c5b02a8}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Understanding Automotive Electronics, 8th Edition}
+      \field{year}{2017}
+    \endentry
+    \entry{iso11898}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=7058e4bd76f877c52b621c942b30613c}{%
+           family={{International Organization for Standardization}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {International Organization for Standardization}%
+      }
+      \list{location}{1}{%
+        {Geneva, Switzerland}%
+      }
+      \strng{namehash}{7058e4bd76f877c52b621c942b30613c}
+      \strng{fullhash}{7058e4bd76f877c52b621c942b30613c}
+      \strng{fullhashraw}{7058e4bd76f877c52b621c942b30613c}
+      \strng{bibnamehash}{7058e4bd76f877c52b621c942b30613c}
+      \strng{authorbibnamehash}{7058e4bd76f877c52b621c942b30613c}
+      \strng{authornamehash}{7058e4bd76f877c52b621c942b30613c}
+      \strng{authorfullhash}{7058e4bd76f877c52b621c942b30613c}
+      \strng{authorfullhashraw}{7058e4bd76f877c52b621c942b30613c}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{ISO 11898-1:2015}
+      \field{title}{Road vehicles -- Controller area network (CAN) -- Part 1: Data link layer and physical signalling}
+      \field{type}{International Standard}
+      \field{year}{2015}
+    \endentry
+    \entry{canprotocol}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=dba88ef1fbe732208c7a2687c335d047}{%
+           family={{Bijal Parikh}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Engineers Garage}%
+      }
+      \strng{namehash}{dba88ef1fbe732208c7a2687c335d047}
+      \strng{fullhash}{dba88ef1fbe732208c7a2687c335d047}
+      \strng{fullhashraw}{dba88ef1fbe732208c7a2687c335d047}
+      \strng{bibnamehash}{dba88ef1fbe732208c7a2687c335d047}
+      \strng{authorbibnamehash}{dba88ef1fbe732208c7a2687c335d047}
+      \strng{authornamehash}{dba88ef1fbe732208c7a2687c335d047}
+      \strng{authorfullhash}{dba88ef1fbe732208c7a2687c335d047}
+      \strng{authorfullhashraw}{dba88ef1fbe732208c7a2687c335d047}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{What Is CAN Protocol? Complete Guide to Controller Area Network}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.engineersgarage.com/can-protocol-understanding-the-controller-area-network-protocol/
+      \endverb
+      \verb{url}
+      \verb https://www.engineersgarage.com/can-protocol-understanding-the-controller-area-network-protocol/
+      \endverb
+    \endentry
+    \entry{canframe}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=db05833c29e688b5ab54d5e8608a72ec}{%
+           family={{Harry}},
+           familyi={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{fullhash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{fullhashraw}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{bibnamehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authorbibnamehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authornamehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authorfullhash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authorfullhashraw}{db05833c29e688b5ab54d5e8608a72ec}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{CAN Standard Data Frame Format: A Simplified Guide With Real World Examples}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://medium.com/@tempotales1225/can-standard-data-frame-format-a-simplified-guide-with-real-world-examples-dc1a56ecaba2
+      \endverb
+      \verb{url}
+      \verb https://medium.com/@tempotales1225/can-standard-data-frame-format-a-simplified-guide-with-real-world-examples-dc1a56ecaba2
+      \endverb
+    \endentry
+    \entry{vectorcandb}{manual}{}{}
+      \name{author}{1}{}{%
+        {{hash=268c2b58300600a92ef6d95a56ab6524}{%
+           family={{Vector Informatik GmbH}},
+           familyi={V\bibinitperiod}}}%
+      }
+      \list{organization}{1}{%
+        {Vector Informatik GmbH}%
+      }
+      \strng{namehash}{268c2b58300600a92ef6d95a56ab6524}
+      \strng{fullhash}{268c2b58300600a92ef6d95a56ab6524}
+      \strng{fullhashraw}{268c2b58300600a92ef6d95a56ab6524}
+      \strng{bibnamehash}{268c2b58300600a92ef6d95a56ab6524}
+      \strng{authorbibnamehash}{268c2b58300600a92ef6d95a56ab6524}
+      \strng{authornamehash}{268c2b58300600a92ef6d95a56ab6524}
+      \strng{authorfullhash}{268c2b58300600a92ef6d95a56ab6524}
+      \strng{authorfullhashraw}{268c2b58300600a92ef6d95a56ab6524}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{CANdb++ -- Network Database Editor}
+      \field{year}{1995}
+    \endentry
+    \entry{pfeiffer}{book}{}{}
+      \name{author}{3}{}{%
+        {{hash=7529ba66e7aff35d16775efc03d8637e}{%
+           family={Pfeiffer},
+           familyi={P\bibinitperiod},
+           given={O.},
+           giveni={O\bibinitperiod}}}%
+        {{hash=07042cc0fbc0b81bd11a639c60831a58}{%
+           family={Ayre},
+           familyi={A\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod}}}%
+        {{hash=5e97e3c7c8aed4d9c5621020dc698300}{%
+           family={Keydel},
+           familyi={K\bibinitperiod},
+           given={C.},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Copperhill Media}%
+      }
+      \strng{namehash}{0fb30c6be676650c7c8f1a4419f4c85e}
+      \strng{fullhash}{c1d742a1683f7a0e28be6e209f8def7c}
+      \strng{fullhashraw}{c1d742a1683f7a0e28be6e209f8def7c}
+      \strng{bibnamehash}{c1d742a1683f7a0e28be6e209f8def7c}
+      \strng{authorbibnamehash}{c1d742a1683f7a0e28be6e209f8def7c}
+      \strng{authornamehash}{0fb30c6be676650c7c8f1a4419f4c85e}
+      \strng{authorfullhash}{c1d742a1683f7a0e28be6e209f8def7c}
+      \strng{authorfullhashraw}{c1d742a1683f7a0e28be6e209f8def7c}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Embedded Networking with CAN and CANopen}
+      \field{year}{2008}
+    \endentry
+    \entry{bosch}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=f4161f96f50bf311e703f86e732ae197}{%
+           family={{Robert Bosch GmbH}},
+           familyi={R\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Robert Bosch GmbH}%
+      }
+      \list{location}{1}{%
+        {Stuttgart, Germany}%
+      }
+      \strng{namehash}{f4161f96f50bf311e703f86e732ae197}
+      \strng{fullhash}{f4161f96f50bf311e703f86e732ae197}
+      \strng{fullhashraw}{f4161f96f50bf311e703f86e732ae197}
+      \strng{bibnamehash}{f4161f96f50bf311e703f86e732ae197}
+      \strng{authorbibnamehash}{f4161f96f50bf311e703f86e732ae197}
+      \strng{authornamehash}{f4161f96f50bf311e703f86e732ae197}
+      \strng{authorfullhash}{f4161f96f50bf311e703f86e732ae197}
+      \strng{authorfullhashraw}{f4161f96f50bf311e703f86e732ae197}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{CAN Specification Version 2.0}
+      \field{year}{1991}
+    \endentry
+    \entry{rusefi_website}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=eccf78c219c8c49ca6694896aed5fe4b}{%
+           family={{rusEFI Project}},
+           familyi={r\bibinitperiod}}}%
+      }
+      \strng{namehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{fullhash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{fullhashraw}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{bibnamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorbibnamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authornamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorfullhash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorfullhashraw}{eccf78c219c8c49ca6694896aed5fe4b}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{rusEFI -- The Most Advanced Open Source ECU}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://rusefi.com/
+      \endverb
+      \verb{url}
+      \verb https://rusefi.com/
+      \endverb
+    \endentry
+    \entry{rusefi_github}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=eccf78c219c8c49ca6694896aed5fe4b}{%
+           family={{rusEFI Project}},
+           familyi={r\bibinitperiod}}}%
+      }
+      \strng{namehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{fullhash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{fullhashraw}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{bibnamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorbibnamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authornamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorfullhash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorfullhashraw}{eccf78c219c8c49ca6694896aed5fe4b}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{rusEFI Firmware Source Code}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/rusefi/rusefi
+      \endverb
+      \verb{url}
+      \verb https://github.com/rusefi/rusefi
+      \endverb
+    \endentry
+    \entry{raspizero2w}{manual}{}{}
+      \name{author}{1}{}{%
+        {{hash=abdff8c3bc7ac1a29e4f7edc008fe26b}{%
+           family={{Raspberry Pi Ltd}},
+           familyi={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \strng{fullhash}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \strng{fullhashraw}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \strng{bibnamehash}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \strng{authorbibnamehash}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \strng{authornamehash}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \strng{authorfullhash}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \strng{authorfullhashraw}{abdff8c3bc7ac1a29e4f7edc008fe26b}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Raspberry Pi Zero 2 W}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://pip-assets.raspberrypi.com/categories/584-raspberry-pi-zero-2-w/documents/RP-008359-DS-1-raspberry-pi-zero-2-w-product-brief.pdf
+      \endverb
+      \verb{url}
+      \verb https://pip-assets.raspberrypi.com/categories/584-raspberry-pi-zero-2-w/documents/RP-008359-DS-1-raspberry-pi-zero-2-w-product-brief.pdf
+      \endverb
+    \endentry
+    \entry{bleprimer}{manual}{}{}
+      \name{author}{1}{}{%
+        {{hash=d5c1db8db0b8d9e384605fc519284a2c}{%
+           family={{Bluetooth Special Interest Group}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{fullhash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{fullhashraw}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{bibnamehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authorbibnamehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authornamehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authorfullhash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authorfullhashraw}{d5c1db8db0b8d9e384605fc519284a2c}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Bluetooth® Low Energy Primer}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.bluetooth.com/
+      \endverb
+      \verb{url}
+      \verb https://www.bluetooth.com/
+      \endverb
+    \endentry
+    \entry{bt54}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=d5c1db8db0b8d9e384605fc519284a2c}{%
+           family={{Bluetooth Special Interest Group}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Bluetooth Special Interest Group}%
+      }
+      \strng{namehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{fullhash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{fullhashraw}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{bibnamehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authorbibnamehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authornamehash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authorfullhash}{d5c1db8db0b8d9e384605fc519284a2c}
+      \strng{authorfullhashraw}{d5c1db8db0b8d9e384605fc519284a2c}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Bluetooth Core Specification Version 5.4}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2023}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.bluetooth.com/specifications/specs/core-specification-5-4/
+      \endverb
+      \verb{url}
+      \verb https://www.bluetooth.com/specifications/specs/core-specification-5-4/
+      \endverb
+    \endentry
+    \entry{gatt}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=dc00f8b87b78419f0257b9c5b8298a4f}{%
+           family={{Espressif Systems (Shanghai) Co., Ltd.}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Espressif Systems (Shanghai) Co., Ltd.}%
+      }
+      \strng{namehash}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \strng{fullhash}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \strng{fullhashraw}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \strng{bibnamehash}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \strng{authorbibnamehash}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \strng{authornamehash}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \strng{authorfullhash}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \strng{authorfullhashraw}{dc00f8b87b78419f0257b9c5b8298a4f}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Bluetooth Low Energy - Introduction}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2016-2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/ble/get-started/ble-introduction.html
+      \endverb
+      \verb{url}
+      \verb https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-guides/ble/get-started/ble-introduction.html
+      \endverb
+    \endentry
+    \entry{bluezero}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=7960d816b25889f57f231278f4c9c190}{%
+           family={{Bluezero Project}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{7960d816b25889f57f231278f4c9c190}
+      \strng{fullhash}{7960d816b25889f57f231278f4c9c190}
+      \strng{fullhashraw}{7960d816b25889f57f231278f4c9c190}
+      \strng{bibnamehash}{7960d816b25889f57f231278f4c9c190}
+      \strng{authorbibnamehash}{7960d816b25889f57f231278f4c9c190}
+      \strng{authornamehash}{7960d816b25889f57f231278f4c9c190}
+      \strng{authorfullhash}{7960d816b25889f57f231278f4c9c190}
+      \strng{authorfullhashraw}{7960d816b25889f57f231278f4c9c190}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Bluezero: Python Library for Bluetooth Low Energy (BLE) on Linux}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/ukBaz/python-bluezero
+      \endverb
+      \verb{url}
+      \verb https://github.com/ukBaz/python-bluezero
+      \endverb
+    \endentry
+    \entry{ts}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=dd18f4ebd40b19a0b9b0be90a3d53db8}{%
+           family={{EFI Analytics}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{fullhash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{fullhashraw}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{bibnamehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authorbibnamehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authornamehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authorfullhash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authorfullhashraw}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \field{extraname}{1}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{TunerStudio MS Dashboard}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.tunerstudio.com/index.php/products
+      \endverb
+      \verb{url}
+      \verb https://www.tunerstudio.com/index.php/products
+      \endverb
+    \endentry
+    \entry{uadash}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=eccf78c219c8c49ca6694896aed5fe4b}{%
+           family={{rusEFI Project}},
+           familyi={r\bibinitperiod}}}%
+      }
+      \strng{namehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{fullhash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{fullhashraw}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{bibnamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorbibnamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authornamehash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorfullhash}{eccf78c219c8c49ca6694896aed5fe4b}
+      \strng{authorfullhashraw}{eccf78c219c8c49ca6694896aed5fe4b}
+      \field{extraname}{3}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{uaDash}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/rusefi/uaDASH/
+      \endverb
+      \verb{url}
+      \verb https://github.com/rusefi/uaDASH/
+      \endverb
+    \endentry
+    \entry{mlviewer}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=dd18f4ebd40b19a0b9b0be90a3d53db8}{%
+           family={{EFI Analytics}},
+           familyi={E\bibinitperiod}}}%
+      }
+      \strng{namehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{fullhash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{fullhashraw}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{bibnamehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authorbibnamehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authornamehash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authorfullhash}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \strng{authorfullhashraw}{dd18f4ebd40b19a0b9b0be90a3d53db8}
+      \field{extraname}{2}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{MegaLogViewer}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.efianalytics.com/MegaLogViewer/
+      \endverb
+      \verb{url}
+      \verb https://www.efianalytics.com/MegaLogViewer/
+      \endverb
+    \endentry
+    \entry{nextion}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=9cd27b807f83d8172358e11fe9aca54a}{%
+           family={{Itead Studio}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{9cd27b807f83d8172358e11fe9aca54a}
+      \strng{fullhash}{9cd27b807f83d8172358e11fe9aca54a}
+      \strng{fullhashraw}{9cd27b807f83d8172358e11fe9aca54a}
+      \strng{bibnamehash}{9cd27b807f83d8172358e11fe9aca54a}
+      \strng{authorbibnamehash}{9cd27b807f83d8172358e11fe9aca54a}
+      \strng{authornamehash}{9cd27b807f83d8172358e11fe9aca54a}
+      \strng{authorfullhash}{9cd27b807f83d8172358e11fe9aca54a}
+      \strng{authorfullhashraw}{9cd27b807f83d8172358e11fe9aca54a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{ITEADLIB Arduino Nextion}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2016}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://github.com/itead/ITEADLIB_Arduino_Nextion
+      \endverb
+      \verb{url}
+      \verb https://github.com/itead/ITEADLIB_Arduino_Nextion
+      \endverb
+    \endentry
+    \entry{savvy}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=1af00019aff1e95e46634dc687afff26}{%
+           family={{Collin Kidder}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{1af00019aff1e95e46634dc687afff26}
+      \strng{fullhash}{1af00019aff1e95e46634dc687afff26}
+      \strng{fullhashraw}{1af00019aff1e95e46634dc687afff26}
+      \strng{bibnamehash}{1af00019aff1e95e46634dc687afff26}
+      \strng{authorbibnamehash}{1af00019aff1e95e46634dc687afff26}
+      \strng{authornamehash}{1af00019aff1e95e46634dc687afff26}
+      \strng{authorfullhash}{1af00019aff1e95e46634dc687afff26}
+      \strng{authorfullhashraw}{1af00019aff1e95e46634dc687afff26}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{SavvyCAN}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.savvycan.com/
+      \endverb
+      \verb{url}
+      \verb https://www.savvycan.com/
+      \endverb
+    \endentry
+    \entry{motog35}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=7904ab3e2c813c35161cab05bbfb144b}{%
+           family={{Motorola Mobility, LLC.}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{7904ab3e2c813c35161cab05bbfb144b}
+      \strng{fullhash}{7904ab3e2c813c35161cab05bbfb144b}
+      \strng{fullhashraw}{7904ab3e2c813c35161cab05bbfb144b}
+      \strng{bibnamehash}{7904ab3e2c813c35161cab05bbfb144b}
+      \strng{authorbibnamehash}{7904ab3e2c813c35161cab05bbfb144b}
+      \strng{authornamehash}{7904ab3e2c813c35161cab05bbfb144b}
+      \strng{authorfullhash}{7904ab3e2c813c35161cab05bbfb144b}
+      \strng{authorfullhashraw}{7904ab3e2c813c35161cab05bbfb144b}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Specifications - moto g35 5G}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://en-emea.support.motorola.com/app/answers/detail/a_id/184470/~/specifications---moto-g35-5g
+      \endverb
+      \verb{url}
+      \verb https://en-emea.support.motorola.com/app/answers/detail/a_id/184470/~/specifications---moto-g35-5g
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

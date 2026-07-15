@@ -1,0 +1,270 @@
+\documentclass [11pt,twoside]{report}  % Página A4, usa ambos os lados da folha 
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[a4paper, width=150mm, top=25mm, bottom=25mm, bindingoffset=6mm]{geometry}
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+\usepackage{float}
+\usepackage[toc,page]{appendix}
+\usepackage{subcaption}
+
+\usepackage{acronym} 
+
+\usepackage{helvet}  % usar Arial para o documento inteiro
+\renewcommand{\familydefault}{\sfdefault}
+
+% biber
+\usepackage[backend=biber, style=ieee, url=true]{biblatex}
+\addbibresource{ref.bib}
+
+\usepackage{amsmath}  	%equacoes
+\usepackage{amsfonts}	%equacoes
+
+%\usepackage{tikz} %riscos
+
+%\usepackage{rotating}%rodar texto
+
+% Checkmark
+%\usepackage{bbding}
+
+% Tabela das equações 
+%\usepackage{tabularx}
+
+% cores das tabelas
+%\usepackage[table,xcdraw]{xcolor}
+
+% Font
+%\usepackage{fontspec}
+%\setmainfont{Times New Roman}
+
+% Imagens Separadas
+%\usepackage{subcaption}
+
+% Numeracao Romana
+%\usepackage{array}
+
+\usepackage{listings}
+\usepackage{color}
+
+
+
+
+% Highlight Paragraph
+\usepackage[most]{tcolorbox}
+
+\newtcbox{\hl}{
+  on line,
+  colback=yellow!80,
+  colframe=white,
+  boxrule=0pt,
+  arc=0pt,
+  boxsep=1pt,
+  left=0pt,
+  right=0pt,
+  top=0pt,
+  bottom=0pt
+}
+\captionsetup[subfigure]{list=true}
+
+
+\begin{document}
+%--------------------------------------------------------------------------------------------------------- CAPA
+\thispagestyle{empty}
+\begin{center}
+\begin{figure}[H]
+  	\centering   
+    \includegraphics[width=10cm]{imagens/logo_isel.png}
+\end{figure}
+
+
+%Título do Projecto 
+
+\vspace{40mm}
+
+\LARGE\textbf{
+Modular Platform for Data Acquisition and Analysis Based on CAN for Distributed Vehicular Systems
+}\\
+
+\vspace*{\fill}
+
+%NOME DO CANDIDATO
+\Large Luís Henrique Ferreira\\
+\Large Gonçalo José Ferraz\\
+
+\vspace{10mm} 
+
+%Tipo de Trabalho 
+\fontsize{10pt}{10pt}\selectfont
+Project Work in the Field of Computer and Informatics Engineering
+
+
+\vspace{10mm} 
+
+\large{Supervisors:}\\
+\normalsize
+Eng. David Emanuel Ribeiro Velez\\
+
+\vspace{10mm}  
+
+\large{Jury:}\\
+\normalsize
+President: Doutor Fernando Sousa\\
+Vowels:
+Doutor Rui Duarte\\
+Eng. David Emanuel Ribeiro Velez\\
+
+\vspace{10mm} 
+
+\small\textbf{Julho of 2026}
+\normalsize
+\end{center}
+\newpage
+\thispagestyle{empty}
+\textbf{}
+\clearpage
+
+%--------------------------------------------------------------------------------------------------------- Página de rosto
+\thispagestyle{empty}
+\begin{figure}[H]
+  	\centering   
+    \includegraphics[width=10cm]{imagens/logo_isel.png}
+\end{figure}
+
+\vspace{40mm}
+\begin{center}
+%Título do Projecto 
+
+\LARGE\textbf{Modular Platform for Data Acquisition and Analysis Based on CAN for Distributed Vehicular Systems}\\
+
+\vspace*{\fill}
+
+%NOME DO CANDIDATO
+\Large Luis Henrique Ferreira\\
+\Large Gonçalo José Ferraz\\
+
+\vspace{10mm} 
+
+%Tipo de Trabalho 
+\fontsize{10pt}{10pt}\selectfont
+Project in the Field of Computer and Informatics Engineering
+
+
+\vspace{10mm} 
+
+\large{Supervisors:}\\
+\normalsize
+Eng. David Emanuel Ribeiro Velez\\
+
+\vspace{10mm} 
+
+\large{Jury:}\\
+\normalsize
+President: Doutor Fernando Sousa\\
+Vowels:
+Doutor Rui Duarte\\
+Eng. David Emanuel Ribeiro Velez\\
+
+
+\vspace{10mm} 
+
+\small\textbf{Julho of 2026}
+\normalsize
+
+
+\end{center}
+\clearpage
+\thispagestyle{empty}
+\textbf{}
+\clearpage
+
+%----------------------------------- AI disclosure
+
+\vspace*{\fill}
+\begin{center}
+\subsection*{AI usage disclosure}
+\end{center}
+
+In this project we utilized AI modules in order to research and assist with the development, more specifically in the context of:
+\vspace{10mm}
+\begin{center}
+    Bluetooth Integration with BlueZ Framework Research
+    \par
+    Android UI Presentation
+    \par
+\end{center}
+\vspace*{\fill}
+
+\clearpage
+
+
+%----------------------------------- Statement of Integrity
+
+\vspace*{\fill}
+\begin{center}
+\subsection*{Statement of Integrity}
+\end{center}
+
+I declare that this project work is the result of my personal
+and independent research. Its content is original, and all sources listed in the bibliographic references
+were consulted and are duly mentioned in the text. I further declare that all scientific and technical
+references relevant to the development of the work are duly cited and included in the bibliographic
+references.
+
+\vspace{10mm}
+
+\begin{center}
+    The authors
+\end{center}
+
+\begin{center}
+    Luís Henrique Borges Coury Cavaleiro de Ferreira
+    \par
+    Gonçalo José Soeiro Ferraz
+    \par
+\end{center}
+\vspace*{\fill}
+\clearpage
+
+%-----------------------------------
+\pagenumbering{roman}		% Numeração Romana 
+
+% Indice
+\tableofcontents 
+% Lista de Tabelas
+\listoftables
+% Lista de Figuras
+\listoffigures
+
+% Lista de Acrónimos
+\chapter*{List of Acronyms}		% use \ac{*}
+\input{acro_list}		
+\clearpage 
+
+%-----------------------------------
+\pagenumbering{arabic}		% Numeração Arábica 
+%\setcounter{chapter}{0}
+
+\chapter{Introduction}
+\input{chapters/intro}
+
+
+\chapter{State of the Art}
+\input{chapters/sota}
+
+
+\chapter{Implementation}
+\input{chapters/imple}
+
+\chapter{Results and validation}
+\input{chapters/res}
+
+
+\chapter{Conclusions}
+\input{chapters/conc.tex}
+
+
+\nocite{*}
+\typeout{}
+\printbibliography 
+
+\end{document}

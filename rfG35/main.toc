@@ -1,0 +1,37 @@
+\contentsline {chapter}{\numberline {1}Introduction}{1}{}%
+\contentsline {section}{\numberline {1.1}Context and Framework}{1}{}%
+\contentsline {section}{\numberline {1.2}Problem and Motivation}{2}{}%
+\contentsline {section}{\numberline {1.3}Objectives}{2}{}%
+\contentsline {section}{\numberline {1.4}Document Structure}{3}{}%
+\contentsline {chapter}{\numberline {2}State of the Art}{4}{}%
+\contentsline {section}{\numberline {2.1}Vehicular Communication Networks}{4}{}%
+\contentsline {subsection}{\numberline {2.1.1}Electronic Control Unit}{4}{}%
+\contentsline {subsection}{\numberline {2.1.2}Controller Area Network}{4}{}%
+\contentsline {subsection}{\numberline {2.1.3}Controller Area Network Data Base}{5}{}%
+\contentsline {subsection}{\numberline {2.1.4}Why CAN is the Preferred Method for Intra-Vehicular Communication}{6}{}%
+\contentsline {subsection}{\numberline {2.1.5}Standalone ECU}{7}{}%
+\contentsline {subsection}{\numberline {2.1.6}Speeduino/RusEFI ECUs}{7}{}%
+\contentsline {section}{\numberline {2.2}Embedded System's Development Platforms}{7}{}%
+\contentsline {subsection}{\numberline {2.2.1}Raspberry Pi Ecosystem}{7}{}%
+\contentsline {subsection}{\numberline {2.2.2}Utilized Programming Languages}{8}{}%
+\contentsline {section}{\numberline {2.3}Data Analysis Techniques in Motorsport}{8}{}%
+\contentsline {subsection}{\numberline {2.3.1}Statistical Analysis}{8}{}%
+\contentsline {section}{\numberline {2.4}Bluetooth Integration}{10}{}%
+\contentsline {subsection}{\numberline {2.4.1}BLE Protocol}{10}{}%
+\contentsline {section}{\numberline {2.5}Project Synthesis and Differentiation}{11}{}%
+\contentsline {chapter}{\numberline {3}Implementation}{12}{}%
+\contentsline {section}{\numberline {3.1}System Architecture}{12}{}%
+\contentsline {section}{\numberline {3.2}Hardware development}{13}{}%
+\contentsline {subsection}{\numberline {3.2.1}Hardware schematics}{13}{}%
+\contentsline {subsection}{\numberline {3.2.2}XIAORet comunication protocol}{13}{}%
+\contentsline {section}{\numberline {3.3}Software Implementation}{14}{}%
+\contentsline {subsection}{\numberline {3.3.1}Python Controller}{14}{}%
+\contentsline {subsection}{\numberline {3.3.2}Python Producer}{16}{}%
+\contentsline {subsection}{\numberline {3.3.3}Android application}{18}{}%
+\contentsline {chapter}{\numberline {4}Results and validation}{20}{}%
+\contentsline {section}{\numberline {4.1}Bench Validation}{20}{}%
+\contentsline {section}{\numberline {4.2}Vehicle Validation}{21}{}%
+\contentsline {section}{\numberline {4.3}Mobile Application Verification}{21}{}%
+\contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{24}{}%
+\contentsline {section}{\numberline {4.5}Results Summary}{24}{}%
+\contentsline {chapter}{\numberline {5}Conclusions}{25}{}%

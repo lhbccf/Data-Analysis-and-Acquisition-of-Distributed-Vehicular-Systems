@@ -1,0 +1,139 @@
+
+\section{System Architecture}
+
+
+
+\begin{figure}[H]
+  	\centering   
+    \includegraphics[width=0.8\linewidth]{imagens/project_diagram.png}
+    \caption{Project Architecture Diagram}
+    \label{fig:prj_arch}
+\end{figure}
+
+Figure \ref{fig:prj_arch} illustrates the overall system architecture. The ECU communicates with the Controller via a wired CAN serial link, providing a continuous stream of raw engine frames that are decoded against the vehicle's DBC definition file. At its core sits the Controller, running on the Raspberry Pi Zero 2W, which serves as the central hub for all data acquisition and distribution.  Processed data is simultaneously forwarded to a Nextion display terminal, providing immediate on-site visualisation of critical engine parameters. In parallel, the Controller operates as a Bluetooth Low Energy GATT peripheral, advertising live sensor data to any subscribed central device within range. In the current implementation, an Android mobile application acts as that central, receiving the BLE notifications and presenting the decoded signals in a real-time dashboard. 
+
+\section{Hardware development}
+\subsection{Hardware schematics}
+Our current hardware implementation is comprised of a Raspberry Pi Zero 2W, to which connects a nextion (via serial through the GPIO) and has a USB connection to a GVRET CAN module, which in this case, is a XIAORet, which was also developed in ISEL. \cite{nextion}
+
+The Nextion connection to the raspberry Pi is defined as such:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{circuit.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{XIAORet comunication protocol}
+The XIAORet is a ESP32 microcontroller based CAN Module, that implements the SavvyCan Comunication protocol \cite{savvy}.
+SavvyCan is widely used CAN tool for logging, receiving, sending CAN frames and much more. Its widely used in the motorsport world, Formula student and many applications where a CAN tool is needed.
+The SavvyCan Comunication protocol is defined as such: 
+\begin{itemize}
+    \item First, we need enable binary so the following hex command is sent to the XIAORET:0xE7
+    \item Secondly, we loop through the received CAN frames, parsing each message. For each frame, the system extracts the timestamp, CAN identifier, data length code (DLC), and payload bytes from the serial stream. The extracted identifier is then processed using a bitmask to ensure compatibility with both standard and extended CAN formats. Subsequently, the frame is matched against the DBC definition, allowing the raw payload to be decoded into meaningful vehicle signals. When a valid mapping is found, the decoded values are integrated into the internal ECU state representation; otherwise, the frame is preserved in its raw form to maintain traceability and support debugging.
+\item Although the presented sollution supports 29bit CAN Extended frames, only 11bit CAN Standard frames were tested.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{nextion1.png}
+    \caption{Nextion screen 1}
+    \label{fig:placeholder}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{nextion2.png}
+    \caption{Nextion screen 2}
+    \label{fig:placeholder}
+\end{figure}
+
+\section{Software Implementation}
+
+\subsection{Python Controller}
+
+%\subsubsection{Domain & Repository}
+
+The Python Controller is responsible for several different tasks such as:
+\begin{itemize}
+    \item \textbf{CAN Connection:} Connection between the ECU module and the Python application using a serial USB link;
+    \item \textbf{Database Manager:} Control the database interactions, storing or retrieving the necessary data;
+    \item \textbf{UI Display:} Present the information required using a Nextion device, be it real-time from cache or through database requests;
+    \item \textbf{Bluetooth Connection and Data Relay:} Connection between the Python application and a connected Bluetooth device (using a mobile app in our implementation).
+\end{itemize}
+
+For that end, the application itself has several different inner modules that we will now breakdown and explain, starting with the domain and repository layers.
+
+The \textbf{Domain} and \textbf{Repository} layers are working as a pair since the domain defines the way each data structure is implemented and the repository defines how it gets stored and retrieved. Neither are responsible for the restriction logic - that will be the responsibility of \textit{Services}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{imagens/controller_diagram.png}
+    \caption{Controller Structure Diagram}
+    \label{fig:placeholder}
+\end{figure}
+
+The domain consists of four different types of classes - \texttt{Session}, \texttt{CANFrame}, \texttt{Signal} and \texttt{VehicularState} - each used simply to keep information that is either being retrieved or stored in the database.
+
+ A session represents one continuous recording period with a start timestamp, an optional end timestamp that begins as None, and a human-readable description. A \texttt{CANFrame} captures a single raw message off the bus: which session it belongs to, when it arrived, the CAN arbitration ID, the data length code, and the raw data bytes as a string. A Signal is the decoded output of a frame, associating a signal name and its parsed numeric value and unit back to the frame it came from. A \texttt{VehicularState} records the current dataframe state of the vehicle for easy access to the complete information of the vehicle in a specific timestamp. Each domain class has it's respective repository class that will handle the requests to the database.
+
+The repository layer sits directly on top of SQLite database and mirrors that domain structure previously stated. Each repository module opens its own connection the database at import time using a module-level \texttt{.connect()} call, then exposes a set of plain functions rather than a class. Each module owns its own conn, which means closing the database requires calling \texttt{.close()} on four separate objects through \texttt{Services .close\_database()}. This also means that any cross-table operation that needs to be atomic — such as inserting a frame and its signals together — has no transaction boundary protecting it. That is an architectural limitation worth addressing before the project handles high-frequency acquisition in production.
+
+The services module acts as the single entry point through which the rest of the application interacts with the database. Rather than letting the acquisition pipeline, the UI, or any other consumer reach into a repository directly, everything that needs to read or write persistent data goes through here. In practice every function in the module is a one-liner that receives arguments, forwards them to the appropriate repository function, and returns whatever the repository gives back. The value of this pattern is not in the logic it adds — there is none — but in the boundary it creates: if a repository is ever renamed, replaced, or refactored, only this file needs to change.
+
+We have a class \texttt{signal\_cache} that will be the singleton class that will record and transmit the lastest dataframe obtain from the ECU and relay it to both the UI Display and the Bluetooth transmission for a faster access to the real-time information.
+
+The BLE transmitter, our bluetooth layer, turns the device into a BLE GATT that an android device is able to discover, connect to and subscribe to continuos sensor data acquired by the ECU. For it's proper operation, we create an instance of \textit{BLElmServer}, which will build the GATT tree by creating a \texttt{Peripheral} object bound by the device's Bluetooth adapter MAC address and advertising under the local name "\textit{Vehicular\_Monitor}" and will register one primary service and three characteristics under that service. The first characteristic will be configured with both \texttt{read} and \texttt{notify} flags in order for the mobile client to either poll the data explicitly or to be notified of any updates to the signal cache. This way we can attach two different callback: \texttt{read\_callback} and \texttt{notify\_callback}. The second characteristic will be configured with \texttt{write} flag in order to obtain session requests from the mobile client and has a \texttt{\_session\_request\_cb} as a \texttt{write\_callback}. This characteristic exists to be able to accurately send requested information through the third characteristic. The third characteristic is similar to the first one with different callbacks: \texttt{\_session\_response\_read\_cb} and \texttt{\_session\_response\_notify\_cb}
+
+The notify mechanism is the most important part to understand correctly. In \textit{Bluezero}, \texttt{notify-callback} is not a function that gets called each time a notification needs to be sent — it is a status callback that fires once when a client subscribes and once when it unsubscribes. When it fires with \texttt{notifying=True}, the callback receives a reference to the live characteristic object and immediately schedules a repeating GLib timer set to fire every 200 milliseconds. Each time the timer fires, \texttt{\_send\_notify} calls \texttt{characteristic.set\_value()} with the latest encoded cache string, which emits a D-Bus \texttt{PropertiesChanged} signal that BlueZ translates into an actual BLE notification packet sent to the Android device. The timer returns True on every successful call to keep itself alive, and only returns False — which removes it — if the characteristic reference has been cleared. When the client unsubscribes and notify\_cb fires with notifying=False, the stored characteristic reference is cleared and the GLib timer is cancelled with GLib.source\_remove, stopping all further transmissions until a new subscription arrives.
+
+Calling start() triggers ble.publish(), which begins advertising the peripheral and hands control to the GLib main loop. This call never returns under normal operation — everything that needs to happen alongside the BLE server, such as the mock data generator or the console status printer, must be running in daemon threads before start() is called. The process must also be launched with \textit{sudo ./venv/bin/python3} rather than bare sudo python3, because BlueZ requires root privileges and the system Python does not have bluezero installed.
+
+\subsection{Python Producer}
+
+The Python producer application constitutes the core of the proposed CAN platform controller, being responsible for data acquisition, processing, storage, and visualization. The system is implemented in Python and follows a modular, multi-threaded architecture designed to ensure high performance, scalability, and maintainability. Both the controller are integrated and running in the same processor as a way to not only obtain all necessary information through the producer and implement all required functionality through the controller.
+
+From an architectural perspective, the application adopts a distributed processing model based on multiple worker threads. This approach allows different responsibilities such as data acquisition, decoding, persistence, and visualization to be executed concurrently. As a result, the system minimizes bottlenecks and ensures real-time responsiveness when handling high-frequency CAN data streams.
+
+The application entry point is defined in \textit{main.py}, which orchestrates the system initialization workflow. At startup, the application reads a configuration file (\textit{config.json}) that defines both the data source (\textit{producer type}) and the output interface (\textit{mode}). This configuration-driven design enables flexibility, allowing the same software to operate with different ECUs and visualization methods without requiring code modifications.
+
+Following configuration loading, the system initializes the SQLite database (\textit{ecu\_data.db}) and ensures that all required tables are created. These include tables for raw CAN frames, acquisition sessions, and normalized vehicle state snapshots. The database layer is abstracted through a repository pattern, which decouples data persistence from the rest of the application logic and improves maintainability.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{imagens/db_diagram.png}
+    \caption{Database Diagram}
+    \label{fig:placeholder}
+\end{figure}
+
+The data acquisition process is handled by a dedicated producer thread, which can operate in different modes depending on the selected ECU interface. In the \textit{rusefi\_can} mode, the system reads CAN frames via a SavvyCan-compatible serial adapter. These frames are decoded using a DBC file, allowing raw binary messages to be translated into meaningful automotive signals. Alternatively, in the \textit{speeduino\_arduino} mode, the application directly parses structured serial data packets via USB, from the Speeduino ECU.
+
+Decoded signals are then mapped into a unified internal representation of the vehicle state. This state is maintained in a shared memory structure called \textit{signal\_cache}, which always stores the most recent values received from the ECU. This design avoids repeated database queries and enables fast access for visualization components.
+
+In parallel with the acquisition process, additional threads handle data persistence and output. The system periodically stores snapshots of the vehicle state in the database, enabling offline analysis while reducing storage overhead compared to logging every individual CAN frame. Raw CAN frames may also be stored for debugging or traceability purposes.
+
+For visualization, the application supports two independent output modes. In the \textit{Nextion} mode, a dedicated thread continuously reads the latest values from the \textit{signal\_cache} and transmits them over a serial interface to a Nextion display, providing a lightweight, embedded graphical interface. In the \textit{pi\_screen} mode, a PyQt-based dashboard runs locally on the Raspberry Pi, periodically refreshing the displayed values using a timer mechanism. The separation between data acquisition and visualization ensures that user interface performance does not interfere with real-time data processing.
+
+To support deployment as an embedded system, the application includes an initialization script (\textit{init.sh}) designed to be executed as a systemd service (or first time startup). This script prepares the runtime environment, waits for required hardware interfaces (such as serial devices), and guarantees automatic startup and recovery in case of failure. This makes the system robust and suitable for unattended operation in automotive environments.
+
+Overall, the combination of a multi-threaded architecture, modular design, configuration-driven behavior, and efficient data handling mechanisms allows the Raspberry Pi application to meet the real-time requirements of vehicular data acquisition systems while maintaining flexibility and extensibility for future developments.
+
+\subsection{Android application}
+
+The Android application is utilized as an exterior module to the Python Controller that will receive data via BLE from the controller and display it in an intuitive manner. This module could be replaced for any other application as long as it follows the communication protocol defined by the controller and be connected to the controller via Bluetooth.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{imagens/mobile_diagram.png}
+    \caption{Mobile Application Structure Diagram}
+    \label{fig:placeholder}
+\end{figure}
+
+The structure of the Android application is as follows:
+\begin{itemize}
+    \item \textbf{Application:} Root of the entire dependency structure and implements the \texttt{Dependency Container} interface that declares three different singletons - \texttt{BleManager}, \texttt{BleRepository} and \texttt{BleViewModelFactory} - available to the rest of the application
+    \item  \textbf{Activity:} All activities extend \texttt{BaseActivity} and are the boundary between the application and it's UI. \texttt{BaseActivity} standardizes lifecycle logging across every screen and exposes a generic \texttt{navigate<T>()} helper used to move between activities, as well as a {backPressed()/backAware()} hook for consistent back-navigation handling. The \texttt{MenuActivity} is the primary activity. It manages the application permissions (\texttt{BLUETOOTH\_SCAN} and \texttt{BLUETOOTH\_CONNECT} and \texttt{ACCESS\_FINE\_LOCATION}) and starts the scanning for connected Bluetooth devices, working as a link to distribute said Bluetooth device's information to the rest of the possible activities. Selecting a scanned device opens \texttt{DeviceMenuActivity}, a per-device menu (Live Data, Sessions Information, Overall Statistics, Device Information) that in turn opens \texttt{DataDisplayActivity} to show the live data stream for that device. \texttt{AboutActivity} is reachable from \texttt{MenuActivity} and shows application information.
+    \item \textbf{ViewModel:} The core of the application's state management through \texttt{BleViewModel}. It holds the current state \texttt{\_uiState} of the current application and exposes it in a immutable \textit{StateFlow} to the current observable screen. When \texttt{.start()} is called, it launches a coroutine that collects cvs strings from \texttt{BleRepository.canData} and when \texttt{.connect()} is called it passes the selected device to the repository to initiate GATT connection. Each incoming csv line is parsed by \texttt{parseCanData()} into a \texttt{MainUiState} carrying the individual channels reported by the controller (RPM, coolant temperature, AFR, TPS, MAP, battery voltage, dwell, ignition timing, VSS, IAT, EGO correction, VE, and sync status), with the raw string preserved alongside the parsed fields. For development and demonstration without a physical controller connected, \texttt{BleViewModel} also exposes \texttt{.startMockData()}, which generates a continuous stream of plausible randomized values into the same uiState so the UI can be exercised standalone. \texttt{BleViewModelFactory} allows the construction of a \texttt{BleViewModel} with the \texttt{BleRepository} constructor.
+    \item \textbf{Model:} The \texttt{BleManager} owns every interaction with the Android Bluetooth stack, scanning for devices, loading already-paired (bonded) devices, and connecting over GATT using a fixed service/characteristic UUID pair that forms part of the defined communication protocol with the controller. \texttt{BleRepository} wraps \texttt{BleManager} as a stable boundary. It re-exposes \texttt{devicesFlow} and \texttt{dataFlow} as \texttt{scannedDevices} and \texttt{canData} respectively, and delegates \texttt{startScan} and \texttt{connectToDevice} directly. Its presence means the \texttt{ViewModel} layer imports nothing from \texttt{BleManager} directly, and the BLE implementation could be replaced or mocked entirely without touching a single \texttt{ViewModel}.
+\end{itemize}

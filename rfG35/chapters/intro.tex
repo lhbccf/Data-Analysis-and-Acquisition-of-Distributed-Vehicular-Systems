@@ -1,0 +1,58 @@
+
+\hspace{5mm} The document describes the development of a modular data acquisition and analysis platform based on Controller Area Network (CAN) communication, designed for application in distributed vehicular systems. Modern vehicles exhibit increasing electronic complexity and a high distribution of control units and sensors, making it essential to provide tools and solutions capable of centralizing, interpreting, and exploring data efficiently. This project proposes an integrated approach that combines real-time data acquisition, structured storage, and analysis and visualization tools, with the objective of improving the understanding of vehicle behavior and supporting technical decision-making processes in demanding environments such as motorsport.
+
+
+\section{Context and Framework}
+
+This project is developed within the scope of the Project and Seminar curricular unit of the Bachelor's Degree in Computer and Informatics Engineering (LEIC) at Instituto Superior de Engenharia de Lisboa, during the 2025/2026 academic year. The project’s application domain focuses on distributed vehicular systems, with particular emphasis on the Motorsport and aftermarket sectors. These contexts are characterized by demanding requirements in terms of real-time data acquisition, transmission, and analysis, which are essential for performance monitoring, fault diagnosis, and system optimization. The increasing electronic complexity and the vast diversity of systems used in modern vehicles and/or motorsport/enthusiast applications make the development of modular, flexible, and scalable platforms essential.
+
+The platform is developed based on the Raspberry Pi ecosystem, taking advantage of its versatility, low cost, and extensive support documentation. The project primarily uses the \textit{Python} and \textit{Bash} programming languages, enabling a hybrid approach that combines ease of development with execution capability in embedded systems. This technological choice aims to facilitate rapid prototyping while ensuring flexibility for adaptation to different usage scenarios.
+
+A distinguishing element of this project is its validation environment, which takes place in the real-world context of a vehicle equipped with a \textit{RusEFI} ECU, as well as within a Formula Student project. This framework allows not only the testing of the solution under conditions close to real operation, but also dealing with practical challenges such as hardware constraints, electromagnetic noise, communication limitations, and robustness and reliability requirements. Integration into a competition vehicle also adds a critical real-time and performance dimension, where data-driven decisions can have a direct impact on achieved results.
+
+In summary, this project is positioned at the intersection of software engineering and embedded systems applied to the automotive domain, seeking to address the growing need for modular and efficient solutions for data acquisition and analysis in distributed vehicular systems.\\
+
+
+\section{Problem and Motivation}
+
+The development of modern vehicular systems raises a set of significant challenges regarding data acquisition, integration, and interpretation. One of the main identified issues is the strong dependence on the vehicle’s Electronic Control Units (ECUs), which often operate as closed systems, limiting direct and flexible access to information. In this context, the need arises to create an autonomous and fully parameterizable solution capable of ensuring independence from these units, with the objective of enabling the integration of different applications through database access via Bluetooth. The use of CAN databases (DBC) plays a central role in this approach, allowing the structured decoding and interpretation of messages without requiring direct intervention in the ECUs.
+
+At the same time, the increasing complexity of distributed vehicular systems introduces additional challenges in data management. In a modern vehicle, multiple subsystems coexist, such as the ECU, VCU (Vehicle Control Unit), and BCU (Battery Control Unit), each responsible for different critical functions. These subsystems often communicate through different protocols, such as CAN, serial communication, Wi-Fi, or Bluetooth, resulting in a heterogeneous and fragmented ecosystem. The absence of a unifying platform makes the centralization and synchronization of information difficult, compromising its practical usefulness.
+
+In competitive environments such as Formula Student, this data fragmentation translates into a concrete limitation: the difficulty of correlating information originating from different sources. Without robust integrated analysis tools, it becomes challenging to identify performance patterns, understand the vehicle’s dynamic behavior, or detect anomalies in a timely manner. This limitation may have a direct impact on the vehicle optimization process, reducing the effectiveness of the technical decisions made by the team.
+
+Thus, the central motivation of the project lies in the creation of a distributed platform capable of simultaneously transforming large volumes of raw data into structured, clear, actionable, and persistent information. The goal is not only to collect data, but also to provide tools that enable its efficient analysis and interpretation. By facilitating the visualization, correlation, and processing of information, the proposed solution aims to support more informed decision-making, contributing to the continuous improvement of the performance and reliability of vehicular systems.
+
+\section{Objectives}
+
+This project establishes clearly defined objectives, with success assessed through tangible, result-oriented outcomes, culminating in the development and real-world validation of a functional platform:
+
+\begin{itemize}
+
+\item \textbf{Design a modular and scalable architecture}, that facilitates the integration of the platform to different vehicles, sensors, and technical requirements, minimizing the need for structural changes to the system.
+
+\item \textbf{Develop a CAN-based data acquisition system}, with the ability to decode messages using DBC files, ensuring reliable real-time reading of relevant vehicle signals.
+
+\item \textbf{Create an efficient and continuous data logging system}, enabling structured recording of data during extended sessions, without information loss and with guarantees of integrity. Develop a modular real-time dashboard for data visualization, allowing monitoring of critical vehicle parameters with low latency and high clarity, and configurable according to the use context.
+
+\item \textbf{Implement a multichannel data integration mechanism},  capable of aggregating information from different subsystems and protocols (CAN, UART, and Bluetooth), ensuring consistent time synchronization between sources.
+
+\item \textbf{Implement data analysis tools}, including statistical analysis methods, session comparison, and anomaly detection, with the aim of extracting relevant information from the collected data.
+
+\item \textbf{Ensure system robustness and reliability}, guaranteeing stable operation in demanding environments subject to noise, vibration, and power fluctuations. Validate the solution in a real environment through its integration into a vehicle within a Formula Student context, demonstrating its practical applicability and performance under operational conditions.
+
+\end{itemize}
+
+
+\section{Document Structure}
+
+This document is structured to demonstrate an understanding of the research conducted, the necessary knowledge for its comprehension, the proposed solution, and the results obtained. More specifically:
+
+\begin{itemize}
+    \item \textbf{Chapter 2 - State of the Art:} Reviews the necessary knowledge for the proper interpretation of the thesis, from the inner-workings of a  controller area network and how their vehicular information is revealed,  the process and analysis of the sensor information to the bluetooth information transfer protocols
+    \item \textbf{Chapter 3 - Implementation:} Details of the design choices, experimental setup, system and database architecture and data analysis 
+    \item \textbf{Chapter 4 - Results and Validation:} Experimental results of the project, detailing the experimental environment and the results given
+    \item \textbf{Chapter 5 - Conclusion:} Final thoughts about the project design and implementation and future possible changes to better optimize and develop the project
+\end{itemize}
+
+
