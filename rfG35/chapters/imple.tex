@@ -12,6 +12,87 @@
 
 Figure \ref{fig:prj_arch} illustrates the overall system architecture. The ECU communicates with the Controller via a wired CAN serial link, providing a continuous stream of raw engine frames that are decoded against the vehicle's DBC definition file. At its core sits the Controller, running on the Raspberry Pi Zero 2W, which serves as the central hub for all data acquisition and distribution.  Processed data is simultaneously forwarded to a Nextion display terminal, providing immediate on-site visualisation of critical engine parameters. In parallel, the Controller operates as a Bluetooth Low Energy GATT peripheral, advertising live sensor data to any subscribed central device within range. In the current implementation, an Android mobile application acts as that central, receiving the BLE notifications and presenting the decoded signals in a real-time dashboard. 
 
+\section{Data Analysis Techniques in Motorsport}
+\subsection{Statistical Analysis}
+
+The proposed system records a set of normalized vehicle parameters derived from CAN messages and stored periodically in the database. The currently logged parameters include:
+
+\vspace{-0.2cm}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|p{12cm}|}
+\hline
+\textbf{Parameter} & \textbf{Description} \\
+\hline
+
+RPM & Engine speed in revolutions per minute, primary indicator of engine operating speed.\\
+\hline
+
+SYNC & ECU/engine synchronization status, indicates whether the ECU has valid crankshaft and camshaft position information. \\
+\hline
+
+ENGINE & General engine operating status, useful for determining whether the engine is stopped, cranking, or running. \\
+\hline
+
+MAP & Intake manifold absolute pressure, one of the primary engine load measurements used for fuel calculations. \\
+\hline
+
+BARO & Ambient atmospheric pressure, used for altitude and weather compensation. \\
+\hline
+
+TPS & Throttle position, represents driver demand and throttle opening percentage. \\
+\hline
+
+IAT & Intake air temperature, affects air density and fueling calculations. \\
+\hline
+
+CLT & Engine coolant temperature, critical for warm-up enrichment and engine protection strategies. \\
+\hline
+
+AFR & Measured air-to-fuel ratio, key indicator of combustion mixture quality and engine tuning. \\
+\hline
+
+EGO & Fuel correction based on oxygen sensor feedback, represents closed-loop fueling adjustments applied by the ECU. \\
+\hline
+
+PW & Injector opening duration, directly relates to the amount of fuel delivered to the engine. \\
+\hline
+
+VE & Volumetric efficiency used in fuel calculations, represents how effectively the engine fills its cylinders with air. \\
+\hline
+
+ADV & Ignition timing advance, major factor of power output, efficiency, and knock resistance. \\
+\hline
+
+DWELL & Ignition coil charging time, determines the energy available for spark generation. \\
+\hline
+
+BAT & Electrical system voltage, important for injector operation, ignition performance, and system health monitoring. \\
+\hline
+
+BOOST & Target boost pressure, desired manifold pressure set by the ECU for forced-induction engines. \\
+\hline
+
+DUTY & Wastegate control duty cycle, indicates how aggressively the ECU is controlling boost pressure. \\
+\hline
+
+VSS & Vehicle speed, used for logging, speed-based strategies, and traction-related functions. \\
+\hline
+
+FAN & Cooling fan status, indicates whether the radiator cooling fan is active. \\
+\hline
+
+FP & Fuel pump status, shows whether the ECU has enabled the fuel pump output. \\
+\hline
+
+BOOSTCUT & Overboost protection status, indicates whether boost safety limits have been exceeded and protective intervention is active. \\
+\hline
+
+\end{tabular}
+\caption{ECU Parameters Displayed by the Data Logger}
+\label{tab:ecu_parameters}
+\end{table}
+
 \section{Hardware development}
 \subsection{Hardware schematics}
 Our current hardware implementation is comprised of a Raspberry Pi Zero 2W, to which connects a nextion (via serial through the GPIO) and has a USB connection to a GVRET CAN module, which in this case, is a XIAORet, which was also developed in ISEL. \cite{nextion}

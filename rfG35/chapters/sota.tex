@@ -1,3 +1,4 @@
+% !TeX root = ../main.tex
 
 
 \hspace{5mm} Modern vehicles rely on a distributed electronic architecture composed of multiple interconnected control systems that continuously monitor and manage vehicle operation. At the core of this architecture are ECUs, which process data from numerous sensors and coordinate the operation of vehicle subsystems to ensure optimal performance, efficiency, safety, and compliance with regulatory requirements. ECUs are responsible for controlling engine sensors and actuators, as well as providing various vehicle operating parameters such as engine speed (RPM), pressures, temperatures, air-fuel mixture, and other relevant indicators \cite{jg}.
@@ -74,7 +75,7 @@ Standalone ECUs are aftermarket electronic control systems designed to fully rep
 
 Unlike OEM ECUs, which are typically optimized for emissions, reliability, and mass production constraints, standalone ECUs allow direct access to key engine parameters such as fuel injection, ignition timing, boost control, and sensor calibration. This enables precise tuning of engine behaviour according to specific requirements, such as performance optimization, component modifications, or experimental configurations.
 
-The motivation for using standalone ECUs arises from the need for adaptability and transparency. In applications such as Formula Student, where vehicles are custom-built and continuously refined, engineers require full control over the engine management strategy. Standalone ECUs provide this capability by supporting user-defined maps, real-time parameter adjustment, and integration with external systems through communication protocols such as CAN.
+The motivation for using standalone ECUs arises from the need for adaptability and transparency. In motorsport applications such as Formula Student, where vehicles are custom-built and continuously refined, engineers require full control over the engine management strategy. Standalone ECUs provide this capability by supporting user-defined maps, real-time parameter adjustment, and integration with external systems through communication protocols such as CAN.
 
 \subsection{Speeduino/RusEFI ECUs}
 
@@ -122,87 +123,48 @@ Support for multiple programming languages was a key design consideration, allow
 
 
 \section{Data Analysis Techniques in Motorsport}
+
+Data analysis plays an important role in motorsport, where vehicle performance and reliability depend on the ability to interpret large amounts of information collected during testing and competition. Modern electronic control units and data acquisition systems continuously record parameters related to engine operation, vehicle dynamics, electrical systems, and driver inputs. However, isolated measurements provide limited information; the collected data must be processed, contextualized, and compared to support useful technical conclusions.
+
+The analysis process generally begins with data preparation. Measurements acquired from different sensors may contain noise, missing samples, duplicated values, or inconsistent timestamps. Before any conclusions are drawn, the dataset must therefore be validated and organized. Typical preparation operations include removing invalid samples, converting values into consistent engineering units, aligning timestamps, and filtering signals when measurement noise may affect their interpretation. This stage is particularly important when data originates from multiple subsystems operating at different acquisition frequencies.
+
+After preparation, vehicle data can be examined using statistical and time-domain analysis. Statistical methods provide a compact description of the behaviour of each signal, while time-domain analysis preserves the sequence of events occurring during a session. The combination of these approaches makes it possible to characterize normal operation, compare different tests, and identify periods that require more detailed investigation.
+
 \subsection{Statistical Analysis}
 
-The data gathered by the ECU enables a wide range of analytical applications, including engine tuning, performance evaluation in track environments, and long-term data logging. These datasets provide valuable insights into the behaviour of the engine and associated subsystems under varying operating conditions.
+Descriptive statistics provide an initial overview of the collected data. Measurements such as the minimum, maximum, mean, median, standard deviation, and range can be calculated for parameters including engine speed, coolant temperature, manifold pressure, throttle position, air-fuel ratio, battery voltage, and vehicle speed. These values help summarize the operating conditions observed during a session and make comparisons between different sessions more objective.
 
-The proposed system records a set of normalized vehicle parameters derived from CAN messages and stored periodically in the database. The currently logged parameters include:
+The mean represents the average operating value of a signal, while the minimum and maximum identify its observed operating limits. The standard deviation indicates how widely the measurements vary around the mean and can therefore help distinguish stable behaviour from highly variable operation. The median is also useful when a dataset contains isolated extreme values, since it is less affected by outliers than the arithmetic mean.
 
-\vspace{-0.2cm}
-\begin{table}[H]
-\centering
-\begin{tabular}{|c|p{12cm}|}
-\hline
-\textbf{Parameter} & \textbf{Description} \\
-\hline
+Statistical analysis may be performed over an entire acquisition session or over selected time intervals. Whole-session statistics provide a general summary but may hide short-duration events. Window-based analysis, in which statistics are calculated over consecutive intervals, preserves more information about changes throughout the session. For example, a stable average coolant temperature over a complete run may conceal a temporary overheating event that becomes evident when shorter time windows are examined.
 
-RPM & Engine speed in revolutions per minute, primary indicator of engine operating speed.\\
-\hline
+In motorsport applications, the interpretation of a single parameter is often insufficient. Several signals must be considered together to understand the operating state of the vehicle. Engine speed and throttle position can indicate driver demand, while manifold pressure and air-fuel ratio provide information about engine load and combustion conditions. Coolant temperature and battery voltage can be monitored simultaneously to assess thermal and electrical stability. This combined analysis provides a more complete representation of vehicle behaviour than the isolated observation of individual measurements.
 
-SYNC & ECU/engine synchronization status, indicates whether the ECU has valid crankshaft and camshaft position information. \\
-\hline
+\subsection{Session Comparison}
 
-ENGINE & General engine operating status, useful for determining whether the engine is stopped, cranking, or running. \\
-\hline
+Comparing multiple acquisition sessions is useful for evaluating changes in vehicle configuration, environmental conditions, driving behaviour, or system performance. Sessions can be compared using common indicators such as maximum engine speed, average coolant temperature, time spent within defined operating ranges, signal variability, and the occurrence of abnormal values.
 
-MAP & Intake manifold absolute pressure, one of the primary engine load measurements used for fuel calculations. \\
-\hline
+For a meaningful comparison, equivalent portions of each session should be selected whenever possible. Differences in session duration, route, driver input, or operating conditions may otherwise produce misleading conclusions. Timestamp alignment and the normalization of relevant measurements can also be required when the compared datasets have different sampling frequencies or starting times.
 
-BARO & Ambient atmospheric pressure, used for altitude and weather compensation. \\
-\hline
+Session comparison supports iterative vehicle development by providing objective evidence about the effect of technical changes. It may help determine whether an adjustment improved performance, reduced temperature variation, stabilized the air-fuel ratio, or introduced an undesirable operating condition. The same approach can also be used to compare the current session against a previously established reference session.
 
-TPS & Throttle position, represents driver demand and throttle opening percentage. \\
-\hline
+\subsection{Anomaly Identification}
 
-IAT & Intake air temperature, affects air density and fueling calculations. \\
-\hline
+Anomaly identification consists of detecting measurements or patterns that differ from the expected behaviour of the vehicle. A simple approach is based on predefined limits for each parameter. Values outside an acceptable range can be marked for later inspection, such as excessive coolant temperature, low battery voltage, an abnormal air-fuel ratio, or loss of ECU synchronization.
 
-CLT & Engine coolant temperature, critical for warm-up enrichment and engine protection strategies. \\
-\hline
+Statistical thresholds may also be used when fixed limits are not sufficient. Measurements that deviate significantly from the recent mean or median can indicate sudden changes, sensor errors, communication faults, or unusual operating conditions. Nevertheless, an isolated extreme value does not necessarily represent a real vehicle fault. It may result from electrical noise, an invalid CAN frame, a decoding error, or a temporary interruption in communication.
 
-AFR & Measured air-to-fuel ratio, key indicator of combustion mixture quality and engine tuning. \\
-\hline
+For this reason, anomaly detection should consider the duration and context of the event. A condition that persists across several consecutive samples is generally more relevant than a single invalid measurement. Correlating related signals can further improve interpretation. For example, a change in manifold pressure may be expected when throttle position changes, whereas the same variation without a corresponding driver input may justify further investigation.
 
-EGO & Fuel correction based on oxygen sensor feedback, represents closed-loop fueling adjustments applied by the ECU. \\
-\hline
+The purpose of anomaly identification in the proposed platform is not to perform safety-critical diagnosis or automatically control the vehicle. Instead, it provides a method for highlighting relevant periods in the recorded data, allowing users to inspect them and make informed technical decisions.
 
-PW & Injector opening duration, directly relates to the amount of fuel delivered to the engine. \\
-\hline
+\subsection{Visualization of Acquired Data}
 
-VE & Volumetric efficiency used in fuel calculations, represents how effectively the engine fills its cylinders with air. \\
-\hline
+Visualization complements statistical analysis by showing how vehicle parameters evolve over time. Time-series plots are particularly useful for observing transient events, identifying trends, and understanding relationships between signals. Displaying multiple synchronized signals on the same time axis enables the user to associate driver inputs with the corresponding engine and vehicle responses.
 
-ADV & Ignition timing advance, major factor of power output, efficiency, and knock resistance. \\
-\hline
+Dashboards provide an immediate representation of current operating conditions, while session plots and statistical summaries support offline analysis. These forms of visualization serve different purposes: real-time displays prioritize fast interpretation of critical parameters, whereas offline tools allow more detailed exploration of recorded sessions.
 
-DWELL & Ignition coil charging time, determines the energy available for spark generation. \\
-\hline
-
-BAT & Electrical system voltage, important for injector operation, ignition performance, and system health monitoring. \\
-\hline
-
-BOOST & Target boost pressure, desired manifold pressure set by the ECU for forced-induction engines. \\
-\hline
-
-DUTY & Wastegate control duty cycle, indicates how aggressively the ECU is controlling boost pressure. \\
-\hline
-
-VSS & Vehicle speed, used for logging, speed-based strategies, and traction-related functions. \\
-\hline
-
-FAN & Cooling fan status, indicates whether the radiator cooling fan is active. \\
-\hline
-
-FP & Fuel pump status, shows whether the ECU has enabled the fuel pump output. \\
-\hline
-
-BOOSTCUT & Overboost protection status, indicates whether boost safety limits have been exceeded and protective intervention is active. \\
-\hline
-
-\end{tabular}
-\caption{ECU Parameters Displayed by the Data Logger}
-\label{tab:ecu_parameters}
-\end{table}
+Effective visualization should present the most relevant information without overwhelming the user. Signals should be displayed with clear names, units, scales, and timestamps. Warning limits or reference ranges may also be included to help distinguish normal values from conditions that require attention. Through the combination of real-time monitoring, session summaries, and synchronized plots, collected CAN data can be transformed into information that is more useful for vehicle evaluation and technical decision-making.
 
 \section{Bluetooth Integration}
 
@@ -263,5 +225,3 @@ Main close competitors to the proposed system:
 	\item uaDash(only dashboard)\cite{uadash};
 	\item MegaLog viewer (only logger)\cite{mlviewer}.
 \end{itemize}
-
-

@@ -15,23 +15,28 @@
 \contentsline {subsection}{\numberline {2.2.1}Raspberry Pi Ecosystem}{7}{}%
 \contentsline {subsection}{\numberline {2.2.2}Utilized Programming Languages}{8}{}%
 \contentsline {section}{\numberline {2.3}Data Analysis Techniques in Motorsport}{8}{}%
-\contentsline {subsection}{\numberline {2.3.1}Statistical Analysis}{8}{}%
-\contentsline {section}{\numberline {2.4}Bluetooth Integration}{10}{}%
-\contentsline {subsection}{\numberline {2.4.1}BLE Protocol}{10}{}%
-\contentsline {section}{\numberline {2.5}Project Synthesis and Differentiation}{11}{}%
-\contentsline {chapter}{\numberline {3}Implementation}{12}{}%
-\contentsline {section}{\numberline {3.1}System Architecture}{12}{}%
-\contentsline {section}{\numberline {3.2}Hardware development}{13}{}%
-\contentsline {subsection}{\numberline {3.2.1}Hardware schematics}{13}{}%
-\contentsline {subsection}{\numberline {3.2.2}XIAORet comunication protocol}{13}{}%
-\contentsline {section}{\numberline {3.3}Software Implementation}{14}{}%
-\contentsline {subsection}{\numberline {3.3.1}Python Controller}{14}{}%
-\contentsline {subsection}{\numberline {3.3.2}Python Producer}{16}{}%
-\contentsline {subsection}{\numberline {3.3.3}Android application}{18}{}%
-\contentsline {chapter}{\numberline {4}Results and validation}{20}{}%
-\contentsline {section}{\numberline {4.1}Bench Validation}{20}{}%
-\contentsline {section}{\numberline {4.2}Vehicle Validation}{21}{}%
-\contentsline {section}{\numberline {4.3}Mobile Application Verification}{21}{}%
-\contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{24}{}%
-\contentsline {section}{\numberline {4.5}Results Summary}{24}{}%
-\contentsline {chapter}{\numberline {5}Conclusions}{25}{}%
+\contentsline {subsection}{\numberline {2.3.1}Statistical Analysis}{9}{}%
+\contentsline {subsection}{\numberline {2.3.2}Session Comparison}{9}{}%
+\contentsline {subsection}{\numberline {2.3.3}Anomaly Identification}{10}{}%
+\contentsline {subsection}{\numberline {2.3.4}Visualization of Acquired Data}{10}{}%
+\contentsline {section}{\numberline {2.4}Bluetooth Integration}{11}{}%
+\contentsline {subsection}{\numberline {2.4.1}BLE Protocol}{11}{}%
+\contentsline {section}{\numberline {2.5}Project Synthesis and Differentiation}{12}{}%
+\contentsline {chapter}{\numberline {3}Implementation}{14}{}%
+\contentsline {section}{\numberline {3.1}System Architecture}{14}{}%
+\contentsline {section}{\numberline {3.2}Data Analysis Techniques in Motorsport}{15}{}%
+\contentsline {subsection}{\numberline {3.2.1}Statistical Analysis}{15}{}%
+\contentsline {section}{\numberline {3.3}Hardware development}{16}{}%
+\contentsline {subsection}{\numberline {3.3.1}Hardware schematics}{16}{}%
+\contentsline {subsection}{\numberline {3.3.2}XIAORet comunication protocol}{16}{}%
+\contentsline {section}{\numberline {3.4}Software Implementation}{17}{}%
+\contentsline {subsection}{\numberline {3.4.1}Python Controller}{17}{}%
+\contentsline {subsection}{\numberline {3.4.2}Python Producer}{19}{}%
+\contentsline {subsection}{\numberline {3.4.3}Android application}{21}{}%
+\contentsline {chapter}{\numberline {4}Results and validation}{23}{}%
+\contentsline {section}{\numberline {4.1}Bench Validation}{23}{}%
+\contentsline {section}{\numberline {4.2}Vehicle Validation}{24}{}%
+\contentsline {section}{\numberline {4.3}Mobile Application Verification}{24}{}%
+\contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{27}{}%
+\contentsline {section}{\numberline {4.5}Results Summary}{27}{}%
+\contentsline {chapter}{\numberline {5}Conclusions}{28}{}%
