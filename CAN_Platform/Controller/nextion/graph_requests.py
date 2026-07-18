@@ -3,6 +3,7 @@ import logging
 from extra.session_manager import session_manager
 from nextion.graph_renderer import build_graph_commands
 from nextion.protocol import GraphRequest, NewSessionRequest
+from nextion.writer import nextion_writer
 from repository import SessionRepo, StateRepo
 
 
@@ -10,17 +11,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_SESSION_DESCRIPTION = "CAN acquisition"
 
 
-def send_cmd(ser, cmd):
-    ser.write(cmd.encode())
-    ser.write(b"\xff\xff\xff")
-
-    if hasattr(ser, "flush"):
-        ser.flush()
-
-
 def send_graph_commands(ser, commands):
-    for command in commands:
-        send_cmd(ser, command)
+    return nextion_writer.write_batch(ser, commands)
 
 
 def get_session_for_display_index(index, limit=5):
