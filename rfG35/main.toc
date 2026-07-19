@@ -24,19 +24,20 @@
 \contentsline {section}{\numberline {2.5}Project Synthesis and Differentiation}{12}{}%
 \contentsline {chapter}{\numberline {3}Implementation}{14}{}%
 \contentsline {section}{\numberline {3.1}System Architecture}{14}{}%
-\contentsline {section}{\numberline {3.2}Data Analysis Techniques in Motorsport}{15}{}%
-\contentsline {subsection}{\numberline {3.2.1}Statistical Analysis}{15}{}%
-\contentsline {section}{\numberline {3.3}Hardware development}{16}{}%
-\contentsline {subsection}{\numberline {3.3.1}Hardware schematics}{16}{}%
-\contentsline {subsection}{\numberline {3.3.2}XIAORet comunication protocol}{16}{}%
-\contentsline {section}{\numberline {3.4}Software Implementation}{17}{}%
-\contentsline {subsection}{\numberline {3.4.1}Python Controller}{17}{}%
-\contentsline {subsection}{\numberline {3.4.2}Python Producer}{19}{}%
-\contentsline {subsection}{\numberline {3.4.3}Android application}{21}{}%
-\contentsline {chapter}{\numberline {4}Results and validation}{23}{}%
-\contentsline {section}{\numberline {4.1}Bench Validation}{23}{}%
-\contentsline {section}{\numberline {4.2}Vehicle Validation}{24}{}%
-\contentsline {section}{\numberline {4.3}Mobile Application Verification}{24}{}%
-\contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{27}{}%
-\contentsline {section}{\numberline {4.5}Results Summary}{27}{}%
-\contentsline {chapter}{\numberline {5}Conclusions}{28}{}%
+\contentsline {subsection}{\numberline {3.1.1}Controller Configuration File}{15}{}%
+\contentsline {section}{\numberline {3.2}Data Analysis Techniques in Motorsport}{16}{}%
+\contentsline {subsection}{\numberline {3.2.1}Statistical Analysis}{16}{}%
+\contentsline {section}{\numberline {3.3}Hardware development}{17}{}%
+\contentsline {subsection}{\numberline {3.3.1}Hardware schematics}{17}{}%
+\contentsline {subsection}{\numberline {3.3.2}XIAORet comunication protocol}{17}{}%
+\contentsline {section}{\numberline {3.4}Software Implementation}{18}{}%
+\contentsline {subsection}{\numberline {3.4.1}Python Controller}{18}{}%
+\contentsline {subsection}{\numberline {3.4.2}Python Producer}{20}{}%
+\contentsline {subsection}{\numberline {3.4.3}Android application}{22}{}%
+\contentsline {chapter}{\numberline {4}Results and validation}{24}{}%
+\contentsline {section}{\numberline {4.1}Bench Validation}{24}{}%
+\contentsline {section}{\numberline {4.2}Vehicle Validation}{25}{}%
+\contentsline {section}{\numberline {4.3}Mobile Application Verification}{25}{}%
+\contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{28}{}%
+\contentsline {section}{\numberline {4.5}Results Summary}{28}{}%
+\contentsline {chapter}{\numberline {5}Conclusions}{29}{}%

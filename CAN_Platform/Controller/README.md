@@ -310,6 +310,23 @@ so the display can be checked visually. Optional port and baud arguments:
 python tests/integration/test_nextion.py /dev/serial0 115200
 ```
 
+Synthetic Nextion graph test:
+
+```bash
+chmod +x run_nextion_graph_test.sh
+./run_nextion_graph_test.sh
+```
+
+By default, the script reads `nextion_port`, `nextion_baud`, and `redline` from
+`config.json`, generates synthetic RPM, AFR, and coolant-temperature samples,
+and draws the resulting curves on the Nextion `graph` page. Parameters can be
+overridden from the command line:
+
+```bash
+./run_nextion_graph_test.sh --port /dev/serial0 --baud 115200 \
+  --samples 240 --signals rpm,afr,clt --redline 7500
+```
+
 ## Troubleshooting
 
 Check whether configured devices exist:
