@@ -1,0 +1,9 @@
+This work presented a CAN-based data acquisition system implemented on a Raspberry Pi, combining real-time frame acquisition, DBC-based decoding, and structured data storage. The system demonstrates that it is possible to build a functional telemetry platform using low-cost hardware, while maintaining sufficient performance for typical automotive monitoring tasks.
+
+However, several limitations are evident. The current architecture does not enforce strict real-time guarantees, as Python threading and the underlying operating system scheduling can introduce non-deterministic delays. This limits the system's suitability for safety-critical applications.
+
+The abstraction of CAN data into a normalized vehicle state simplifies usage but also reduces flexibility, since only a subset of signals is retained. Any changes to the monitored parameters require modifications in multiple components, including decoding logic and database schema, which impacts maintainability. Furthermore, the system does not currently distinguish between standard and extended CAN frames at a semantic level, which may be relevant in more complex network configurations.
+
+From a data analysis perspective, the platform focuses on acquisition and storage, with limited built-in analytical capabilities. While it enables offline analysis, it does not yet exploit advanced techniques such as anomaly detection, correlation analysis, or predictive models. As a result, much of the potential value of the collected data remains unexplored.
+
+Despite these constraints, the system provides a solid foundation for telemetry in non-critical environments such as entusiast motorsports and Formula Student. It enables consistent data collection, supports debugging and performance evaluation, and improves visibility over ECU behaviour. Future work should focus on improving data throughput, introducing more robust real-time handling, and extending the analytical capabilities of the platform.
