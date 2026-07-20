@@ -184,14 +184,12 @@ current value explicitly; a \texttt{notify} flag allows the peripheral to push
 updates automatically once the central subscribes by writing to the
 characteristic's Client Characteristic Configuration Descriptor (CCCD) \cite{bt54}.
 
-\vspace{5mm}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{imagens/ble-gatt-architecture.png}
     \caption{BLE GATT Hierarchical Architecture \cite{gatt}}
     \label{fig:placeholder}
 \end{figure}
-\vspace{5mm}
 
 In our implementation, the \textit{bluezero} library is used to expose the
 Raspberry Pi as a GATT peripheral over the Linux BlueZ stack via D-Bus.

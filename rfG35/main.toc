@@ -22,24 +22,24 @@
 \contentsline {section}{\numberline {2.4}Bluetooth Integration}{11}{}%
 \contentsline {subsection}{\numberline {2.4.1}BLE Protocol}{11}{}%
 \contentsline {section}{\numberline {2.5}Project Synthesis and Differentiation}{12}{}%
-\contentsline {chapter}{\numberline {3}Implementation}{14}{}%
-\contentsline {section}{\numberline {3.1}System Architecture}{14}{}%
-\contentsline {subsection}{\numberline {3.1.1}Controller Configuration File}{15}{}%
-\contentsline {section}{\numberline {3.2}Data Analysis Techniques in Motorsport}{16}{}%
-\contentsline {subsection}{\numberline {3.2.1}Statistical Analysis}{16}{}%
-\contentsline {section}{\numberline {3.3}Hardware development}{17}{}%
-\contentsline {subsection}{\numberline {3.3.1}Hardware schematics}{17}{}%
-\contentsline {subsection}{\numberline {3.3.2}XIAORet comunication protocol}{17}{}%
-\contentsline {section}{\numberline {3.4}Software Implementation}{18}{}%
-\contentsline {subsection}{\numberline {3.4.1}Python Controller}{18}{}%
-\contentsline {subsection}{\numberline {3.4.2}Python Producer}{20}{}%
-\contentsline {subsubsection}{\numberline {3.4.2.1}CAN Data Persistence and Session Recording}{21}{}%
-\contentsline {subsubsection}{\numberline {3.4.2.2}Nextion Session Graph Generation}{23}{}%
+\contentsline {chapter}{\numberline {3}Implementation}{13}{}%
+\contentsline {section}{\numberline {3.1}System Architecture}{13}{}%
+\contentsline {subsection}{\numberline {3.1.1}Controller Configuration File}{14}{}%
+\contentsline {section}{\numberline {3.2}Data Analysis Techniques in Motorsport}{15}{}%
+\contentsline {subsection}{\numberline {3.2.1}Statistical Analysis}{15}{}%
+\contentsline {section}{\numberline {3.3}Hardware development}{16}{}%
+\contentsline {subsection}{\numberline {3.3.1}Hardware schematics}{16}{}%
+\contentsline {subsection}{\numberline {3.3.2}XIAORet comunication protocol}{16}{}%
+\contentsline {section}{\numberline {3.4}Software Implementation}{17}{}%
+\contentsline {subsection}{\numberline {3.4.1}Python Controller}{17}{}%
+\contentsline {subsection}{\numberline {3.4.2}Python Producer}{19}{}%
+\contentsline {subsubsection}{\numberline {3.4.2.1}CAN Data Persistence and Session Recording}{20}{}%
+\contentsline {subsubsection}{\numberline {3.4.2.2}Nextion Session Graph Generation}{22}{}%
 \contentsline {subsection}{\numberline {3.4.3}Android application}{24}{}%
-\contentsline {chapter}{\numberline {4}Results and validation}{27}{}%
-\contentsline {section}{\numberline {4.1}Bench Validation}{27}{}%
-\contentsline {section}{\numberline {4.2}Vehicle Validation}{28}{}%
-\contentsline {section}{\numberline {4.3}Mobile Application Verification}{28}{}%
-\contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{31}{}%
-\contentsline {section}{\numberline {4.5}Results Summary}{31}{}%
-\contentsline {chapter}{\numberline {5}Conclusions}{32}{}%
+\contentsline {chapter}{\numberline {4}Results and validation}{26}{}%
+\contentsline {section}{\numberline {4.1}Bench Validation}{26}{}%
+\contentsline {section}{\numberline {4.2}Vehicle Validation}{27}{}%
+\contentsline {section}{\numberline {4.3}Mobile Application Verification}{27}{}%
+\contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{30}{}%
+\contentsline {section}{\numberline {4.5}Results Summary}{30}{}%
+\contentsline {chapter}{\numberline {5}Conclusions}{31}{}%

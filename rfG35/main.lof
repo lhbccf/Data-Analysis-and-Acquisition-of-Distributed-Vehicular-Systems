@@ -2,20 +2,20 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces CAN Application Example \blx@tocontentsinit {0}\cite {canprotocol}}}{5}{}%
 \contentsline {figure}{\numberline {2.2}{\ignorespaces CAN Standard Data Frame \blx@tocontentsinit {0}\cite {canframe}}}{5}{}%
-\contentsline {figure}{\numberline {2.3}{\ignorespaces BLE GATT Hierarchical Architecture \blx@tocontentsinit {0}\cite {gatt}}}{12}{}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces BLE GATT Hierarchical Architecture \blx@tocontentsinit {0}\cite {gatt}}}{11}{}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces Project Architecture Diagram}}{14}{}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces Electric diagram of the Raspberry Pi and Nextion screen}}{17}{}%
-\contentsline {figure}{\numberline {3.3}{\ignorespaces Nextion screen 1}}{18}{}%
-\contentsline {figure}{\numberline {3.4}{\ignorespaces Nextion screen 2}}{18}{}%
-\contentsline {figure}{\numberline {3.5}{\ignorespaces Controller Structure Diagram}}{19}{}%
-\contentsline {figure}{\numberline {3.6}{\ignorespaces Database Diagram}}{21}{}%
-\contentsline {figure}{\numberline {3.7}{\ignorespaces Mobile Application Structure Diagram}}{25}{}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Project Architecture Diagram}}{13}{}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Electric diagram of the Raspberry Pi and Nextion screen}}{16}{}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Nextion screen 1}}{17}{}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Nextion screen 2}}{17}{}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Controller Structure Diagram}}{18}{}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Database Diagram}}{20}{}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Mobile Application Structure Diagram}}{24}{}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Hardware utilized}}{27}{}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Live data display}}{29}{}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Session displays}}{30}{}%
-\contentsline {subfigure}{\numberline {a}{\ignorespaces Sessions display}}{30}{}%
-\contentsline {subfigure}{\numberline {b}{\ignorespaces Session information display}}{30}{}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Overall statistics display}}{31}{}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Hardware utilized}}{26}{}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Live data display}}{28}{}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Session displays}}{29}{}%
+\contentsline {subfigure}{\numberline {a}{\ignorespaces Sessions display}}{29}{}%
+\contentsline {subfigure}{\numberline {b}{\ignorespaces Session information display}}{29}{}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Overall statistics display}}{30}{}%
 \addvspace {10\p@ }
