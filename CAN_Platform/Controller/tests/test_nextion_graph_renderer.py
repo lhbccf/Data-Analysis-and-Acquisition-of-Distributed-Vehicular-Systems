@@ -24,7 +24,13 @@ def test_reduce_rows_limits_number_of_points():
 
     assert len(reduced) == 100
     assert reduced[0]["rpm"] == 0
-    assert reduced[-1]["rpm"] == 990
+    assert reduced[-1]["rpm"] == 999
+
+
+def test_single_sample_is_drawn_as_a_point():
+    commands = build_graph_commands([{"rpm": 3750}], ("rpm",), {"redline": 7500})
+
+    assert f"cir {GRAPH_X},{GRAPH_Y + int(GRAPH_HEIGHT / 2)},2,63488" in commands
 
 
 def test_value_to_y_converts_to_graph_coordinates():

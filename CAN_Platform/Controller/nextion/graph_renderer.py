@@ -47,16 +47,21 @@ def get_signal_range(signal, config=None):
 
 
 def reduce_rows(rows, max_points=MAX_GRAPH_POINTS):
+    if max_points <= 0:
+        return []
+
     if len(rows) <= max_points:
         return rows
 
-    step = len(rows) / max_points
-    reduced_rows = []
+    if max_points == 1:
+        return [rows[0]]
 
-    for index in range(max_points):
-        reduced_rows.append(rows[int(index * step)])
-
-    return reduced_rows
+    # Spread samples over the complete session, including both endpoints.
+    last_index = len(rows) - 1
+    return [
+        rows[round(index * last_index / (max_points - 1))]
+        for index in range(max_points)
+    ]
 
 
 def value_to_y(value, minimum, maximum):
@@ -92,6 +97,10 @@ def build_signal_lines(rows, signal, color, config=None):
         ))
 
     commands = []
+
+    if len(points) == 1:
+        x, y = points[0]
+        return [f"cir {x},{y},2,{color}"]
 
     for index in range(1, len(points)):
         x1, y1 = points[index - 1]
