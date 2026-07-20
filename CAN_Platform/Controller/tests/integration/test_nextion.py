@@ -56,22 +56,22 @@ SCENARIOS = [
 ]
 
 
-def read_config_from_args():
-    config_path = CONTROLLER_DIR / "config.json"
+def read_config_from_args(argv=None, config_path=None):
+    argv = sys.argv if argv is None else argv
+    config_path = config_path or CONTROLLER_DIR / "config.json"
     with config_path.open("r", encoding="utf-8") as config_file:
         project_config = json.load(config_file)
 
-    port = sys.argv[1] if len(sys.argv) > 1 else project_config.get(
-        "nextion_port", "/dev/serial0"
+    config = dict(project_config)
+    config["nextion_port"] = (
+        argv[1] if len(argv) > 1 else config.get("nextion_port", "/dev/serial0")
     )
-    baud = int(sys.argv[2]) if len(sys.argv) > 2 else int(
-        project_config.get("nextion_baud", 115200)
+    config["nextion_baud"] = int(
+        argv[2] if len(argv) > 2 else config.get("nextion_baud", 115200)
     )
-
-    return {
-        "nextion_port": port,
-        "nextion_baud": baud,
-    }
+    config.setdefault("redline", 7500)
+    config.setdefault("shift_point", 6500)
+    return config
 
 
 def print_scenario(index, scenario):
