@@ -5,6 +5,7 @@ import logging
 from extra.signal_cache import signal_cache
 from extra.logging_setup import configure_logging
 from nextion.reader import start_nextion_reader
+from nextion.writer import nextion_writer
 from repository import SessionRepo
 
 LOG_PATH = configure_logging()
@@ -12,15 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_cmd(ser, cmd):
-    payload = cmd.encode()
-    terminator = b'\xff\xff\xff'
-    written = ser.write(payload)
-    written_terminator = ser.write(terminator)
-
-    if hasattr(ser, "flush"):
-        ser.flush()
-
-    return (written or len(payload)) + (written_terminator or len(terminator))
+    return nextion_writer.write(ser, cmd)
 
 
 def clamp(value, minimum=0, maximum=100):
@@ -94,14 +87,7 @@ def get_changed_commands(commands, last_commands):
 
 
 def send_commands(ser, commands):
-    bytes_written = 0
-    commands_sent = 0
-
-    for command in commands.values():
-        bytes_written += send_cmd(ser, command)
-        commands_sent += 1
-
-    return bytes_written, commands_sent
+    return nextion_writer.write_batch(ser, commands.values())
 
 
 def update_nextion(ser, data, max_rpm, shift_point, last_commands=None):

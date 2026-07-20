@@ -1,11 +1,22 @@
-rm -rf venv
+#!/usr/bin/env bash
+set -euo pipefail
 
-python3 -m venv venv --system-site-packages
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+VENV_DIR="$SCRIPT_DIR/venv"
 
-source venv/bin/activate
+cd "$SCRIPT_DIR"
 
-pip install pyserial 
+if [ ! -d "$VENV_DIR" ]; then
+    echo "[nextion-test] creating virtual environment"
+    python3 -m venv "$VENV_DIR" --system-site-packages
+fi
 
-echo "Setup completo!"
+source "$VENV_DIR/bin/activate"
 
-python test_nextion.py
+if ! python -c "import serial" 2>/dev/null; then
+    echo "[nextion-test] installing pyserial"
+    python -m pip install pyserial
+fi
+
+echo "[nextion-test] sending test values"
+exec python tests/integration/test_nextion.py "$@"
