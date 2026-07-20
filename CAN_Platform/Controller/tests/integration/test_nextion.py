@@ -1,3 +1,4 @@
+import json
 import sys
 import time
 from pathlib import Path
@@ -56,8 +57,16 @@ SCENARIOS = [
 
 
 def read_config_from_args():
-    port = sys.argv[1] if len(sys.argv) > 1 else "/dev/serial0"
-    baud = int(sys.argv[2]) if len(sys.argv) > 2 else 9600
+    config_path = CONTROLLER_DIR / "config.json"
+    with config_path.open("r", encoding="utf-8") as config_file:
+        project_config = json.load(config_file)
+
+    port = sys.argv[1] if len(sys.argv) > 1 else project_config.get(
+        "nextion_port", "/dev/serial0"
+    )
+    baud = int(sys.argv[2]) if len(sys.argv) > 2 else int(
+        project_config.get("nextion_baud", 115200)
+    )
 
     return {
         "nextion_port": port,
