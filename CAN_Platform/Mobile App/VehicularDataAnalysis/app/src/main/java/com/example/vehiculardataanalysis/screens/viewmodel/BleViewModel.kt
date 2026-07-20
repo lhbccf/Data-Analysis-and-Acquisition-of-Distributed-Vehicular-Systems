@@ -42,16 +42,11 @@ class BleViewModel(
     fun start(adapter: BluetoothAdapter) {
         repository.startScan(adapter)
 
-        viewModelScope.launch {
-            repository.canData
-                .flowOn(Dispatchers.Default)
-                .collect { rawData ->
-                    if (rawData.isBlank()) return@collect
-                    val newState = parseCanData(rawData)
-                    viewModelScope.launch(Dispatchers.Main) {
-                        _uiState.value = newState
-                    }
-                }
+        viewModelScope.launch(Dispatchers.Default) {
+            repository.canData.collect { rawData ->
+                if (rawData.isBlank()) return@collect
+                _uiState.value = parseCanData(rawData)
+            }
         }
     }
 
@@ -92,27 +87,25 @@ class BleViewModel(
                 currentEgoCor  = (currentEgoCor + Random.nextFloat() * 1f - 0.5f).coerceIn(70f, 130f)
                 currentVe      = (currentVe + Random.nextFloat() * 2f - 1f).coerceIn(0f, 120f)
 
-                launch(Dispatchers.Main) {
-                    _uiState.update {
-                        it.copy(
-                            rpm     = currentRpm,
-                            temp    = currentTemp,
-                            afr     = currentAfr,
-                            tps     = currentTps,
-                            map     = currentMap,
-                            battery = currentBattery,
-                            dwell   = currentDwell,
-                            timing  = currentTiming,
-                            vss     = currentVss,
-                            iat     = currentIat,
-                            ego_cor = currentEgoCor,
-                            ve      = currentVe,
-                            sync    = currentSync,
-                            raw     = "$currentRpm,$currentTemp,$currentAfr,$currentTps,$currentMap," +
-                                      "$currentBattery,$currentDwell,$currentTiming,$currentVss," +
-                                      "$currentIat,$currentEgoCor,$currentVe,$currentSync"
-                        )
-                    }
+                _uiState.update {
+                    it.copy(
+                        rpm     = currentRpm,
+                        temp    = currentTemp,
+                        afr     = currentAfr,
+                        tps     = currentTps,
+                        map     = currentMap,
+                        battery = currentBattery,
+                        dwell   = currentDwell,
+                        timing  = currentTiming,
+                        vss     = currentVss,
+                        iat     = currentIat,
+                        ego_cor = currentEgoCor,
+                        ve      = currentVe,
+                        sync    = currentSync,
+                        raw     = "$currentRpm,$currentTemp,$currentAfr,$currentTps,$currentMap," +
+                                  "$currentBattery,$currentDwell,$currentTiming,$currentVss," +
+                                  "$currentIat,$currentEgoCor,$currentVe,$currentSync"
+                    )
                 }
             }
         }

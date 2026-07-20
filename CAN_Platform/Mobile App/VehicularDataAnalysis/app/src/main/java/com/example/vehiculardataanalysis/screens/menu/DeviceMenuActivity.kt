@@ -3,23 +3,16 @@ package com.example.vehiculardataanalysis.screens.menu
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothManager
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.collectAsState
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.example.bleapp.ui.menu.DeviceMenuScreen
-import com.example.bleapp.ui.menu.MenuScreen
-import com.example.vehiculardataanalysis.DependencyContainer
-import com.example.vehiculardataanalysis.domain.Device
-import com.example.vehiculardataanalysis.screens.about.AboutActivity
+import com.example.vehiculardataanalysis.screens.about.AboutDeviceActivity
 import com.example.vehiculardataanalysis.screens.display.DataDisplayActivity
-import com.example.vehiculardataanalysis.screens.viewmodel.BleViewModel
+import com.example.vehiculardataanalysis.screens.display.OverallStatsActivity
 import com.example.vehiculardataanalysis.ui.BaseActivity
 import com.example.vehiculardataanalysis.ui.theme.VehicularDataAnalysisTheme
 
@@ -32,8 +25,7 @@ class DeviceMenuActivity : BaseActivity() {
 
     private var deviceAddress = "Unknown"
     private var deviceName = "Unknown Device"
-    private var viewModel: BleViewModel? = null
-    private var adapter: android.bluetooth.BluetoothAdapter? = null
+    private var connectionTimeMs: Long = 0L
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,17 +33,8 @@ class DeviceMenuActivity : BaseActivity() {
 
         deviceAddress = intent.getStringExtra("DEVICE_ADDRESS") ?: "Unknown"
         deviceName = intent.getStringExtra("DEVICE_NAME") ?: "Unknown Device"
+        connectionTimeMs = System.currentTimeMillis()
 
-        val bluetoothManager =
-            getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        adapter = bluetoothManager.adapter
-
-        val container = applicationContext as DependencyContainer
-        val factory = container.bleViewModelFactory
-        viewModel =
-            ViewModelProvider(this, factory)[BleViewModel::class.java]
-
-        // Check permissions before setting content
         if (hasBluetoothPermissions()) {
             showMenu()
         } else {
@@ -82,29 +65,36 @@ class DeviceMenuActivity : BaseActivity() {
         )
     }
 
-    @SuppressLint("MissingPermission")
     private fun showMenu() {
-        // Start scanning for devices
-        viewModel?.start(adapter!!)
-
         setContent {
             VehicularDataAnalysisTheme {
-                // Observe scanned devices from repository
-                val container = applicationContext as DependencyContainer
-                val repository = container.bleRepository
-                val scannedDevices = repository.scannedDevices.collectAsState(initial = emptyList()).value
-
                 DeviceMenuScreen(
                     deviceAddress = deviceAddress,
                     deviceName = deviceName,
-                    viewModel = viewModel!!,
-                    adapter = adapter!!,
-                    scannedDevices = scannedDevices,
                     onBackPressed = { finish() },
                     onLiveDataSelected = {
                         navigate<DataDisplayActivity> {
                             it.putExtra("DEVICE_ADDRESS", deviceAddress)
                             it.putExtra("DEVICE_NAME", deviceName)
+                        }
+                    },
+                    onSessionsSelected = {
+                        navigate<SessionMenuActivity> {
+                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
+                            it.putExtra("DEVICE_NAME", deviceName)
+                        }
+                    },
+                    onOverallStatsSelected = {
+                        navigate<OverallStatsActivity> {
+                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
+                            it.putExtra("DEVICE_NAME", deviceName)
+                        }
+                    },
+                    onDeviceInfoSelected = {
+                        navigate<AboutDeviceActivity> {
+                            it.putExtra("DEVICE_ADDRESS", deviceAddress)
+                            it.putExtra("DEVICE_NAME", deviceName)
+                            it.putExtra("CONNECTED_SINCE_MS", connectionTimeMs)
                         }
                     },
                 )

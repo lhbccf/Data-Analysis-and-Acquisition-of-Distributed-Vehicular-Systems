@@ -56,6 +56,9 @@ def clear_session_frames(session_id: int):
     SessionRepo.clear_session_frames(session_id=session_id)
 
 
+def get_all_sessions():
+    return SessionRepo.get_all_sessions()
+
 def create_vehicle_state(state: dict):
     return StateRepo.create_vehicle_state(state=state)
 
@@ -72,9 +75,17 @@ def delete_all_vehicle_states():
     StateRepo.delete_all_vehicle_states()
 
 
+def get_aggregate_vehicle_stats():
+    return StateRepo.get_aggregate_vehicle_stats()
+
+
 def get_recent_sessions(limit=5):
     return SessionRepo.get_recent_sessions(limit)
 
 
 def get_vehicle_states_by_session_id(session_id, signals):
     return StateRepo.get_vehicle_states_by_session_id(session_id, signals)
+
+
+def get_session_vehicle_stats(session_id: int):
+    return StateRepo.get_session_vehicle_stats(session_id)

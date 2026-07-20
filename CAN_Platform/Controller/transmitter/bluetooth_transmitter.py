@@ -1,18 +1,25 @@
+import queue
+
 from bluezero import peripheral
 from gi.repository import GLib
 
 from extra.signal_cache import signal_cache
 
-SERVICE_UUID = '12345678-1234-5678-1234-56789abcdef0'
-CHAR_UUID    = 'abcdef01-1234-5678-1234-56789abcdef0'
+SERVICE_UUID               = '12345678-1234-5678-1234-56789abcdef0'
+CHAR_UUID                  = 'abcdef01-1234-5678-1234-56789abcdef0'
+SESSION_REQUEST_CHAR_UUID  = 'abcdef02-1234-5678-1234-56789abcdef0'
+SESSION_RESPONSE_CHAR_UUID = 'abcdef03-1234-5678-1234-56789abcdef0'
 
-NOTIFY_INTERVAL_MS = 200  # 5 Hz
+NOTIFY_INTERVAL_MS    = 200   # 5 Hz sensor stream
+SESSION_DRIP_DELAY_MS = 50    # gap between consecutive session notifications
 
 
 class BLETlmServer:
     def __init__(self, adapter_address: str):
         self._char = None
         self._timer_id = None
+        self._session_response_char = None
+        self._session_send_queue = queue.Queue()
 
         self.ble = peripheral.Peripheral(
             adapter_address=adapter_address,
@@ -21,6 +28,7 @@ class BLETlmServer:
 
         self.ble.add_service(srv_id=1, uuid=SERVICE_UUID, primary=True)
 
+        # Characteristic 1: sensor data stream (read + notify)
         self.ble.add_characteristic(
             srv_id=1,
             chr_id=1,
@@ -29,18 +37,40 @@ class BLETlmServer:
             notifying=False,
             flags=['read', 'notify'],
             read_callback=self.read_callback,
-            # bluezero 0.9.x calls notify_callback(notifying: bool,
-            # characteristic: localGATT.Characteristic) on subscribe/unsubscribe.
-            # It does NOT call it periodically — we drive that ourselves via GLib.
             notify_callback=self.notify_cb,
         )
 
+        # Characteristic 2: session request — Android writes commands here
+        self.ble.add_characteristic(
+            srv_id=1,
+            chr_id=2,
+            uuid=SESSION_REQUEST_CHAR_UUID,
+            value=[],
+            notifying=False,
+            flags=['write'],
+            write_callback=self._session_request_cb,
+        )
+
+        # Characteristic 3: session response — Pi notifies one line per session
+        self.ble.add_characteristic(
+            srv_id=1,
+            chr_id=3,
+            uuid=SESSION_RESPONSE_CHAR_UUID,
+            value=[],
+            notifying=False,
+            flags=['read', 'notify'],
+            read_callback=self._session_response_read_cb,
+            notify_callback=self._session_response_notify_cb,
+        )
+
+    # ── Sensor data characteristic ───────────────────────────────────────────
+
     def read_callback(self):
-        """Called when the Android client reads the characteristic explicitly."""
+        """Called when the Android client reads the sensor characteristic explicitly."""
         return list(signal_cache.get_formatted_string().encode('utf-8'))
 
     def notify_cb(self, notifying: bool, characteristic) -> None:
-        """Called by bluezero when the Android subscribes or unsubscribes."""
+        """Called by bluezero when Android subscribes or unsubscribes to sensor data."""
         if notifying:
             self._char = characteristic
             self._timer_id = GLib.timeout_add(NOTIFY_INTERVAL_MS, self._send_notify)
@@ -54,12 +84,175 @@ class BLETlmServer:
         """GLib timer callback — pushes one BLE notification then reschedules."""
         if self._char is None or not self._char.is_notifying:
             self._timer_id = None
-            return False  # remove timer
+            return False
         self._char.set_value(
             list(signal_cache.get_formatted_string().encode('utf-8'))
         )
-        return True  # keep timer running
+        return True
+
+    # ── Session characteristics ──────────────────────────────────────────────
+
+    def _session_response_read_cb(self):
+        return list('[]'.encode('utf-8'))
+
+    def _session_response_notify_cb(self, notifying: bool, characteristic) -> None:
+        """Called by bluezero when Android subscribes or unsubscribes to session response."""
+        if notifying:
+            self._session_response_char = characteristic
+        else:
+            self._session_response_char = None
+            # Discard any in-flight session queue so a stale iterator can't
+            # fire against a different subscriber later.
+            while not self._session_send_queue.empty():
+                try:
+                    self._session_send_queue.get_nowait()
+                except queue.Empty:
+                    break
+
+    def _session_request_cb(self, value, _options) -> None:
+        """Called when Android writes a command to the session request characteristic."""
+        command = bytes(value).decode('utf-8').strip()
+        if command == 'GET_SESSIONS':
+            GLib.idle_add(self._build_session_queue)
+        elif command.startswith('GET_SESSION:'):
+            try:
+                session_id = int(command.split(':', 1)[1])
+                GLib.idle_add(lambda: self._build_session_stats_queue(session_id))
+            except (ValueError, IndexError):
+                pass
+        elif command == 'CREATE_SESSION':
+            GLib.idle_add(self._handle_create_session)
+        elif command == 'END_SESSION':
+            GLib.idle_add(self._handle_end_session)
+
+    def _handle_create_session(self) -> bool:
+        """Creates a new recording session (ends the current one if active)."""
+        try:
+            from extra.session_manager import session_manager
+            session = session_manager.start_new_session("BLE")
+            response = f"SESSION_CREATED:{session.id}"
+        except Exception as exc:
+            print(f"[ERROR] CREATE_SESSION failed: {exc}")
+            response = f"ERR:{exc}"
+        if self._session_response_char and self._session_response_char.is_notifying:
+            self._session_response_char.set_value(list(response.encode('utf-8')))
+        return False
+
+    def _handle_end_session(self) -> bool:
+        """Ends the currently active recording session."""
+        try:
+            from extra.session_manager import session_manager
+            ended_id = session_manager.end_current_session()
+            response = f"SESSION_ENDED:{ended_id}" if ended_id is not None else "ERR:No active session"
+        except Exception as exc:
+            print(f"[ERROR] END_SESSION failed: {exc}")
+            response = f"ERR:{exc}"
+        if self._session_response_char and self._session_response_char.is_notifying:
+            self._session_response_char.set_value(list(response.encode('utf-8')))
+        return False
+
+    def _build_session_stats_queue(self, session_id: int) -> bool:
+        """
+        Queues a single SESSION_STATS line for the requested session then END.
+        Runs once per GET_SESSION:<id> request via GLib.idle_add().
+        """
+        if self._session_response_char is None or not self._session_response_char.is_notifying:
+            return False
+
+        while not self._session_send_queue.empty():
+            try:
+                self._session_send_queue.get_nowait()
+            except queue.Empty:
+                break
+
+        try:
+            from services import Services
+
+            avg_rpm, max_rpm, avg_clt, max_vss = Services.get_session_vehicle_stats(session_id)
+            self._session_send_queue.put(
+                f"SESSION_STATS:{session_id},{avg_rpm:.0f},{int(max_rpm)},{avg_clt:.1f},{max_vss:.1f}"
+            )
+            self._session_send_queue.put('END')
+            GLib.timeout_add(SESSION_DRIP_DELAY_MS, self._flush_session_queue)
+
+        except Exception as exc:
+            print(f"[ERROR] Failed to build session stats queue: {exc}")
+            err_line = f'ERR:{exc}'
+            if self._session_response_char and self._session_response_char.is_notifying:
+                self._session_response_char.set_value(list(err_line.encode('utf-8')))
+
+        return False
+
+    def _build_session_queue(self) -> bool:
+        """
+        Builds the ordered list of lines to send, then kicks off the drip-feed
+        timer.  Runs once per GET_SESSIONS request via GLib.idle_add().
+        """
+        if self._session_response_char is None or not self._session_response_char.is_notifying:
+            return False
+
+        # Discard any previous in-flight queue.
+        while not self._session_send_queue.empty():
+            try:
+                self._session_send_queue.get_nowait()
+            except queue.Empty:
+                break
+
+        try:
+            from services import Services
+
+            sessions = Services.get_all_sessions()
+            for session in sessions:
+                duration = (
+                    round(session.end_time - session.start_time, 1)
+                    if session.end_time is not None
+                    else -1.0
+                )
+                self._session_send_queue.put(
+                    f"{session.id},{session.start_time:.3f},{duration}"
+                )
+
+            # Append cross-session vehicle aggregate stats when available.
+            try:
+                avg_rpm, max_rpm, avg_clt, max_vss = Services.get_aggregate_vehicle_stats()
+                if max_rpm and max_rpm > 0:
+                    self._session_send_queue.put(
+                        f"OVERALL:{avg_rpm:.0f},{int(max_rpm)},{avg_clt:.1f},{max_vss:.1f}"
+                    )
+            except Exception as stats_exc:
+                print(f"[WARN] Could not fetch aggregate vehicle stats: {stats_exc}")
+
+            self._session_send_queue.put('END')
+            GLib.timeout_add(SESSION_DRIP_DELAY_MS, self._flush_session_queue)
+
+        except Exception as exc:
+            print(f"[ERROR] Failed to build session queue: {exc}")
+            err_line = f'ERR:{exc}'
+            if self._session_response_char and self._session_response_char.is_notifying:
+                self._session_response_char.set_value(list(err_line.encode('utf-8')))
+
+        return False
+
+    def _flush_session_queue(self) -> bool:
+        """
+        Sends exactly one queued line per GLib tick (every SESSION_DRIP_DELAY_MS ms).
+        Returning True reschedules the callback; False stops it.
+        """
+        if self._session_response_char is None or not self._session_response_char.is_notifying:
+            while not self._session_send_queue.empty():
+                try:
+                    self._session_send_queue.get_nowait()
+                except queue.Empty:
+                    break
+            return False
+
+        try:
+            line = self._session_send_queue.get_nowait()
+            self._session_response_char.set_value(list(line.encode('utf-8')))
+            return not self._session_send_queue.empty()
+        except queue.Empty:
+            return False
 
     def start(self) -> None:
-        print("Starting BLE server ...")
+        print('Starting BLE server ...')
         self.ble.publish()

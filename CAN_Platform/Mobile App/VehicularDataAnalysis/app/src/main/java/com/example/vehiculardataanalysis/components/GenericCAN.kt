@@ -1,5 +1,6 @@
 package com.example.vehiculardataanalysis.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,62 +12,135 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
+
+
+/**
+ * Compact two-per-row signal tile used in the live data screen.
+ *
+ * @param warnFraction   Fraction of range at which the bar/value turns orange (default 0.75).
+ * @param dangerFraction Fraction at which it turns red (default 0.90).
+ */
 @Composable
-fun SignalSection(
-    title: String,
+fun SignalTile(
+    label: String,
     value: Float,
     range: ClosedFloatingPointRange<Float>,
     unit: String,
-    onValueChange: (Float) -> Unit = {}
+    format: String = "%.1f",
+    warnFraction: Float = 1f,
+    dangerFraction: Float = 1f,
+    modifier: Modifier = Modifier,
 ) {
-    // Use remember to prevent unnecessary recomposition of Card and Child composables
-    val formattedValue = remember(value) { "%.2f".format(value) }
-    
+    val span     = range.endInclusive - range.start
+    val fraction = if (span > 0f) ((value - range.start) / span).coerceIn(0f, 1f) else 0f
+    val display  = remember(value, format) { format.format(value) }
+
+    val accent = when {
+        fraction >= dangerFraction -> MaterialTheme.colorScheme.error
+        fraction >= warnFraction   -> MaterialTheme.colorScheme.tertiary
+        else                       -> MaterialTheme.colorScheme.primary
+    }
+
+    val rangeStart = remember(range.start) {
+        if (range.start == range.start.toLong().toFloat()) "${range.start.toLong()}"
+        else "%.1f".format(range.start)
+    }
+    val rangeEnd = remember(range.endInclusive) {
+        if (range.endInclusive == range.endInclusive.toLong().toFloat()) "${range.endInclusive.toLong()}"
+        else "%.1f".format(range.endInclusive)
+    }
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        shape = RoundedCornerShape(12.dp)
+        modifier = modifier.padding(4.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-
-            Text(title, color = MaterialTheme.colorScheme.onSurface)
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Slider(
-                value = value,
-                onValueChange = onValueChange,
-                valueRange = range,
-                modifier = Modifier.fillMaxWidth()
-            )
-
+        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("${range.start.toInt()}", color = MaterialTheme.colorScheme.onSurface)
-                Text("${range.endInclusive.toInt()}", color = MaterialTheme.colorScheme.onSurface)
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                    letterSpacing = 1.2.sp,
+                )
+                Text(
+                    text = "$display $unit",
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 13.sp,
+                    color = accent,
+                )
             }
+            Spacer(modifier = Modifier.height(6.dp))
+            val trackColor = MaterialTheme.colorScheme.surfaceVariant
+            Canvas(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                val r = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+                drawRoundRect(color = trackColor, cornerRadius = r)
+                drawRoundRect(color = accent, size = Size(size.width * fraction, size.height), cornerRadius = r)
+            }
+            Spacer(modifier = Modifier.height(3.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(rangeStart, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.30f))
+                Text(rangeEnd,   fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.30f))
+            }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(4.dp))
+/**
+ * Boolean sync-status tile — shows LOCKED (green) or NO SYNC (red).
+ */
+@Composable
+fun SyncTile(synced: Boolean, modifier: Modifier = Modifier) {
+    val color = if (synced) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.error
+    val label = if (synced) "LOCKED" else "NO SYNC"
 
-            Text(
-                text = "$formattedValue $unit",
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+    Card(
+        modifier = modifier.padding(4.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "SYNC",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                    letterSpacing = 1.2.sp,
+                )
+                Text(
+                    text = label,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 13.sp,
+                    color = color,
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            val fillColor = if (synced) color else MaterialTheme.colorScheme.surfaceVariant
+            Canvas(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                drawRoundRect(color = fillColor, cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx()))
+            }
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

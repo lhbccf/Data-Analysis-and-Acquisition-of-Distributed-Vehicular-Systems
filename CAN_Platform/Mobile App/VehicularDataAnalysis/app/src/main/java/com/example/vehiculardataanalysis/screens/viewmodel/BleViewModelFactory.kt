@@ -8,7 +8,12 @@ class BleViewModelFactory(
     private val repository: BleRepository
 ) : ViewModelProvider.Factory {
 
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return BleViewModel(repository) as T
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
+        modelClass.isAssignableFrom(BleViewModel::class.java) ->
+            BleViewModel(repository) as T
+        modelClass.isAssignableFrom(SessionViewModel::class.java) ->
+            SessionViewModel(repository) as T
+        else -> throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
     }
 }

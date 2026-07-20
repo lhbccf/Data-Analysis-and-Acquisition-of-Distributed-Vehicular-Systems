@@ -52,6 +52,13 @@ def clear_session_frames(session_id):
         )
         conn.commit()
 
+def get_all_sessions():
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, start_time, end_time, description FROM sessions ORDER BY start_time DESC"
+        )
+        return [_row_to_session(row) for row in cursor.fetchall()]
 
 def get_recent_sessions(limit=5):
     with closing(sqlite3.connect(DB_PATH)) as conn:
