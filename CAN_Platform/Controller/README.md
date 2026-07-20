@@ -317,9 +317,12 @@ chmod +x run_nextion_graph_test.sh
 ./run_nextion_graph_test.sh
 ```
 
-By default, the script reads `nextion_port`, `nextion_baud`, and `redline` from
-`config.json`, generates synthetic RPM, AFR, and coolant-temperature samples,
-and draws the resulting curves on the Nextion `graph` page. Parameters can be
+The script reads `nextion_port`, `nextion_baud`, and `redline` from
+`config.json`. Test-specific values remain in the test itself: by default it
+generates 120 samples for RPM, AFR, and coolant temperature and uses a 10 ms
+delay between display commands. It draws the resulting curves on the Nextion
+`graph` page. Stop the controller service before running the test so that both
+processes do not write to the same serial port. Test values can also be
 overridden from the command line:
 
 ```bash

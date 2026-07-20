@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 
@@ -9,8 +10,8 @@ if str(CONTROLLER_DIR) not in sys.path:
     sys.path.insert(0, str(CONTROLLER_DIR))
 
 from nextion.graph_renderer import SIGNAL_RANGES, build_graph_commands
-from nextion.graph_test_data import DEFAULT_TEST_SIGNALS, generate_graph_rows
-from nextion.writer import nextion_writer
+from nextion.graph_test_data import generate_graph_rows
+from nextion.writer import NEXTION_TERMINATOR
 
 
 def load_config():
@@ -20,6 +21,9 @@ def load_config():
 
 
 def parse_signals(value):
+    if isinstance(value, (list, tuple)):
+        value = ",".join(value)
+
     signals = tuple(signal.strip().lower() for signal in value.split(",") if signal.strip())
     if not signals:
         raise argparse.ArgumentTypeError("at least one signal is required")
@@ -49,22 +53,35 @@ def main():
         default=int(config.get("nextion_baud", 115200)),
         help="Nextion serial baud rate (default: value from config.json)",
     )
-    parser.add_argument("--samples", type=int, default=180)
+    parser.add_argument(
+        "--samples",
+        type=int,
+        default=120,
+        help="number of generated samples (default: 120)",
+    )
     parser.add_argument(
         "--signals",
         type=parse_signals,
-        default=parse_signals(",".join(DEFAULT_TEST_SIGNALS)),
-        help="comma-separated signals to draw",
+        default=parse_signals("rpm,afr,clt"),
+        help="comma-separated signals (default: rpm,afr,clt)",
     )
     parser.add_argument(
         "--redline",
         type=int,
         default=int(config.get("redline", 7500)),
     )
+    parser.add_argument(
+        "--command-delay",
+        type=float,
+        default=0.01,
+        help="delay between display commands (default: 0.01 seconds)",
+    )
     args = parser.parse_args()
 
     if args.samples <= 0:
         parser.error("--samples must be greater than zero")
+    if args.command_delay < 0:
+        parser.error("--command-delay cannot be negative")
 
     try:
         import serial
@@ -80,16 +97,36 @@ def main():
         {"redline": args.redline},
     )
 
-    print(
-        f"Opening Nextion on {args.port} at {args.baud} baud; "
-        f"drawing {len(rows)} samples for {', '.join(args.signals)}."
-    )
+    print("Nextion graph test parameters:")
+    print(f"  port: {args.port}")
+    print(f"  baud: {args.baud}")
+    print(f"  samples: {args.samples}")
+    print(f"  signals: {', '.join(args.signals)}")
+    print(f"  redline: {args.redline} RPM")
+    print(f"  command delay: {args.command_delay} s")
+    print(f"  commands to send: {len(commands)}")
+    print("Ensure the controller service is stopped so it does not use the same serial port.")
 
     with serial.Serial(args.port, args.baud, timeout=1) as display:
-        bytes_written, commands_sent = nextion_writer.write_batch(display, commands)
+        time.sleep(2)
+        bytes_written = 0
+
+        for index, command in enumerate(commands, start=1):
+            payload = command.encode("ascii") + NEXTION_TERMINATOR
+            bytes_written += display.write(payload)
+            display.flush()
+
+            if index == 1:
+                # Allow the Nextion time to change to the graph page.
+                time.sleep(0.5)
+            elif args.command_delay:
+                time.sleep(args.command_delay)
+
+            if index % 100 == 0:
+                print(f"  sent {index}/{len(commands)} commands")
 
     print(
-        f"Graph test complete: sent {commands_sent} commands "
+        f"Graph test complete: sent {len(commands)} commands "
         f"({bytes_written} bytes)."
     )
 
