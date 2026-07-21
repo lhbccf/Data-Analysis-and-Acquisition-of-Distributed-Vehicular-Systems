@@ -103,8 +103,8 @@ class BleManager(private val context: Context) {
         @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device ?: return
-            val name = device.name ?: return
             val address = device.address ?: return
+            val name = device.name ?: result.scanRecord?.deviceName ?: return
             if (!foundDevices.containsKey(address) || foundDevices[address]!!.isPairedOnly) {
                 foundDevices[address] = Device(name, address, isPairedOnly = false)
                 _devicesFlow.value = foundDevices.values.toList()

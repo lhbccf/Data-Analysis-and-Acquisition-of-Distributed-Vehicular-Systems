@@ -7,6 +7,7 @@ source venv/bin/activate
 pip install pyqtgraph
 pip install pyserial 
 pip install cantools
+pip install bluezero
 
 echo "Setup completo!"
 

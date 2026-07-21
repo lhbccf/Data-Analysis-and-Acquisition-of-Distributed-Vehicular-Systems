@@ -137,48 +137,6 @@ fun SessionMenuScreen(
                 )
             )
         },
-        bottomBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.background,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Button(
-                        onClick = { showCreateDialog = true },
-                        modifier = Modifier.weight(1f),
-                        enabled = actionState !is AsyncState.Loading
-                    ) {
-                        if (actionState is AsyncState.Loading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(18.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Text("New Session")
-                        }
-                    }
-                    OutlinedButton(
-                        onClick = { showEndDialog = true },
-                        modifier = Modifier.weight(1f),
-                        enabled = ongoingSession != null && actionState !is AsyncState.Loading,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        ),
-                        border = ButtonDefaults.outlinedButtonBorder.copy(
-                            width = if (ongoingSession != null) 1.dp else 0.dp
-                        )
-                    ) {
-                        Text("End Session")
-                    }
-                }
-            }
-        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -188,6 +146,42 @@ fun SessionMenuScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = { showCreateDialog = true },
+                    modifier = Modifier.weight(1f),
+                    enabled = actionState !is AsyncState.Loading
+                ) {
+                    if (actionState is AsyncState.Loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text("New Session")
+                    }
+                }
+                Button(
+                    onClick = { showEndDialog = true },
+                    modifier = Modifier.weight(1f),
+                    enabled = ongoingSession != null && actionState !is AsyncState.Loading,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                        disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.38f),
+                        disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = 0.38f)
+                    )
+                ) {
+                    Text("End Session")
+                }
+            }
+
             when (state) {
                 is AsyncState.Idle -> {
                     Spacer(modifier = Modifier.weight(1f))

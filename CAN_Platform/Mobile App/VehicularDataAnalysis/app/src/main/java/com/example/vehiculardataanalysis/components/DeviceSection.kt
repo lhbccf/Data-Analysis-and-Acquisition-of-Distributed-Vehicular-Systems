@@ -27,7 +27,7 @@ fun DeviceSection(devices: List<DeviceUi>, onClick: (DeviceUi) -> Unit) {
                 name = it.name,
                 mac = it.mac,
                 tags = it.tags,
-                enabled = !it.isPairedOnly,
+                enabled = true,
                 onClick = { onClick(it) }
             )
         }
