@@ -1,12 +1,17 @@
 # Data Analysis and Acquisition of Distributed Vehicular Systems
 
-This repository contains a CAN/ECU data acquisition platform for distributed
-vehicular systems.
+A modular CAN-based data acquisition and analysis platform for distributed
+vehicular systems, built for motorsport/enthusiast use
+around a Raspberry Pi controller and a companion Android app.
 
-The main runtime currently lives in:
+The project has two modules:
 
-- [CAN Platform Controller](CAN_Platform/Controller/README.md)
+- [CAN Platform Controller](CAN_Platform/Controller/README.md) — reads ECU data
+  from CAN/GVRET or Speeduino serial, decodes it into a normalized vehicle
+  state, drives a Nextion or PyQt display, persists raw CAN frames and
+  periodic vehicle state snapshots to SQLite, and broadcasts live data over
+  Bluetooth Low Energy.
 
-That controller can read ECU data from CAN/GVRET or Speeduino serial, decode it
-into a normalized vehicle state, send it to a UI or Nextion display, and persist
-raw CAN frames plus periodic vehicle state snapshots into SQLite.
+- [Vehicular Data Analysis](CAN_Platform/Mobile_App/VehicularDataAnalysis/README.md) — an Android app that
+  connects to the controller over BLE to show live sensor data and session
+  history.
