@@ -16,7 +16,7 @@
 \contentsline {subsection}{\numberline {2.2.2}Utilized Programming Languages}{8}{}%
 \contentsline {section}{\numberline {2.3}Data Analysis Techniques in Motorsport}{8}{}%
 \contentsline {subsection}{\numberline {2.3.1}Statistical Analysis}{9}{}%
-\contentsline {subsection}{\numberline {2.3.2}Session Comparison}{9}{}%
+\contentsline {subsection}{\numberline {2.3.2}Session Comparison}{10}{}%
 \contentsline {subsection}{\numberline {2.3.3}Anomaly Identification}{10}{}%
 \contentsline {subsection}{\numberline {2.3.4}Visualization of Acquired Data}{10}{}%
 \contentsline {section}{\numberline {2.4}Bluetooth Integration}{11}{}%
