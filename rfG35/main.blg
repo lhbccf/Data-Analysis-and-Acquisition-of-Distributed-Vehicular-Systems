@@ -1,17 +1,17 @@
 [0] Config.pm:328> INFO - This is Biber 2.21
 [0] Config.pm:331> INFO - Logfile is 'main.blg'
-[65] biber-MSWIN64:342> INFO - === 
-[87] Biber.pm:421> INFO - Reading 'main.bcf'
-[151] Biber.pm:999> INFO - Using all citekeys in bib section 0
-[161] Biber.pm:4487> INFO - Processing section 0
-[168] Biber.pm:4678> INFO - Looking for bibtex file 'ref.bib' for section 0
-[204] bibtex.pm:1713> INFO - LaTeX decoding ...
-[216] bibtex.pm:1519> INFO - Found BibTeX data source 'ref.bib'
-[276] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[276] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[276] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
-[276] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
-[287] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
-[292] bbl.pm:779> INFO - Output to main.bbl
-[292] Biber.pm:132> WARN - legacy year field '2016-2026' in entry 'gatt' is not an integer - this will probably not sort properly.
-[292] Biber.pm:134> INFO - WARNINGS: 1
+[66] biber-MSWIN64:342> INFO - === 
+[89] Biber.pm:421> INFO - Reading 'main.bcf'
+[156] Biber.pm:999> INFO - Using all citekeys in bib section 0
+[165] Biber.pm:4487> INFO - Processing section 0
+[173] Biber.pm:4678> INFO - Looking for bibtex file 'ref.bib' for section 0
+[201] bibtex.pm:1713> INFO - LaTeX decoding ...
+[214] bibtex.pm:1519> INFO - Found BibTeX data source 'ref.bib'
+[274] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[274] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[274] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
+[274] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
+[285] bbl.pm:676> INFO - Writing 'main.bbl' with encoding 'UTF-8'
+[290] bbl.pm:779> INFO - Output to main.bbl
+[290] Biber.pm:132> WARN - legacy year field '2016-2026' in entry 'gatt' is not an integer - this will probably not sort properly.
+[290] Biber.pm:134> INFO - WARNINGS: 1

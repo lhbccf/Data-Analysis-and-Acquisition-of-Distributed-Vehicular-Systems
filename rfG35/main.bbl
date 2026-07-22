@@ -74,6 +74,37 @@
       \field{type}{International Standard}
       \field{year}{2015}
     \endentry
+    \entry{canframe}{report}{}{}
+      \name{author}{1}{}{%
+        {{hash=db05833c29e688b5ab54d5e8608a72ec}{%
+           family={{Harry}},
+           familyi={H\bibinitperiod}}}%
+      }
+      \strng{namehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{fullhash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{fullhashraw}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{bibnamehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authorbibnamehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authornamehash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authorfullhash}{db05833c29e688b5ab54d5e8608a72ec}
+      \strng{authorfullhashraw}{db05833c29e688b5ab54d5e8608a72ec}
+      \field{sortinit}{7}
+      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{CAN Standard Data Frame Format: A Simplified Guide With Real World Examples}
+      \field{urlday}{8}
+      \field{urlmonth}{7}
+      \field{urlyear}{2026}
+      \field{year}{2025}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://medium.com/@tempotales1225/can-standard-data-frame-format-a-simplified-guide-with-real-world-examples-dc1a56ecaba2
+      \endverb
+      \verb{url}
+      \verb https://medium.com/@tempotales1225/can-standard-data-frame-format-a-simplified-guide-with-real-world-examples-dc1a56ecaba2
+      \endverb
+    \endentry
     \entry{canprotocol}{report}{}{}
       \name{author}{1}{}{%
         {{hash=dba88ef1fbe732208c7a2687c335d047}{%
@@ -91,8 +122,8 @@
       \strng{authornamehash}{dba88ef1fbe732208c7a2687c335d047}
       \strng{authorfullhash}{dba88ef1fbe732208c7a2687c335d047}
       \strng{authorfullhashraw}{dba88ef1fbe732208c7a2687c335d047}
-      \field{sortinit}{7}
-      \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{title}{What Is CAN Protocol? Complete Guide to Controller Area Network}
@@ -106,37 +137,6 @@
       \endverb
       \verb{url}
       \verb https://www.engineersgarage.com/can-protocol-understanding-the-controller-area-network-protocol/
-      \endverb
-    \endentry
-    \entry{canframe}{report}{}{}
-      \name{author}{1}{}{%
-        {{hash=db05833c29e688b5ab54d5e8608a72ec}{%
-           family={{Harry}},
-           familyi={H\bibinitperiod}}}%
-      }
-      \strng{namehash}{db05833c29e688b5ab54d5e8608a72ec}
-      \strng{fullhash}{db05833c29e688b5ab54d5e8608a72ec}
-      \strng{fullhashraw}{db05833c29e688b5ab54d5e8608a72ec}
-      \strng{bibnamehash}{db05833c29e688b5ab54d5e8608a72ec}
-      \strng{authorbibnamehash}{db05833c29e688b5ab54d5e8608a72ec}
-      \strng{authornamehash}{db05833c29e688b5ab54d5e8608a72ec}
-      \strng{authorfullhash}{db05833c29e688b5ab54d5e8608a72ec}
-      \strng{authorfullhashraw}{db05833c29e688b5ab54d5e8608a72ec}
-      \field{sortinit}{9}
-      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{title}{CAN Standard Data Frame Format: A Simplified Guide With Real World Examples}
-      \field{urlday}{8}
-      \field{urlmonth}{7}
-      \field{urlyear}{2026}
-      \field{year}{2025}
-      \field{urldateera}{ce}
-      \verb{urlraw}
-      \verb https://medium.com/@tempotales1225/can-standard-data-frame-format-a-simplified-guide-with-real-world-examples-dc1a56ecaba2
-      \endverb
-      \verb{url}
-      \verb https://medium.com/@tempotales1225/can-standard-data-frame-format-a-simplified-guide-with-real-world-examples-dc1a56ecaba2
       \endverb
     \endentry
     \entry{vectorcandb}{manual}{}{}

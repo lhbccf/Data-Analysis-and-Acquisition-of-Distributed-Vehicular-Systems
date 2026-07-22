@@ -1,7 +1,7 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {2.1}{\ignorespaces CAN Application Example \blx@tocontentsinit {0}\cite {canprotocol}}}{5}{}%
-\contentsline {figure}{\numberline {2.2}{\ignorespaces CAN Standard Data Frame \blx@tocontentsinit {0}\cite {canframe}}}{5}{}%
+\contentsline {figure}{\numberline {2.1}{\ignorespaces CAN Standard Data Frame \blx@tocontentsinit {0}\cite {canframe}}}{5}{}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces CAN Application Example \blx@tocontentsinit {0}\cite {canprotocol}}}{5}{}%
 \contentsline {figure}{\numberline {2.3}{\ignorespaces BLE GATT Hierarchical Architecture \blx@tocontentsinit {0}\cite {gatt}}}{11}{}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3.1}{\ignorespaces Project Architecture Diagram}}{13}{}%

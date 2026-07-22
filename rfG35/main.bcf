@@ -2377,10 +2377,10 @@
     <bcf:citekey order="4" intorder="1">jg</bcf:citekey>
     <bcf:citekey order="5" intorder="1">jg</bcf:citekey>
     <bcf:citekey order="6" intorder="1">iso11898</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">canprotocol</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">canprotocol</bcf:citekey>
-    <bcf:citekey order="9" intorder="1">canframe</bcf:citekey>
-    <bcf:citekey order="10" intorder="1">canframe</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">canframe</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">canframe</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">canprotocol</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">canprotocol</bcf:citekey>
     <bcf:citekey order="11" intorder="1">vectorcandb</bcf:citekey>
     <bcf:citekey order="12" intorder="1">pfeiffer</bcf:citekey>
     <bcf:citekey order="13" intorder="1">bosch</bcf:citekey>
