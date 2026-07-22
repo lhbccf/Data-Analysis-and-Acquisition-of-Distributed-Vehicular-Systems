@@ -139,6 +139,31 @@ the correctness of the aggregation logic and the integrity of the stored data.
 
 \section{Raspberry Pi/Nextion Application verification}
 
+The Raspberry Pi/Nextion interface was verified using both simulated and live
+engine data to evaluate communication reliability, display accuracy, and user
+interaction. The Nextion display was connected directly to the Raspberry Pi via
+UART, while telemetry data was obtained from the shared \texttt{SignalCache}
+used by the remaining platform components.
+
+Displayed values, including RPM, coolant temperature, AFR, battery voltage,
+manifold pressure, ignition timing, and throttle position, were compared
+against the simulated data send or information seen on TunerStudio. All monitored signals were updated correctly
+with no observable inconsistencies between the displayed and transmitted data.
+
+Screen navigation and touch interactions were validated across all available
+pages. User inputs were correctly interpreted by the Raspberry Pi application,
+and page transitions occurred without delays or communication errors. Extended
+runtime testing was performed over a continuous 30-minute session, during which
+no freezes, application crashes, or UART communication failures were observed.
+
+The refresh rate was sufficient to provide smooth real-time feedback while
+maintaining relatively low CPU utilisation on the Raspberry Pi. Throughout vehicle
+operation, sensor values remained responsive to engine speed and load changes,
+confirming the suitability of the interface for real-time driver monitoring.
+
+Overall, the Raspberry Pi/Nextion subsystem operated reliably and provided an
+accurate representation of the acquired ECU data, validating its integration
+within the proposed platform.
 
 \section{Results Summary}
 
