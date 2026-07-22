@@ -4,9 +4,9 @@ environments: Bench and Vehicle, followed by a dedicated
 verification of the mobile application and a synthesis of the overall results. 
 \par For this validation, the experimental hardware utilized is the following:
 \begin{itemize}
-    \item uaEFI	\cite{rusefi_website}
+    \item uaEFI Ultra Affordable EFI\cite{rusefi_website}
     \item Raspberry Pi Zero 2W (with headers) \cite{raspizero2w}
-    \item Motorola G35 5G \cite{motog35}
+    \item Motorola G15 \cite{motog15}
 \end{itemize}
 
 \vspace{5mm}
@@ -25,7 +25,7 @@ Bench validation was performed with the Raspberry Pi connected via USB serial
 to a Speeduino ECU running on a static test bench, before any vehicle
 integration. Each software module was verified in isolation and as part of the
 integrated pipeline.
-No bench validation was performed with a RusEFI ECU due to testing contraints.
+No bench validation was performed with a RusEFI ECU due to testing constraints.
 
 The CAN acquisition pipeline was confirmed to correctly decode all signals
 defined in the DBC file, including RPM, coolant temperature, MAP, TPS, AFR,
@@ -77,7 +77,7 @@ and vehicle BLE.
 
 Device discovery correctly distinguished between paired-only and actively
 advertising peripherals, with paired-only device cards rendered as
-non-interactable. All 13 sensor fields updated correctly at 10~Hz in the live
+non-interactable. All 13 sensor fields updated correctly at 5~Hz in the live
 data screen. Displayed values were validated against the bench test harness
 console output and against TunerStudio during vehicle testing, with no parsing
 errors or field misalignments observed.
@@ -147,8 +147,9 @@ used by the remaining platform components.
 
 Displayed values, including RPM, coolant temperature, AFR, battery voltage,
 manifold pressure, ignition timing, and throttle position, were compared
-against the simulated data send or information seen on TunerStudio. All monitored signals were updated correctly
-with no observable inconsistencies between the displayed and transmitted data.
+against the simulated data send or information seen on TunerStudio. All monitored 
+signals were updated correctly with no observable inconsistencies between the 
+displayed and transmitted data.
 
 Screen navigation and touch interactions were validated across all available
 pages. User inputs were correctly interpreted by the Raspberry Pi application,

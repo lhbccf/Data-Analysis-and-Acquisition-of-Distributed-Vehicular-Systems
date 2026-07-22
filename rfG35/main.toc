@@ -41,5 +41,5 @@
 \contentsline {section}{\numberline {4.2}Vehicle Validation}{27}{}%
 \contentsline {section}{\numberline {4.3}Mobile Application Verification}{27}{}%
 \contentsline {section}{\numberline {4.4}Raspberry Pi/Nextion Application verification}{30}{}%
-\contentsline {section}{\numberline {4.5}Results Summary}{30}{}%
-\contentsline {chapter}{\numberline {5}Conclusions}{31}{}%
+\contentsline {section}{\numberline {4.5}Results Summary}{31}{}%
+\contentsline {chapter}{\numberline {5}Conclusions}{32}{}%

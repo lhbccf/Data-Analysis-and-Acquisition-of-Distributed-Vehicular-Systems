@@ -611,7 +611,7 @@
       \verb https://www.savvycan.com/
       \endverb
     \endentry
-    \entry{motog35}{online}{}{}
+    \entry{motog15}{online}{}{}
       \name{author}{1}{}{%
         {{hash=7904ab3e2c813c35161cab05bbfb144b}{%
            family={{Motorola Mobility, LLC.}},
@@ -629,16 +629,16 @@
       \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{Specifications - moto g35 5G}
+      \field{title}{Specifications - moto g15}
       \field{urlday}{8}
       \field{urlmonth}{7}
       \field{urlyear}{2026}
       \field{urldateera}{ce}
       \verb{urlraw}
-      \verb https://en-emea.support.motorola.com/app/answers/detail/a_id/184470/~/specifications---moto-g35-5g
+      \verb https://en-gb.support.motorola.com/app/answers/detail/a_id/183973/~/specifications---moto-g15
       \endverb
       \verb{url}
-      \verb https://en-emea.support.motorola.com/app/answers/detail/a_id/184470/~/specifications---moto-g35-5g
+      \verb https://en-gb.support.motorola.com/app/answers/detail/a_id/183973/~/specifications---moto-g15
       \endverb
     \endentry
   \enddatalist

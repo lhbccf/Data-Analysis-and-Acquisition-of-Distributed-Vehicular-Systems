@@ -13,15 +13,15 @@ It functions as a small embedded computer, acquiring information from sensors, p
 
 The development of ECUs became increasingly relevant during the 1970s and 1980s, driven by the need to improve engine efficiency and reduce pollutant emissions. 
 
-Before the development of ECU, automotive systems were mostly mechanical. As vehicles became more a more complex and had more stict regulations, there was a need for more precise electronic solutions, leading to the creation of the first ECUs
+Before the development of ECU, automotive systems were mostly mechanical. As vehicles became more and more complex and had more strict regulations, there was a need for more precise electronic solutions, leading to the creation of the first ECUs
 
 
 \subsection{Controller Area Network}
 
 
-The \ac{CAN} Network is a vehicle message-based communication protocol design to allow an ECU to communicate to other devices without the need for a central computer and to enable a fast and reliable exchange of information between electronic modules \cite{iso11898}. 
+The \ac{CAN} Network is a vehicle message-based communication protocol designed to allow an ECU to communicate to other devices without the need for a central computer and to enable a fast and reliable exchange of information between electronic modules \cite{iso11898}. 
 
-This protocol was developed by Robert Bosch GmbH in the 1980s as a response to the increasing complex vehicular systems of the time. Over time, the CAN protocol became the standard due to it's simplicity and ability to operate in electrically noisy environment.
+This protocol was developed by Robert Bosch GmbH in the 1980s as a response to the increasingly complex vehicular systems of the time. Over time, the CAN protocol became the standard due to its simplicity and ability to operate in electrically noisy environments.
 
 \begin{figure}[H]
   	\centering   
@@ -30,15 +30,15 @@ This protocol was developed by Robert Bosch GmbH in the 1980s as a response to t
     \label{fig:prj_arch}
 \end{figure}
 
-CAN protocol is a message-based protocol. This means the data of a vehicule is transmitted in messages identified by a unique ID and available for every electronic module to read, instead of being sent to specific devices. Any ECU on the network can broadcast messages, and any other ECU can choose to listen to the messages relevant to it.
+CAN protocol is a message-based protocol. This means the data of a vehicle is transmitted in messages identified by a unique ID and available for every electronic module to read, instead of being sent to specific devices. Any ECU on the network can broadcast messages, and any other ECU can choose to listen to the messages relevant to it.
 
 These messages, known as frame, follow a specific format as to ensure consistency:
 \begin{itemize}
     \item ID - Unique message identifier
     \item DLC (Data Length Code) - Specifies the data length in bytes
-    \item Data Field - Contain the information payload 
+    \item Data Field - Contains the information payload 
     \item CRC (Cyclic Redundancy Check) - Used for error and data integrity verification
-    \item ACK Slot - Confirms reception of at least one node
+    \item ACK Slot - Confirms reception from at least one node
     \item EOF (End of Frame) - Signals the end of the message
 \end{itemize}
 
@@ -99,7 +99,7 @@ For the controller of our project, we decide to utilize a Raspberry Pi Zero 2W \
         \item Data processing like filtering and parsing signals
         \item Database logging and managment
         \item UI rendering
-        \item Real-time bluetooth data transfer
+        \item Real-time Bluetooth data transfer
     \end{itemize}
     A Raspberry Pi system provides a good flexibility to develop our application while being able to build our application with the features above.
     \item\textbf{Fast processor and decent memory:}
@@ -117,7 +117,7 @@ Although the selected controller unit is significantly more capable in terms of 
 
 Support for multiple programming languages was a key design consideration, allowing each component to leverage the strengths of the most appropriate language while mitigating its inherent limitations:
 \begin{itemize}
-    \item \textbf{Python:} Used for the controller application for a ECU data pipeline, controller logic and bluetooth integration due to it's simplicity for serial communication, data parsing and bluetooth features as well as extensive UI libraries;
+    \item \textbf{Python:} Used for the controller application for an ECU data pipeline, controller logic and Bluetooth integration due to its simplicity for serial communication, data parsing and Bluetooth features as well as extensive UI libraries;
     \item \textbf{SQLite:} Although Python is used for making requests to the database, said requests are in SQL using a SQLite variant due to being a light-weight alternative to variants like Postgres, for the simplicity of easy for there is no need for a database and instead SQLite stores information in a single file and has extremely fast writes which is perfect for storing the CAN dataframes obtained;
     \item \textbf{Kotlin:} Kotlin was chosen as the primary language for mobile application development due to its seamless integration with the Android platform, support for low-latency applications, comprehensive networking libraries, and the modern Jetpack Compose UI framework.
 \end{itemize}
@@ -211,11 +211,11 @@ which hands execution to the GLib main loop indefinitely \cite{bluezero}.
 In our analysis of the current alternatives to our project, we believe our implementation provides an alternative not seen in any other similar project for several reasons:
 
 \begin{itemize}
-    \item \textbf{Open-source:} Most alternatives are are not open-source, which make the modification or modular separation of each of it's components virtually impossible;
+    \item \textbf{Open-source:} Most alternatives are not open-source, which makes the modification or modular separation of each of its components virtually impossible;
     \item \textbf{Modular Components:} Our project is separated in two different modules: Controller and Mobile App. Due to this, our project is flexible to the implementation of different alternatives as long as they are in accordance to the same communication protocol between modules;
     \item \textbf{Database integration:} From our research, every other alternative is a real-time monitoring. Ours gives the possibility of storing all the CAN dataframes in a database for posterior use, such as future simulations or statistical analysis;
-    \item \textbf{Cross-plataform Accessibility:} Most options are purely limited to one plataform, be it a computer or a mobile device. Our implementation allows us to monitor the same data in different platforms at the same time, be it computer, mobile device or any other future device with a bluetooth connection;
-    \item\textbf{Cheap and easy do aquire hardware:} Many other implementations utilize hard to source components, or may require a difficult setup.
+    \item \textbf{Cross-platform Accessibility:} Most options are purely limited to one platform, be it a computer or a mobile device. Our implementation allows us to monitor the same data in different platforms at the same time, be it computer, mobile device or any other future device with a Bluetooth connection;
+    \item\textbf{Cheap and easy to acquire hardware:} Many other implementations utilize hard to source components, or may require a difficult setup.
 \end{itemize}
 
 Main close competitors to the proposed system:
