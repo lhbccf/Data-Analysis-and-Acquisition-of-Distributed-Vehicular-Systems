@@ -119,6 +119,10 @@ class BleManager(private val context: Context) {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun connect(device: Device) {
+        if (_connectionReady.value) {
+            Log.d(TAG, "Already connected, skipping reconnect to ${device.address}")
+            return
+        }
         Log.d(TAG, "Connecting to ${device.address}")
         _connectionReady.value = false
         gatt = adapter.getRemoteDevice(device.address)
